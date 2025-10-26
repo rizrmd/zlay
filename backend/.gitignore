@@ -1,0 +1,67 @@
+# Zig build artifacts
+zig-cache/
+zig-out/
+
+# Zig executables
+zlay-backend
+zlay-backend-prod
+webserver
+hotreload
+
+# Dependency cache
+.zig-cache/
+
+# Zig specific
+*.d
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+debug.log
+dev.log
+server.log
+*.log.*
+
+# Test files
+debug_registration.zig
+test_auth.zig
+
+# Temporary files
+*.tmp
+*.temp
+cookies.txt
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Backup files
+old/
+*.bak
+*.backup
