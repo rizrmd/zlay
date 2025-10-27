@@ -11,52 +11,61 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useRouter } from 'vue-router'
-import { apiClient, type LoginRequest } from '@/services/api'
+import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const { login, isLoading } = useAuth()
 
-const email = ref('')
+const username = ref('')
 const password = ref('')
-const isLoading = ref(false)
 const error = ref('')
+const showErrorDialog = ref(false)
 
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+const validateUsername = (username: string): boolean => {
+  return username.length >= 3
+}
+
+const handleSubmit = (event: Event) => {
+  console.log('handleSubmit called')
+  event.preventDefault()
+  event.stopPropagation()
+  handleLogin()
 }
 
 const handleLogin = async () => {
-  if (!email.value || !password.value) {
+  console.log('handleLogin called')
+  if (!username.value || !password.value) {
     error.value = 'Please fill in all fields'
+    showErrorDialog.value = true
     return
   }
 
-  if (!validateEmail(email.value)) {
-    error.value = 'Please enter a valid email address'
+  if (!validateUsername(username.value)) {
+    error.value = 'Username must be at least 3 characters long'
+    showErrorDialog.value = true
     return
   }
 
-  isLoading.value = true
   error.value = ''
 
-  try {
-    const loginData: LoginRequest = {
-      email: email.value,
-      password: password.value,
-    }
+  const result = await login(username.value, password.value)
 
-    const response = await apiClient.login(loginData)
-
-    if (response.success) {
-      router.push('/dashboard')
-    } else {
-      error.value = response.message || 'Login failed'
-    }
-  } catch (err) {
-    error.value = 'Network error. Please try again.'
-  } finally {
-    isLoading.value = false
+  if (result.success) {
+    console.log('Login successful, navigating to dashboard')
+    await router.push('/dashboard')
+  } else {
+    error.value = result.message || 'Login failed'
+    showErrorDialog.value = true
   }
 }
 
@@ -71,18 +80,18 @@ const goToRegister = () => {
       <CardHeader class="space-y-1">
         <CardTitle class="text-2xl text-center"> Sign in to your account </CardTitle>
         <CardDescription class="text-center">
-          Enter your email and password to login
+          Enter your username and password to login
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form @submit.prevent="handleLogin" class="space-y-4">
+        <form @submit="handleSubmit" class="space-y-4">
           <div class="space-y-2">
-            <Label for="email">Email</Label>
+            <Label for="username">Username</Label>
             <Input
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="Enter your email"
+              id="username"
+              v-model="username"
+              type="text"
+              placeholder="Enter your username"
               required
             />
           </div>
@@ -96,9 +105,7 @@ const goToRegister = () => {
               required
             />
           </div>
-          <div v-if="error" class="text-sm text-destructive">
-            {{ error }}
-          </div>
+
           <Button type="submit" class="w-full" :disabled="isLoading">
             {{ isLoading ? 'Signing in...' : 'Sign In' }}
           </Button>
@@ -113,5 +120,19 @@ const goToRegister = () => {
         </p>
       </CardFooter>
     </Card>
+
+    <AlertDialog :open="showErrorDialog" @update:open="showErrorDialog = $event">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Login Failed</AlertDialogTitle>
+          <AlertDialogDescription>
+            {{ error }}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction @click="showErrorDialog = false"> OK </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>

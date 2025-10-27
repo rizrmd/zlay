@@ -3,9 +3,21 @@
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 
-const backend = spawn('bash', ['run_dev.sh'], {
+import { readFile } from 'node:fs/promises'
+
+// Load backend .env file
+const backendEnvPath = join(import.meta.dir, 'backend', '.env')
+const backendEnv = await readFile(backendEnvPath, 'utf-8')
+const envVars = Object.fromEntries(
+  backendEnv.split('\n')
+    .filter(line => line.trim() && !line.startsWith('#'))
+    .map(line => line.split('='))
+)
+
+const backend = spawn('zig', ['build', 'dev'], {
   cwd: join(import.meta.dir, 'backend'),
-  stdio: 'inherit'
+  stdio: 'inherit',
+  env: { ...process.env, ...envVars }
 })
 
 const frontend = spawn('bun', ['run', 'dev'], {

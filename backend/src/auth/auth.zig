@@ -51,12 +51,8 @@ pub fn loginUser(
     const session_expires_at = std.time.timestamp() + (24 * 60 * 60);
     const session_id = database.createSession(allocator, pool, user.client_id, user.id, token_hash, session_expires_at) catch |err| {
         std.log.err("Failed to create session: {}", .{err});
-        // For now, continue without session storage
-        return LoginResult{
-            .user = user,
-            .token = session_token,
-            .session_id = "",
-        };
+        std.log.err("Client ID: {s}, User ID: {s}", .{ user.client_id, user.id });
+        return AuthError.DatabaseError;
     };
 
     return LoginResult{

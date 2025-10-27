@@ -1,15 +1,13 @@
-const API_BASE_URL = ''
+const API_BASE_URL = window.location.origin
 
 export interface LoginRequest {
-  email: string
+  username: string
   password: string
 }
 
 export interface RegisterRequest {
-  email: string
+  username: string
   password: string
-  first_name?: string
-  last_name?: string
 }
 
 export interface AuthResponse {
@@ -20,9 +18,7 @@ export interface AuthResponse {
 
 export interface UserProfile {
   id: string
-  email: string
-  first_name?: string
-  last_name?: string
+  username: string
   created_at: string
 }
 
@@ -42,6 +38,10 @@ class ApiClient {
     const response = await fetch(url, config)
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Unauthorized - redirect to login
+        throw new Error('Authentication required')
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
@@ -49,17 +49,47 @@ class ApiClient {
   }
 
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/api/auth/login', {
+    const url = `${API_BASE_URL}/api/auth/login`
+    
+    const config: RequestInit = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
       body: JSON.stringify(credentials),
-    })
+    }
+
+    const response = await fetch(url, config)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    return response.json()
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/api/auth/register', {
+    const url = `${API_BASE_URL}/api/auth/register`
+    
+    const config: RequestInit = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
       body: JSON.stringify(userData),
-    })
+    }
+
+    const response = await fetch(url, config)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`)
+    }
+
+    return response.json()
   }
 
   async logout(): Promise<AuthResponse> {

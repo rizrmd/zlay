@@ -19,6 +19,9 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: '',
+        cookiePathRewrite: '/',
       },
       '/ws': {
         target: 'http://localhost:8080',
@@ -27,4 +30,5 @@ export default defineConfig({
       },
     },
   },
+  clearScreen: false,
 })

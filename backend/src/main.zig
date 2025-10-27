@@ -166,22 +166,6 @@ const Router = struct {
     }
 
     fn handle(self: *Router, method: []const u8, path: []const u8, req: *const Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) bool {
-        // Handle CORS preflight requests
-        if (std.mem.eql(u8, method, "OPTIONS")) {
-            res.status_code = 200;
-            res.headers.put("Access-Control-Allow-Origin", "*") catch {};
-            res.headers.put("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") catch {};
-            res.headers.put("Access-Control-Allow-Headers", "Content-Type, Authorization") catch {};
-            res.headers.put("Access-Control-Max-Age", "86400") catch {};
-            const response_json = "{\"message\": \"CORS preflight successful\"}";
-            res.json(allocator, response_json);
-            return true;
-        }
-
-        // Add CORS headers to all responses
-        res.headers.put("Access-Control-Allow-Origin", "*") catch {};
-        res.headers.put("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") catch {};
-        res.headers.put("Access-Control-Allow-Headers", "Content-Type, Authorization") catch {};
 
         // Try exact match first for auth routes (with pool)
         var exact_route = std.ArrayList(u8).initCapacity(allocator, 64) catch unreachable;
@@ -417,15 +401,22 @@ fn getClientId(req: *Request, allocator: std.mem.Allocator, pool: *pg.Pool) ?[]c
     }
 
     // Default to first active client for development
+    std.log.info("Looking for default active client", .{});
     const default_client_result = pool.query(
         \\SELECT id::text FROM clients WHERE is_active = true ORDER BY created_at ASC LIMIT 1
-    , .{}) catch return null;
+    , .{}) catch |err| {
+        std.log.err("Failed to query default client: {}", .{err});
+        return null;
+    };
     defer default_client_result.deinit();
 
     if (default_client_result.next() catch null) |row| {
-        return allocator.dupe(u8, row.get([]const u8, 0)) catch null;
+        const client_id = allocator.dupe(u8, row.get([]const u8, 0)) catch null;
+        std.log.info("Found default client: {s}", .{client_id orelse "null"});
+        return client_id;
     }
 
+    std.log.err("No active client found", .{});
     return null;
 }
 
@@ -540,28 +531,38 @@ fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, poo
         .password = user_data.password,
     };
 
-    const result = auth.loginUser(allocator, pool, login_req) catch |err| switch (err) {
-        error.UserNotFound => {
-            std.log.info("Login failed: User '{s}' not found for client '{s}'", .{ user_data.username, client_id });
-            res.status_code = 401;
-            const error_json = "{\"error\": \"Invalid username or password\"}";
-            res.json(allocator, error_json);
-            return;
-        },
-        error.InvalidPassword => {
-            std.log.info("Login failed: Invalid password for user '{s}'", .{user_data.username});
-            res.status_code = 401;
-            const error_json = "{\"error\": \"Invalid username or password\"}";
-            res.json(allocator, error_json);
-            return;
-        },
-        else => {
-            std.log.err("Login failed with unexpected error: {}", .{err});
-            res.status_code = 500;
-            const error_json = "{\"error\": \"Login failed\"}";
-            res.json(allocator, error_json);
-            return;
-        },
+    const result = auth.loginUser(allocator, pool, login_req) catch |err| {
+        std.log.err("Login failed with error: {}", .{err});
+        switch (err) {
+            error.UserNotFound => {
+                std.log.info("Login failed: User '{s}' not found for client '{s}'", .{ user_data.username, client_id });
+                res.status_code = 401;
+                const error_json = "{\"error\": \"Invalid username or password\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            error.InvalidPassword => {
+                std.log.info("Login failed: Invalid password for user '{s}'", .{user_data.username});
+                res.status_code = 401;
+                const error_json = "{\"error\": \"Invalid username or password\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            error.DatabaseError => {
+                std.log.err("Login failed: Database error for user '{s}'", .{user_data.username});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Database error\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            else => {
+                std.log.err("Login failed with unexpected error: {}", .{err});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Login failed\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+        }
     };
     defer {
         allocator.free(result.user.id);
@@ -572,13 +573,13 @@ fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, poo
     }
 
     // Set session cookie
-    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400", .{result.token}) catch {
+    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; HttpOnly; Path=/; Max-Age=86400", .{result.token}) catch {
         res.status_code = 500;
         const error_json = "{\"error\": \"Failed to create cookie\"}";
         res.json(allocator, error_json);
         return;
     };
-    defer allocator.free(cookie_value);
+    std.log.info("Setting cookie with token: {s}", .{result.token});
     res.headers.put("Set-Cookie", cookie_value) catch {};
 
     // Return success response
@@ -618,7 +619,7 @@ fn logoutHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, po
     }
 
     // Clear session cookie
-    res.headers.put("Set-Cookie", "session_token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0") catch {};
+    res.headers.put("Set-Cookie", "session_token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0") catch {};
 
     const success_json = "{\"success\": true, \"message\": \"Logout successful\"}";
     res.json(allocator, success_json);

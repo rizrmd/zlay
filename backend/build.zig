@@ -30,43 +30,6 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 
-    // Add hot reload executable for development
-    const hotreload_exe = b.addExecutable(.{
-        .name = "hotreload",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/hotreload.zig"),
-            .target = target,
-            .optimize = .Debug,
-        }),
-    });
-
-    b.installArtifact(hotreload_exe);
-
-    // Add dev server executable for hot reload
-    const dev_server_exe = b.addExecutable(.{
-        .name = "webserver",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/main.zig"),
-            .target = target,
-            .optimize = .Debug,
-        }),
-    });
-
-    const dev_server_pg = b.dependency("pg", .{
-        .target = target,
-        .optimize = .Debug,
-    });
-    dev_server_exe.root_module.addImport("pg", dev_server_pg.module("pg"));
-
-    b.installArtifact(dev_server_exe);
-
-    // Create dev step that runs hot reload
-    const hotreload_run_cmd = b.addRunArtifact(hotreload_exe);
-    hotreload_run_cmd.step.dependOn(b.getInstallStep());
-
-    const dev_step = b.step("dev", "Run in development mode with hot reload");
-    dev_step.dependOn(&hotreload_run_cmd.step);
-
     // Add prod command for production with release mode
     const prod_exe = b.addExecutable(.{
         .name = "zlay-backend-prod",
@@ -87,4 +50,14 @@ pub fn build(b: *std.Build) void {
 
     const prod_step = b.step("prod", "Build for production mode (release build)");
     prod_step.dependOn(b.getInstallStep());
+
+    // Add dev command for development
+    const dev_cmd = b.addRunArtifact(exe);
+    dev_cmd.step.dependOn(b.getInstallStep());
+    if (b.args) |args| {
+        dev_cmd.addArgs(args);
+    }
+
+    const dev_step = b.step("dev", "Run the app in development mode");
+    dev_step.dependOn(&dev_cmd.step);
 }

@@ -1,32 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { apiClient, type UserProfile } from '@/services/api'
+import { useAuth } from '@/composables/useAuth'
 
-const user = ref<UserProfile | null>(null)
-const isLoading = ref(true)
+const { user, isLoading, logout, checkAuth } = useAuth()
 
 const handleLogout = async () => {
-  try {
-    await apiClient.logout()
-    window.location.href = '/login'
-  } catch (error) {
-    console.error('Logout failed:', error)
-  }
+  await logout()
+  window.location.href = '/login'
 }
 
 onMounted(async () => {
-  try {
-    const response = await apiClient.getProfile()
-    if (response.success) {
-      user.value = response.user
-    }
-  } catch (error) {
-    console.error('Failed to load profile:', error)
+  const isAuthenticated = await checkAuth()
+  if (!isAuthenticated) {
     window.location.href = '/login'
-  } finally {
-    isLoading.value = false
   }
 })
 </script>
@@ -50,9 +38,7 @@ onMounted(async () => {
         </CardHeader>
         <CardContent>
           <div class="space-y-2">
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p v-if="user.first_name"><strong>First Name:</strong> {{ user.first_name }}</p>
-            <p v-if="user.last_name"><strong>Last Name:</strong> {{ user.last_name }}</p>
+            <p><strong>Username:</strong> {{ user.username }}</p>
             <p>
               <strong>Member since:</strong> {{ new Date(user.created_at).toLocaleDateString() }}
             </p>

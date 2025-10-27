@@ -1,0 +1,82 @@
+import { ref, computed, readonly } from 'vue'
+import { apiClient, type UserProfile } from '@/services/api'
+
+const user = ref<UserProfile | null>(null)
+const isLoading = ref(false)
+
+export const useAuth = () => {
+  const isAuthenticated = computed(() => !!user.value)
+
+  const login = async (username: string, password: string) => {
+    isLoading.value = true
+    try {
+      const response = await apiClient.login({ username, password })
+      console.log('Login response:', response)
+      if (response.success && response.user) {
+        user.value = response.user
+        return { success: true }
+      }
+      return { success: false, message: response.message || 'Login failed' }
+    } catch (error) {
+      console.error('Login error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Network error occurred'
+      return { success: false, message: errorMessage }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const register = async (username: string, password: string) => {
+    isLoading.value = true
+    try {
+      const response = await apiClient.register({ username, password })
+      if (response.success) {
+        return { success: true }
+      }
+      return { success: false, message: response.message }
+    } catch (error) {
+      console.error('Registration error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Network error occurred'
+      return { success: false, message: errorMessage }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const logout = async () => {
+    try {
+      await apiClient.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      user.value = null
+    }
+  }
+
+  const checkAuth = async () => {
+    try {
+      // Try to validate with server (will check cookies)
+      const response = await apiClient.getProfile()
+      console.log('Check auth response:', response)
+      if (response.success && response.user) {
+        user.value = response.user
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Check auth error:', error)
+      user.value = null
+      return false
+    }
+  }
+
+  return {
+    user: readonly(user),
+    isLoading: readonly(isLoading),
+    isAuthenticated,
+    login,
+    register,
+    logout,
+    checkAuth,
+  }
+}

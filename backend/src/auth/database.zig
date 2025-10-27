@@ -103,22 +103,25 @@ pub fn createSession(
     expires_at: i64,
 ) ![]const u8 {
     std.log.info("Creating session: client_id={s}, user_id={s}, expires_at={}", .{ client_id, user_id, expires_at });
+    std.log.info("Token hash length: {}", .{token_hash.len});
 
-    // Try using exec instead of query first to see if it's a query-specific issue
+    // Insert session into database
+    std.log.info("About to execute session INSERT with values: client_id='{s}', user_id='{s}', token_hash_len={}, expires_at={}", .{ client_id, user_id, token_hash.len, expires_at });
+
     const exec_result = pool.exec(
         \\INSERT INTO sessions (client_id, user_id, token_hash, expires_at)
-        \\VALUES ($1::uuid, $2::uuid, $3, to_timestamp($4))
+        \\VALUES ($1, $2, $3, to_timestamp($4))
     , .{ client_id, user_id, token_hash, expires_at }) catch |err| {
-        std.log.err("Session exec failed: {}", .{err});
+        std.log.err("Session exec failed with error: {}", .{err});
         return AuthError.DatabaseError;
     };
 
     std.log.info("Session exec succeeded, rows affected: {any}", .{exec_result});
 
-    // Now get the session ID that was created
+    // Query to get the session ID that was just created
     const session_result = pool.query(
         \\SELECT id::text FROM sessions 
-        \\WHERE client_id = $1::uuid AND user_id = $2::uuid AND token_hash = $3
+        \\WHERE client_id = $1 AND user_id = $2 AND token_hash = $3
         \\ORDER BY created_at DESC LIMIT 1
     , .{ client_id, user_id, token_hash }) catch |err| {
         std.log.err("Session query failed: {}", .{err});
@@ -149,7 +152,7 @@ pub fn validateSession(
         \\       EXTRACT(EPOCH FROM u.created_at)::text as created_at,
         \\       u.is_active
         \\FROM users u
-        \\JOIN sessions s ON u.id = s.user_id
+        \\JOIN sessions s ON u.id::text = s.user_id
         \\WHERE s.token_hash = $1 
         \\  AND s.expires_at > to_timestamp($2)
         \\  AND u.is_active = true

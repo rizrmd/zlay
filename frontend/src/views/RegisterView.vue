@@ -12,21 +12,18 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useRouter } from 'vue-router'
-import { apiClient, type RegisterRequest } from '@/services/api'
+import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const { register, isLoading } = useAuth()
 
-const firstName = ref('')
-const lastName = ref('')
-const email = ref('')
+const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const isLoading = ref(false)
 const error = ref('')
 
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+const validateUsername = (username: string): boolean => {
+  return username.length >= 3
 }
 
 const validatePassword = (password: string): boolean => {
@@ -34,13 +31,13 @@ const validatePassword = (password: string): boolean => {
 }
 
 const handleRegister = async () => {
-  if (!email.value || !password.value) {
+  if (!username.value || !password.value) {
     error.value = 'Please fill in all required fields'
     return
   }
 
-  if (!validateEmail(email.value)) {
-    error.value = 'Please enter a valid email address'
+  if (!validateUsername(username.value)) {
+    error.value = 'Username must be at least 3 characters long'
     return
   }
 
@@ -54,28 +51,14 @@ const handleRegister = async () => {
     return
   }
 
-  isLoading.value = true
   error.value = ''
 
-  try {
-    const registerData: RegisterRequest = {
-      email: email.value,
-      password: password.value,
-      first_name: firstName.value || undefined,
-      last_name: lastName.value || undefined,
-    }
-
-    const response = await apiClient.register(registerData)
-
-    if (response.success) {
-      router.push('/login')
-    } else {
-      error.value = response.message || 'Registration failed'
-    }
-  } catch (err) {
-    error.value = 'Network error. Please try again.'
-  } finally {
-    isLoading.value = false
+  const result = await register(username.value, password.value)
+  
+  if (result.success) {
+    router.push('/login')
+  } else {
+    error.value = result.message || 'Registration failed'
   }
 }
 
@@ -95,23 +78,13 @@ const goToLogin = () => {
       </CardHeader>
       <CardContent>
         <form @submit.prevent="handleRegister" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Label for="firstName">First Name</Label>
-              <Input id="firstName" v-model="firstName" type="text" placeholder="First name" />
-            </div>
-            <div class="space-y-2">
-              <Label for="lastName">Last Name</Label>
-              <Input id="lastName" v-model="lastName" type="text" placeholder="Last name" />
-            </div>
-          </div>
           <div class="space-y-2">
-            <Label for="email">Email</Label>
+            <Label for="username">Username</Label>
             <Input
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="Enter your email"
+              id="username"
+              v-model="username"
+              type="text"
+              placeholder="Enter your username (min 3 characters)"
               required
             />
           </div>

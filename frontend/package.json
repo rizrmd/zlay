@@ -21,6 +21,7 @@
     "@radix-ui/colors": "^3.0.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@tailwindcss/typography": "^0.5.19",
+    "@vueuse/core": "^14.0.0",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
