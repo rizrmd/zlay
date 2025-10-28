@@ -36,11 +36,11 @@ pub fn hashPassword(allocator: std.mem.Allocator, password: []const u8) ![]const
 }
 
 /// Verify password against stored hash
-pub fn verifyPassword(password: []const u8, stored_hash: []const u8) !bool {
+pub fn verifyPassword(allocator: std.mem.Allocator, password: []const u8, stored_hash: []const u8) !bool {
     // Decode base64 stored hash
     const decoded_len = base64.standard.Decoder.calcSizeForSlice(stored_hash) catch return false;
-    const decoded = try std.heap.page_allocator.alloc(u8, decoded_len);
-    defer std.heap.page_allocator.free(decoded);
+    const decoded = try allocator.alloc(u8, decoded_len);
+    defer allocator.free(decoded);
 
     _ = base64.standard.Decoder.decode(decoded, stored_hash) catch return false;
 

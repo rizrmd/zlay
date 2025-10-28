@@ -37,9 +37,9 @@ pub fn loginUser(
     const user = try database.getUserByCredentials(allocator, pool, req.client_id, req.username);
 
     // Verify password
-    const is_valid = try password.verifyPassword(req.password, user.password_hash);
+    const is_valid = try password.verifyPassword(allocator, req.password, user.password_hash);
     if (!is_valid) {
-        return AuthError.InvalidPassword;
+        return error.InvalidPassword;
     }
 
     // Generate session token
@@ -52,7 +52,7 @@ pub fn loginUser(
     const session_id = database.createSession(allocator, pool, user.client_id, user.id, token_hash, session_expires_at) catch |err| {
         std.log.err("Failed to create session: {}", .{err});
         std.log.err("Client ID: {s}, User ID: {s}", .{ user.client_id, user.id });
-        return AuthError.DatabaseError;
+        return error.DatabaseError;
     };
 
     return LoginResult{

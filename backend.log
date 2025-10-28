@@ -1,12 +1,123 @@
 $ bun run dev.ts
 $ vite
+Starting server...
 Port 5173 is in use, trying another one...
-Port 5174 is in use, trying another one...
 
-  VITE v7.1.12  ready in 756 ms
+  VITE v7.1.12  ready in 411 ms
 
-  ➜  Local:   http://localhost:5175/
+  ➜  Local:   http://localhost:5174/
   ➜  Network: use --host to expose
-  ➜  Vue DevTools: Open http://localhost:5175/__devtools__/ as a separate window
-  ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+  ➜  Vue DevTools: Open http://localhost:5174/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Alt(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+info: Connected to PostgreSQL successfully!
+info: Initializing database schema...
+info: Database schema initialized successfully!
+Registering POST route: POST /api/auth/register
+Registering POST route: POST /api/auth/login
+Registering POST route: POST /api/auth/logout
+Server listening on http://127.0.0.1:8080
+WebSocket endpoint: ws://127.0.0.1:8080/ws
+Accepted connection
+Read 219 bytes
+Raw request:
+POST /api/auth/login HTTP/1.1
+host: 127.0.0.1:8080
+user-agent: curl/8.16.0
+accept: */*
+content-type: application/json
+content-length: 55
+connection: close
+
+{"username":"testuser123","password":"testpassword123"}
+Request: POST /api/auth/login
+Looking for route: POST /api/auth/login
+Found handler for route: POST /api/auth/login
+info: Looking for default active client
+info: Found default client: f6a2a94d-2d32-4a2e-93e9-96ef9b25204d
+DEBUG: loginUser started for username: testuser123, client_id: f6a2a94d-2d32-4a2e-93e9-96ef9b25204d
+DEBUG: About to get user
+DEBUG: Got user: testuser123
+DEBUG: About to verify password
+DEBUG: Password verified: true
+DEBUG: About to generate token
+DEBUG: Token generated
+DEBUG: About to create session
+info: Creating session: client_id=f6a2a94d-2d32-4a2e-93e9-96ef9b25204d, user_id=08e85731-6352-4f08-a162-030b8459bd4e, expires_at=1761736670
+info: Token hash length: 64
+info: About to execute session INSERT with values: client_id='f6a2a94d-2d32-4a2e-93e9-96ef9b25204d', user_id='08e85731-6352-4f08-a162-030b8459bd4e', token_hash_len=64, expires_at=1761736670
+info: Session exec succeeded, rows affected: 1
+DEBUG: Session created
+info: Setting cookie with token: 6378f555-f933-4b6b-98ee-33ec3e5d11f0
+Router handle result: true
+Accepted connection
+Read 173 bytes
+Raw request:
+GET /api/auth/profile HTTP/1.1
+host: 127.0.0.1:8080
+user-agent: curl/8.16.0
+accept: */*
+cookie: session_token=6378f555-f933-4b6b-98ee-33ec3e5d11f0
+connection: close
+
+
+Request: GET /api/auth/profile
+Looking for route: GET /api/auth/profile
+Found handler for route: GET /api/auth/profile
+Router handle result: true
+Accepted connection
+Read 224 bytes
+Raw request:
+POST /api/auth/logout HTTP/1.1
+host: 127.0.0.1:8080
+user-agent: curl/8.16.0
+accept: */*
+cookie: session_token=6378f555-f933-4b6b-98ee-33ec3e5d11f0
+content-type: application/json
+connection: close
+Content-Length: 0
+
+
+Request: POST /api/auth/logout
+Looking for route: POST /api/auth/logout
+Found handler for route: POST /api/auth/logout
+Router handle result: true
+Accepted connection
+Read 0 bytes
+Accepted connection
+Read 489 bytes
+Raw request:
+OPTIONS /api/auth/profile HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br, zstd
+Access-Control-Request-Method: GET
+Access-Control-Request-Headers: content-type
+Referer: http://localhost:5173/
+Origin: http://localhost:5173
+Connection: keep-alive
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-site
+Priority: u=4
+
+
+Request: OPTIONS /api/auth/profile
+Looking for route: OPTIONS /api/auth/profile
+Router handle result: false
+Route not found, checking fallbacks
+Setting 404 response
+dev
++- run exe zlay-backend failure
+error: the following command terminated unexpectedly:
+/home/luckshads28/Documents/Work/zlay/backend/zig-out/bin/zlay-backend
+
+Build Summary: 7/9 steps succeeded; 1 failed
+dev transitive failure
++- run exe zlay-backend failure
+
+error: the following build command failed with exit code 1:
+.zig-cache/o/a35a792bd07757e87a2b188b3483c9cb/build /home/luckshads28/.local/share/mise/installs/zig/0.15.2/zig /home/luckshads28/.local/share/mise/installs/zig/0.15.2/lib /home/luckshads28/Documents/Work/zlay/backend .zig-cache /home/luckshads28/.cache/zig --seed 0x11d63bb2 -Z21210f252f3e0d9f dev
+error: script "dev" was terminated by signal SIGTERM (Polite quit request)
 error: script "dev" exited with code 143

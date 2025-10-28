@@ -1,4 +1,4 @@
-const API_BASE_URL = window.location.origin
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8080' : window.location.origin
 
 export interface LoginRequest {
   username: string

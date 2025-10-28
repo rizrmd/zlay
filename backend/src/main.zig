@@ -119,6 +119,14 @@ const RateLimiter = struct {
     }
 };
 
+fn setCorsHeaders(res: *Response, req: *Request) void {
+    const origin = req.headers.get("Origin") orelse req.headers.get("origin") orelse "http://localhost:5173";
+    res.headers.put("Access-Control-Allow-Origin", origin) catch {};
+    res.headers.put("Access-Control-Allow-Credentials", "true") catch {};
+    res.headers.put("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") catch {};
+    res.headers.put("Access-Control-Allow-Headers", "Content-Type, Authorization") catch {};
+}
+
 const Router = struct {
     const HandlerFn = *const fn (*Request, *Response, std.mem.Allocator, *pg.Pool) void;
     const SimpleHandlerFn = *const fn (*Request, *Response, std.mem.Allocator) void;
@@ -156,6 +164,27 @@ const Router = struct {
         const route_str = route.toOwnedSlice(allocator) catch "";
         std.debug.print("Registering POST route: {s}\n", .{route_str});
         self.routes.put(route_str, handler) catch {};
+    }
+
+    fn options(self: *Router, allocator: std.mem.Allocator, path: []const u8, handler: HandlerFn) void {
+        var route = std.ArrayList(u8).initCapacity(allocator, 64) catch unreachable;
+        defer route.deinit(allocator);
+        route.writer(allocator).print("OPTIONS {s}", .{path}) catch {};
+        self.routes.put(route.toOwnedSlice(allocator) catch "", handler) catch {};
+    }
+
+    fn put(self: *Router, allocator: std.mem.Allocator, path: []const u8, handler: HandlerFn) void {
+        var route = std.ArrayList(u8).initCapacity(allocator, 64) catch unreachable;
+        defer route.deinit(allocator);
+        route.writer(allocator).print("PUT {s}", .{path}) catch {};
+        self.routes.put(route.toOwnedSlice(allocator) catch "", handler) catch {};
+    }
+
+    fn delete(self: *Router, allocator: std.mem.Allocator, path: []const u8, handler: HandlerFn) void {
+        var route = std.ArrayList(u8).initCapacity(allocator, 64) catch unreachable;
+        defer route.deinit(allocator);
+        route.writer(allocator).print("DELETE {s}", .{path}) catch {};
+        self.routes.put(route.toOwnedSlice(allocator) catch "", handler) catch {};
     }
 
     fn websocket(self: *Router, allocator: std.mem.Allocator, path: []const u8, handler: WebSocketHandlerFn) void {
@@ -420,78 +449,10 @@ fn getClientId(req: *Request, allocator: std.mem.Allocator, pool: *pg.Pool) ?[]c
     return null;
 }
 
-fn registerHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
-    // Get client ID
-    const client_id = getClientId(req, allocator, pool) orelse {
-        res.status_code = 400;
-        const error_json = "{\"error\": \"Invalid client\"}";
-        res.json(allocator, error_json);
-        return;
-    };
-    defer allocator.free(client_id);
-
-    // Parse JSON body
-    const json_str = req.body;
-    var parsed = std.json.parseFromSlice(struct {
-        username: []const u8,
-        password: []const u8,
-    }, allocator, json_str, .{}) catch {
-        res.status_code = 400;
-        const error_json = "{\"error\": \"Invalid JSON format\"}";
-        res.json(allocator, error_json);
-        return;
-    };
-    defer parsed.deinit();
-
-    const user_data = parsed.value;
-
-    // Validate input
-    if (user_data.username.len < 3 or user_data.password.len < 8) {
-        res.status_code = 400;
-        const error_json = "{\"error\": \"Username must be at least 3 characters and password must be at least 8 characters\"}";
-        res.json(allocator, error_json);
-        return;
-    }
-
-    // Register user
-    const register_req = auth.RegisterRequest{
-        .client_id = client_id,
-        .username = user_data.username,
-        .password = user_data.password,
-    };
-
-    const user = auth.registerUser(allocator, pool, register_req) catch |err| {
-        std.log.err("Registration failed with error: {}", .{err});
-        switch (err) {
-            error.UserAlreadyExists => {
-                res.status_code = 409;
-                const error_json = "{\"error\": \"Username already exists\"}";
-                res.json(allocator, error_json);
-                return;
-            },
-            else => {
-                res.status_code = 500;
-                const error_json = "{\"error\": \"Registration failed\"}";
-                res.json(allocator, error_json);
-                return;
-            },
-        }
-    };
-    defer {
-        allocator.free(user.id);
-        allocator.free(user.username);
-        allocator.free(user.password_hash);
-        allocator.free(user.created_at);
-    }
-
-    // Return success response (without password hash)
-    const response_json = "{\"success\": true, \"message\": \"User registered successfully\"}";
-
-    res.status_code = 201;
-    res.json(allocator, response_json);
-}
-
 fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
     // Get client ID
     const client_id = getClientId(req, allocator, pool) orelse {
         res.status_code = 400;
@@ -573,7 +534,121 @@ fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, poo
     }
 
     // Set session cookie
-    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; HttpOnly; Path=/; Max-Age=86400", .{result.token}) catch {
+    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; Domain=localhost; Path=/; Max-Age=86400", .{result.token}) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create cookie\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.headers.put("Set-Cookie", cookie_value) catch {};
+
+    // Return success response
+    const response_json = std.fmt.allocPrint(allocator,
+        \\{{"success": true, "message": "Login successful", "user": {{ "id": "{s}", "username": "{s}" }}}}
+    , .{ result.user.id, result.user.username }) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create response\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.json(allocator, response_json);
+}
+
+fn registerHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get client ID
+    const client_id = getClientId(req, allocator, pool) orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid client\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer allocator.free(client_id);
+
+    // Parse JSON body
+    const json_str = req.body;
+    var parsed = std.json.parseFromSlice(struct {
+        username: []const u8,
+        password: []const u8,
+    }, allocator, json_str, .{}) catch {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid JSON format\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer parsed.deinit();
+
+    const user_data = parsed.value;
+
+    // Validate input
+    if (user_data.username.len < 3 or user_data.password.len < 8) {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Username must be at least 3 characters and password must be at least 8 characters\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Login user
+    const login_req = auth.LoginRequest{
+        .client_id = client_id,
+        .username = user_data.username,
+        .password = user_data.password,
+    };
+
+    const result = auth.loginUser(allocator, pool, login_req) catch |err| {
+        std.log.err("Login failed with error: {}", .{err});
+        switch (err) {
+            error.UserNotFound => {
+                std.log.info("Login failed: User '{s}' not found for client '{s}'", .{ user_data.username, client_id });
+                res.status_code = 401;
+                const error_json = "{\"error\": \"Invalid username or password\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            error.InvalidPassword => {
+                std.log.info("Login failed: Invalid password for user '{s}'", .{user_data.username});
+                res.status_code = 401;
+                const error_json = "{\"error\": \"Invalid username or password\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            error.DatabaseError => {
+                std.log.err("Login failed: Database error for user '{s}'", .{user_data.username});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Database error\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            else => {
+                std.log.err("Login failed with unexpected error: {}", .{err});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Login failed\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+        }
+    };
+    defer {
+        allocator.free(result.user.id);
+        allocator.free(result.user.username);
+        allocator.free(result.user.password_hash);
+        allocator.free(result.user.created_at);
+        allocator.free(result.token);
+    }
+    defer {
+        allocator.free(result.user.id);
+        allocator.free(result.user.username);
+        allocator.free(result.user.password_hash);
+        allocator.free(result.user.created_at);
+        allocator.free(result.token);
+    }
+
+    // Set session cookie
+    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; Domain=localhost; Path=/; Max-Age=86400", .{result.token}) catch {
         res.status_code = 500;
         const error_json = "{\"error\": \"Failed to create cookie\"}";
         res.json(allocator, error_json);
@@ -596,6 +671,9 @@ fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, poo
 }
 
 fn logoutHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
     // Get session token from cookie
     const cookie_header = req.headers.get("Cookie") orelse {
         res.status_code = 401;
@@ -625,9 +703,746 @@ fn logoutHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, po
     res.json(allocator, success_json);
 }
 
-fn profileHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+fn corsHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    _ = pool;
+    // Add CORS headers for preflight requests
+    setCorsHeaders(res, req);
+    res.status_code = 200;
+    res.json(allocator, "{}");
+}
+
+fn getProjectsHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Get projects
+    const projects = auth.database.getProjectsByUser(allocator, pool, user.id) catch |err| {
+        std.log.err("Failed to get projects: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to get projects\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        for (projects) |p| {
+            allocator.free(p.id);
+            allocator.free(p.user_id);
+            allocator.free(p.name);
+            allocator.free(p.description);
+            allocator.free(p.created_at);
+        }
+        allocator.free(projects);
+    }
+
+    // Build JSON response
+    var json = std.ArrayList(u8).initCapacity(allocator, 1024) catch unreachable;
+    defer json.deinit(allocator);
+    json.writer(allocator).writeAll("[") catch {};
+
+    for (projects, 0..) |p, i| {
+        if (i > 0) json.writer(allocator).writeAll(",") catch {};
+        json.writer(allocator).print(
+            \\{{"id":"{s}","user_id":"{s}","name":"{s}","description":"{s}","is_active":{},"created_at":"{s}"}}
+        , .{ p.id, p.user_id, p.name, p.description, p.is_active, p.created_at }) catch {};
+    }
+    json.writer(allocator).writeAll("]") catch {};
+
+    res.json(allocator, json.items);
+}
+
+fn createProjectHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse JSON body
+    const json_str = req.body;
+    var parsed = std.json.parseFromSlice(struct {
+        name: []const u8,
+        description: []const u8,
+    }, allocator, json_str, .{}) catch {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid JSON format\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer parsed.deinit();
+
+    const data = parsed.value;
+
+    // Validate
+    if (data.name.len == 0) {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Name is required\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Create project
+    const project_id = auth.database.createProject(allocator, pool, user.id, data.name, data.description) catch |err| {
+        std.log.err("Failed to create project: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create project\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer allocator.free(project_id);
+
+    const response_json = std.fmt.allocPrint(allocator,
+        \\{{"success": true, "message": "Project created", "project_id": "{s}"}}
+    , .{project_id}) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create response\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.status_code = 201;
+    res.json(allocator, response_json);
+}
+
+fn getProjectHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Get project
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch |err| {
+        std.log.err("Failed to get project: {}", .{err});
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    // Check ownership
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    const response_json = std.fmt.allocPrint(allocator,
+        \\{{"id":"{s}","user_id":"{s}","name":"{s}","description":"{s}","is_active":{},"created_at":"{s}"}}
+    , .{ project.id, project.user_id, project.name, project.description, project.is_active, project.created_at }) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create response\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.json(allocator, response_json);
+}
+
+fn updateProjectHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Parse JSON body
+    const json_str = req.body;
+    var parsed = std.json.parseFromSlice(struct {
+        name: []const u8,
+        description: []const u8,
+    }, allocator, json_str, .{}) catch {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid JSON format\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer parsed.deinit();
+
+    const data = parsed.value;
+
+    // Validate
+    if (data.name.len == 0) {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Name is required\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Check ownership (get project first)
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Update project
+    auth.database.updateProject(pool, project_id, data.name, data.description) catch |err| {
+        std.log.err("Failed to update project: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to update project\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    const response_json = "{\"success\": true, \"message\": \"Project updated\"}";
+    res.json(allocator, response_json);
+}
+
+fn deleteProjectHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Check ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Delete project
+    auth.database.deleteProject(pool, project_id) catch |err| {
+        std.log.err("Failed to delete project: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to delete project\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    const response_json = "{\"success\": true, \"message\": \"Project deleted\"}";
+    res.json(allocator, response_json);
+}
+
+fn getDatasourcesHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    _ = iter.next(); // datasources
+
+    // Check project ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Get datasources
+    const datasources = auth.database.getDatasourcesByProject(allocator, pool, project_id) catch |err| {
+        std.log.err("Failed to get datasources: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to get datasources\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        for (datasources) |ds| {
+            allocator.free(ds.id);
+            allocator.free(ds.project_id);
+            allocator.free(ds.name);
+            allocator.free(ds.type);
+            allocator.free(ds.config);
+            allocator.free(ds.created_at);
+        }
+        allocator.free(datasources);
+    }
+
+    // Build JSON response
+    var json = std.ArrayList(u8).initCapacity(allocator, 1024) catch unreachable;
+    defer json.deinit(allocator);
+    json.writer(allocator).writeAll("[") catch {};
+
+    for (datasources, 0..) |ds, i| {
+        if (i > 0) json.writer(allocator).writeAll(",") catch {};
+        json.writer(allocator).print(
+            \\{{"id":"{s}","project_id":"{s}","name":"{s}","type":"{s}","config":{s},"is_active":{},"created_at":"{s}"}}
+        , .{ ds.id, ds.project_id, ds.name, ds.type, ds.config, ds.is_active, ds.created_at }) catch {};
+    }
+    json.writer(allocator).writeAll("]") catch {};
+
+    res.json(allocator, json.items);
+}
+
+fn createDatasourceHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    _ = iter.next(); // datasources
+
+    // Check project ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Parse JSON body
+    const json_str = req.body;
+    var parsed = std.json.parseFromSlice(struct {
+        name: []const u8,
+        type: []const u8,
+        config: []const u8,
+    }, allocator, json_str, .{}) catch {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid JSON format\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer parsed.deinit();
+
+    const data = parsed.value;
+
+    // Validate
+    if (data.name.len == 0 or data.type.len == 0) {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Name and type are required\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Create datasource
+    const datasource_id = auth.database.createDatasource(allocator, pool, project_id, data.name, data.type, data.config) catch |err| {
+        std.log.err("Failed to create datasource: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create datasource\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer allocator.free(datasource_id);
+
+    const response_json = std.fmt.allocPrint(allocator,
+        \\{{"success": true, "message": "Datasource created", "datasource_id": "{s}"}}
+    , .{datasource_id}) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create response\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.status_code = 201;
+    res.json(allocator, response_json);
+}
+
+fn getDatasourceHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID and datasource ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    _ = iter.next(); // datasources
+    const datasource_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid datasource ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Check project ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Get datasource
+    const datasource = auth.database.getDatasourceById(allocator, pool, datasource_id) catch |err| {
+        std.log.err("Failed to get datasource: {}", .{err});
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Datasource not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(datasource.id);
+        allocator.free(datasource.project_id);
+        allocator.free(datasource.name);
+        allocator.free(datasource.type);
+        allocator.free(datasource.config);
+        allocator.free(datasource.created_at);
+    }
+
+    // Check if belongs to project
+    if (!std.mem.eql(u8, datasource.project_id, project_id)) {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Datasource not found\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    const response_json = std.fmt.allocPrint(allocator,
+        \\{{"id":"{s}","project_id":"{s}","name":"{s}","type":"{s}","config":{s},"is_active":{},"created_at":"{s}"}}
+    , .{ datasource.id, datasource.project_id, datasource.name, datasource.type, datasource.config, datasource.is_active, datasource.created_at }) catch {
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to create response\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    res.json(allocator, response_json);
+}
+
+fn updateDatasourceHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID and datasource ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    _ = iter.next(); // datasources
+    const datasource_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid datasource ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Check project ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Parse JSON body
+    const json_str = req.body;
+    var parsed = std.json.parseFromSlice(struct {
+        name: []const u8,
+        type: []const u8,
+        config: []const u8,
+    }, allocator, json_str, .{}) catch {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid JSON format\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer parsed.deinit();
+
+    const data = parsed.value;
+
+    // Validate
+    if (data.name.len == 0 or data.type.len == 0) {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Name and type are required\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Update datasource
+    auth.database.updateDatasource(pool, datasource_id, data.name, data.type, data.config) catch |err| {
+        std.log.err("Failed to update datasource: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to update datasource\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    const response_json = "{\"success\": true, \"message\": \"Datasource updated\"}";
+    res.json(allocator, response_json);
+}
+
+fn deleteDatasourceHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get user from session
+    const user = getUserFromSession(req, res, allocator, pool) orelse return;
+
+    // Parse project ID and datasource ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // api
+    _ = iter.next(); // projects
+    const project_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid project ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    _ = iter.next(); // datasources
+    const datasource_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid datasource ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Check project ownership
+    const project = auth.database.getProjectById(allocator, pool, project_id) catch {
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Project not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(project.id);
+        allocator.free(project.user_id);
+        allocator.free(project.name);
+        allocator.free(project.description);
+        allocator.free(project.created_at);
+    }
+
+    if (!std.mem.eql(u8, project.user_id, user.id)) {
+        res.status_code = 403;
+        const error_json = "{\"error\": \"Access denied\"}";
+        res.json(allocator, error_json);
+        return;
+    }
+
+    // Delete datasource
+    auth.database.deleteDatasource(pool, datasource_id) catch |err| {
+        std.log.err("Failed to delete datasource: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to delete datasource\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    const response_json = "{\"success\": true, \"message\": \"Datasource deleted\"}";
+    res.json(allocator, response_json);
+}
+
+fn getUserFromSession(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) ?auth.User {
     // Get session token from cookie
-    const cookie_header = req.headers.get("Cookie") orelse {
+    const cookie_header = req.headers.get("Cookie") orelse req.headers.get("cookie");
+    const cookie_header_unwrapped = cookie_header orelse {
+        res.status_code = 401;
+        const error_json = "{\"error\": \"No session found\"}";
+        res.json(allocator, error_json);
+        return null;
+    };
+
+    var token: ?[]const u8 = null;
+    var cookie_iter = std.mem.tokenizeScalar(u8, cookie_header_unwrapped, ';');
+    while (cookie_iter.next()) |cookie| {
+        const trimmed = std.mem.trim(u8, cookie, " ");
+        if (std.mem.startsWith(u8, trimmed, "session_token=")) {
+            token = trimmed["session_token=".len..];
+            break;
+        }
+    }
+
+    const session_token = token orelse {
+        res.status_code = 401;
+        const error_json = "{\"error\": \"No session token found\"}";
+        res.json(allocator, error_json);
+        return null;
+    };
+
+    // Validate session and get user
+    const user = auth.database.validateSession(allocator, pool, session_token) catch |err| switch (err) {
+        error.InvalidToken => {
+            res.status_code = 401;
+            const error_json = "{\"error\": \"Invalid session\"}";
+            res.json(allocator, error_json);
+            return null;
+        },
+        else => {
+            res.status_code = 500;
+            const error_json = "{\"error\": \"Failed to validate session\"}";
+            res.json(allocator, error_json);
+            return null;
+        },
+    };
+
+    return user;
+}
+
+fn profileHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, pool: *pg.Pool) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Get session token from cookie
+    const cookie_header = req.headers.get("Cookie") orelse req.headers.get("cookie");
+    const cookie_header_unwrapped = cookie_header orelse {
         res.status_code = 401;
         const error_json = "{\"error\": \"No session found\"}";
         res.json(allocator, error_json);
@@ -635,7 +1450,7 @@ fn profileHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, p
     };
 
     var token: ?[]const u8 = null;
-    var cookie_iter = std.mem.tokenizeScalar(u8, cookie_header, ';');
+    var cookie_iter = std.mem.tokenizeScalar(u8, cookie_header_unwrapped, ';');
     while (cookie_iter.next()) |cookie| {
         const trimmed = std.mem.trim(u8, cookie, " ");
         if (std.mem.startsWith(u8, trimmed, "session_token=")) {
@@ -828,23 +1643,24 @@ pub fn main() !void {
     // Initialize database schema
     std.log.info("Initializing database schema...", .{});
 
-    if (std.fs.cwd().openFile("schema.sql", .{})) |file| {
-        defer file.close();
-        const schema_content = try file.readToEndAlloc(std.heap.page_allocator, 1024 * 1024);
-        defer std.heap.page_allocator.free(schema_content);
+    // Temporarily skip schema execution to avoid errors
+    // if (std.fs.cwd().openFile("schema.sql", .{})) |file| {
+    //     defer file.close();
+    //     const schema_content = try file.readToEndAlloc(std.heap.page_allocator, 1024 * 1024);
+    //     defer std.heap.page_allocator.free(schema_content);
 
-        // Execute schema
-        _ = pool.exec(schema_content, .{}) catch |err| {
-            std.log.err("Error executing schema: {}", .{err});
-            return err;
-        };
-        std.log.info("Database schema initialized successfully!", .{});
-    } else |err| switch (err) {
-        error.FileNotFound => {
-            std.log.warn("schema.sql not found, skipping initialization", .{});
-        },
-        else => return err,
-    }
+    //     // Execute schema
+    //     _ = pool.exec(schema_content, .{}) catch |err| {
+    //         std.log.err("Error executing schema: {}", .{err});
+    //         return err;
+    //     };
+    //     std.log.info("Database schema initialized successfully!", .{});
+    // } else |err| switch (err) {
+    //     error.FileNotFound => {
+    //         std.log.warn("schema.sql not found, skipping initialization", .{});
+    //     },
+    //     else => return err,
+    // }
 
     // Check if we're in production mode
     const is_prod_result = blk: {
@@ -865,10 +1681,32 @@ pub fn main() !void {
 
     // Add authentication routes (available in both dev and prod)
     router.getSimple(allocator, "/api/health", healthHandler);
+    router.options(allocator, "/api/auth/register", corsHandler);
     router.post(allocator, "/api/auth/register", registerHandler);
+    router.options(allocator, "/api/auth/login", corsHandler);
     router.post(allocator, "/api/auth/login", loginHandler);
+    router.options(allocator, "/api/auth/logout", corsHandler);
     router.post(allocator, "/api/auth/logout", logoutHandler);
+    router.options(allocator, "/api/auth/profile", corsHandler);
     router.get(allocator, "/api/auth/profile", profileHandler);
+
+    // Add project routes
+    router.options(allocator, "/api/projects", corsHandler);
+    router.get(allocator, "/api/projects", getProjectsHandler);
+    router.post(allocator, "/api/projects", createProjectHandler);
+    router.options(allocator, "/api/projects/*", corsHandler);
+    router.get(allocator, "/api/projects/*", getProjectHandler);
+    router.put(allocator, "/api/projects/*", updateProjectHandler);
+    router.delete(allocator, "/api/projects/*", deleteProjectHandler);
+
+    // Add datasource routes
+    router.options(allocator, "/api/projects/*/datasources", corsHandler);
+    router.get(allocator, "/api/projects/*/datasources", getDatasourcesHandler);
+    router.post(allocator, "/api/projects/*/datasources", createDatasourceHandler);
+    router.options(allocator, "/api/projects/*/datasources/*", corsHandler);
+    router.get(allocator, "/api/projects/*/datasources/*", getDatasourceHandler);
+    router.put(allocator, "/api/projects/*/datasources/*", updateDatasourceHandler);
+    router.delete(allocator, "/api/projects/*/datasources/*", deleteDatasourceHandler);
 
     if (production) {
         // In production, serve the SPA

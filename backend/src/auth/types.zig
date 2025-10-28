@@ -46,3 +46,22 @@ pub const LoginRequest = struct {
     username: []const u8,
     password: []const u8,
 };
+
+pub const Project = struct {
+    id: []const u8,
+    user_id: []const u8,
+    name: []const u8,
+    description: []const u8,
+    is_active: bool,
+    created_at: []const u8,
+};
+
+pub const Datasource = struct {
+    id: []const u8,
+    project_id: []const u8,
+    name: []const u8,
+    type: []const u8,
+    config: []const u8, // JSON string
+    is_active: bool,
+    created_at: []const u8,
+};
