@@ -120,7 +120,9 @@ if (existsSync(buildZigPath)) {
 
 // Load backend .env file
 const backendEnvPath = join(backendPath, '.env')
+const backendEnvExamplePath = join(backendPath, '.env.example')
 let envVars = {}
+
 if (existsSync(backendEnvPath)) {
   const backendEnv = await readFile(backendEnvPath, 'utf-8')
   envVars = Object.fromEntries(
@@ -129,8 +131,23 @@ if (existsSync(backendEnvPath)) {
       .map(line => line.split('='))
   )
   console.log('✅ Backend environment loaded')
-} else {
+} else if (existsSync(backendEnvExamplePath)) {
   console.log('⚠️  No .env file found in backend')
+  console.log('📝 Please copy .env.example to .env and configure your database:')
+  console.log(`   cp ${backendEnvExamplePath} ${backendEnvPath}`)
+  console.log('   Then edit .env with your database credentials')
+  console.log('')
+  console.log('Example DATABASE_URL format:')
+  console.log('postgresql://username:password@localhost:5432/database_name')
+  console.log('')
+  console.log('For development with PostgreSQL running locally:')
+  console.log('DATABASE_URL=postgresql://postgres:password@localhost:5432/zlay')
+  console.log('')
+  process.exit(1)
+} else {
+  console.log('❌ No .env or .env.example file found in backend')
+  console.log('Please create a .env file with your DATABASE_URL')
+  process.exit(1)
 }
 
 console.log('🚀 Starting development servers...')
