@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_token_expires ON sessions(user_id, token_hash, expires_at);
 CREATE INDEX IF NOT EXISTS idx_users_client_id_username ON users(client_id, username);
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_datasources_project_id ON datasources(project_id);

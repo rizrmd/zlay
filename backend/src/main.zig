@@ -592,7 +592,47 @@ fn registerHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, 
         return;
     }
 
-    // Login user
+    // Register user
+    const register_req = auth.RegisterRequest{
+        .client_id = client_id,
+        .username = user_data.username,
+        .password = user_data.password,
+    };
+
+    const user = auth.registerUser(allocator, pool, register_req) catch |err| {
+        std.log.err("Registration failed with error: {}", .{err});
+        switch (err) {
+            error.UserAlreadyExists => {
+                std.log.info("Registration failed: User '{s}' already exists for client '{s}'", .{ user_data.username, client_id });
+                res.status_code = 409;
+                const error_json = "{\"error\": \"Username already exists\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            error.DatabaseError => {
+                std.log.err("Registration failed: Database error for user '{s}'", .{user_data.username});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Database error\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            else => {
+                std.log.err("Registration failed with unexpected error: {}", .{err});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Registration failed\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+        }
+    };
+    defer {
+        allocator.free(user.id);
+        allocator.free(user.username);
+        allocator.free(user.password_hash);
+        allocator.free(user.created_at);
+    }
+
+    // Auto-login after registration
     const login_req = auth.LoginRequest{
         .client_id = client_id,
         .username = user_data.username,
@@ -600,31 +640,24 @@ fn registerHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, 
     };
 
     const result = auth.loginUser(allocator, pool, login_req) catch |err| {
-        std.log.err("Login failed with error: {}", .{err});
+        std.log.err("Auto-login after registration failed with error: {}", .{err});
         switch (err) {
-            error.UserNotFound => {
-                std.log.info("Login failed: User '{s}' not found for client '{s}'", .{ user_data.username, client_id });
-                res.status_code = 401;
-                const error_json = "{\"error\": \"Invalid username or password\"}";
-                res.json(allocator, error_json);
-                return;
-            },
-            error.InvalidPassword => {
-                std.log.info("Login failed: Invalid password for user '{s}'", .{user_data.username});
-                res.status_code = 401;
-                const error_json = "{\"error\": \"Invalid username or password\"}";
+            error.UserNotFound, error.InvalidPassword => {
+                std.log.err("Auto-login failed: Unexpected error for newly created user '{s}'", .{user_data.username});
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Registration successful but login failed\"}";
                 res.json(allocator, error_json);
                 return;
             },
             error.DatabaseError => {
-                std.log.err("Login failed: Database error for user '{s}'", .{user_data.username});
+                std.log.err("Auto-login failed: Database error for user '{s}'", .{user_data.username});
                 res.status_code = 500;
-                const error_json = "{\"error\": \"Database error\"}";
+                const error_json = "{\"error\": \"Database error during login\"}";
                 res.json(allocator, error_json);
                 return;
             },
             else => {
-                std.log.err("Login failed with unexpected error: {}", .{err});
+                std.log.err("Auto-login failed with unexpected error: {}", .{err});
                 res.status_code = 500;
                 const error_json = "{\"error\": \"Login failed\"}";
                 res.json(allocator, error_json);
@@ -632,13 +665,6 @@ fn registerHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, 
             },
         }
     };
-    defer {
-        allocator.free(result.user.id);
-        allocator.free(result.user.username);
-        allocator.free(result.user.password_hash);
-        allocator.free(result.user.created_at);
-        allocator.free(result.token);
-    }
     defer {
         allocator.free(result.user.id);
         allocator.free(result.user.username);
@@ -1467,19 +1493,22 @@ fn profileHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, p
     };
 
     // Validate session and get user
-    const user = auth.validateSession(allocator, pool, session_token) catch |err| switch (err) {
-        error.InvalidToken => {
-            res.status_code = 401;
-            const error_json = "{\"error\": \"Invalid session\"}";
-            res.json(allocator, error_json);
-            return;
-        },
-        else => {
-            res.status_code = 500;
-            const error_json = "{\"error\": \"Failed to validate session\"}";
-            res.json(allocator, error_json);
-            return;
-        },
+    const user = auth.validateSession(allocator, pool, session_token) catch |err| {
+        std.log.err("Session validation failed with error: {}", .{err});
+        switch (err) {
+            error.InvalidToken => {
+                res.status_code = 401;
+                const error_json = "{\"error\": \"Invalid session\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+            else => {
+                res.status_code = 500;
+                const error_json = "{\"error\": \"Failed to validate session\"}";
+                res.json(allocator, error_json);
+                return;
+            },
+        }
     };
     defer {
         allocator.free(user.id);

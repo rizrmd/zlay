@@ -145,21 +145,20 @@ pub fn validateSession(
     pool: *pg.Pool,
     token_hash: []const u8,
 ) !User {
-    const current_time = std.time.timestamp();
-
-    const current_time_str = try std.fmt.allocPrint(allocator, "{}", .{current_time});
-    defer allocator.free(current_time_str);
-
     const session_result = pool.query(
         \\SELECT u.id::text, u.client_id::text, u.username, u.password_hash,
         \\       EXTRACT(EPOCH FROM u.created_at)::text as created_at,
         \\       u.is_active
         \\FROM users u
-        \\JOIN sessions s ON u.id::text = s.user_id
+        \\JOIN sessions s ON u.id = s.user_id
         \\WHERE s.token_hash = $1
-        \\  AND s.expires_at > to_timestamp($2)
+        \\  AND s.expires_at > NOW()
         \\  AND u.is_active = true
-    , .{ token_hash, current_time_str }) catch return AuthError.DatabaseError;
+        \\LIMIT 1
+    , .{token_hash}) catch |err| {
+        std.log.err("Database query failed: {}", .{err});
+        return AuthError.DatabaseError;
+    };
     defer session_result.deinit();
 
     const row = (try session_result.next()) orelse return AuthError.InvalidToken;
