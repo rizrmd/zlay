@@ -46,7 +46,7 @@ pub fn registerUser(
     // Fetch created user
     std.log.info("Fetching created user", .{});
     const select_result = pool.query(
-        \\SELECT id::text, client_id::text, username, password_hash, created_at, is_active
+        \\SELECT id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
         \\FROM users WHERE client_id = $1 AND username = $2
     , .{ client_id, username }) catch |err| {
         std.log.err("User fetch failed: {}", .{err});
@@ -78,7 +78,7 @@ pub fn getUserByCredentials(
     username: []const u8,
 ) !User {
     const user_result = pool.query(
-        \\SELECT id::text, client_id::text, username, password_hash, created_at, is_active
+        \\SELECT id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
         \\FROM users WHERE client_id = $1 AND username = $2 AND is_active = true
     , .{ client_id, username }) catch return AuthError.DatabaseError;
     defer user_result.deinit();
@@ -147,7 +147,7 @@ pub fn validateSession(
 ) !User {
     const session_result = pool.query(
         \\SELECT u.id::text, u.client_id::text, u.username, u.password_hash,
-        \\       EXTRACT(EPOCH FROM u.created_at)::text as created_at,
+        \\       to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at,
         \\       u.is_active
         \\FROM users u
         \\JOIN sessions s ON u.id = s.user_id
@@ -233,7 +233,7 @@ pub fn getProjectsByUser(
 ) ![]Project {
     const result = pool.query(
         \\SELECT id::text, user_id::text, name, description, is_active,
-        \\       EXTRACT(EPOCH FROM created_at)::text as created_at
+        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
         \\FROM projects WHERE user_id = $1 AND is_active = true
         \\ORDER BY created_at DESC
     , .{user_id}) catch return AuthError.DatabaseError;
@@ -264,7 +264,7 @@ pub fn getProjectById(
 ) !Project {
     const result = pool.query(
         \\SELECT id::text, user_id::text, name, description, is_active,
-        \\       EXTRACT(EPOCH FROM created_at)::text as created_at
+        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
         \\FROM projects WHERE id = $1 AND is_active = true
     , .{project_id}) catch return AuthError.DatabaseError;
     defer result.deinit();
@@ -343,7 +343,7 @@ pub fn getDatasourcesByProject(
 ) ![]Datasource {
     const result = pool.query(
         \\SELECT id::text, project_id::text, name, type, config::text, is_active,
-        \\       EXTRACT(EPOCH FROM created_at)::text as created_at
+        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
         \\FROM datasources WHERE project_id = $1 AND is_active = true
         \\ORDER BY created_at DESC
     , .{project_id}) catch return AuthError.DatabaseError;
@@ -375,7 +375,7 @@ pub fn getDatasourceById(
 ) !Datasource {
     const result = pool.query(
         \\SELECT id::text, project_id::text, name, type, config::text, is_active,
-        \\       EXTRACT(EPOCH FROM created_at)::text as created_at
+        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
         \\FROM datasources WHERE id = $1 AND is_active = true
     , .{datasource_id}) catch return AuthError.DatabaseError;
     defer result.deinit();
