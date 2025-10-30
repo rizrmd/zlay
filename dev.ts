@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
+import { createWriteStream } from 'node:fs'
 
 console.log('🔍 Checking dependencies...')
 
@@ -152,21 +153,31 @@ if (existsSync(backendEnvPath)) {
 
 console.log('🚀 Starting development servers...')
 
+// Clear and create log stream
+const logStream = createWriteStream('backend.log', { flags: 'w' })
+
 const backend = spawn('zig', ['build', 'run'], {
   cwd: backendPath,
-  stdio: 'inherit',
+  stdio: ['inherit', 'pipe', 'pipe'],
   env: { ...process.env, ...envVars }
 })
 
+backend.stdout?.on('data', (data) => logStream.write(`[BACKEND] ${data.toString()}`))
+backend.stderr?.on('data', (data) => logStream.write(`[BACKEND ERR] ${data.toString()}`))
+
 const frontend = spawn('bun', ['run', 'dev'], {
   cwd: frontendPath,
-  stdio: 'inherit'
+  stdio: ['inherit', 'pipe', 'pipe']
 })
+
+frontend.stdout?.on('data', (data) => logStream.write(`[FRONTEND] ${data.toString()}`))
+frontend.stderr?.on('data', (data) => logStream.write(`[FRONTEND ERR] ${data.toString()}`))
 
 process.on('SIGINT', () => {
   console.log('\n🛑 Shutting down servers...')
   backend.kill('SIGINT')
   frontend.kill('SIGINT')
+  logStream.end()
   process.exit(0)
 })
 

@@ -1,5 +1,5 @@
 const std = @import("std");
-const pg = @import("pg");
+const zlay_db = @import("zlay-db");
 const types = @import("types.zig");
 
 const User = types.User;
@@ -11,245 +11,228 @@ const AuthError = types.AuthError;
 /// Register a new user for a specific client
 pub fn registerUser(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     client_id: []const u8,
     username: []const u8,
     password_hash: []const u8,
 ) !User {
-    std.log.info("database.registerUser: client_id={s}, username={s}", .{ client_id, username });
-
-    // Check if user already exists for this client
-    std.log.info("Checking if user already exists", .{});
-    const check_result = pool.query(
-        \\SELECT 1 FROM users WHERE client_id = $1 AND username = $2 LIMIT 1
-    , .{ client_id, username }) catch |err| {
-        std.log.err("User existence check failed: {}", .{err});
+    // Insert user with manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [2048]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
+        \\INSERT INTO users (client_id, username, password_hash)
+        \\VALUES ('{s}', '{s}', '{s}')
+        \\ON CONFLICT (client_id, username) DO NOTHING
+        \\RETURNING id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
+    , .{ client_id, username, password_hash }) catch {
+        std.log.err("Failed to format SQL", .{});
         return AuthError.DatabaseError;
     };
-    defer check_result.deinit();
 
-    if (try check_result.next()) |_| {
+    const result = db.query(sql, .{}) catch |err| {
+        std.log.err("User creation failed: {}", .{err});
+        return AuthError.DatabaseError;
+    };
+    defer result.deinit();
+
+    if (result.rows.len == 0) {
         std.log.info("User already exists", .{});
         return AuthError.UserAlreadyExists;
     }
+    const row = result.rows[0];
 
-    // Create user
-    std.log.info("Creating new user", .{});
-    _ = pool.exec(
-        \\INSERT INTO users (client_id, username, password_hash)
-        \\VALUES ($1, $2, $3)
-    , .{ client_id, username, password_hash }) catch |err| {
-        std.log.err("User insertion failed: {}", .{err});
-        return AuthError.DatabaseError;
-    };
-
-    // Fetch created user
-    std.log.info("Fetching created user", .{});
-    const select_result = pool.query(
-        \\SELECT id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
-        \\FROM users WHERE client_id = $1 AND username = $2
-    , .{ client_id, username }) catch |err| {
-        std.log.err("User fetch failed: {}", .{err});
-        return AuthError.DatabaseError;
-    };
-    defer select_result.deinit();
-
-    const row = (try select_result.next()) orelse {
-        std.log.err("No rows returned after user creation", .{});
-        return AuthError.DatabaseError;
-    };
-
-    std.log.info("User created successfully", .{});
     return User{
-        .id = allocator.dupe(u8, row.get([]const u8, 0)) catch return AuthError.DatabaseError,
-        .client_id = allocator.dupe(u8, row.get([]const u8, 1)) catch return AuthError.DatabaseError,
-        .username = allocator.dupe(u8, row.get([]const u8, 2)) catch return AuthError.DatabaseError,
-        .password_hash = allocator.dupe(u8, row.get([]const u8, 3)) catch return AuthError.DatabaseError,
-        .created_at = allocator.dupe(u8, row.get([]const u8, 4)) catch return AuthError.DatabaseError,
-        .is_active = row.get(bool, 5),
+        .id = allocator.dupe(u8, row.values[0].text) catch return AuthError.DatabaseError,
+        .client_id = allocator.dupe(u8, row.values[1].text) catch return AuthError.DatabaseError,
+        .username = allocator.dupe(u8, row.values[2].text) catch return AuthError.DatabaseError,
+        .password_hash = allocator.dupe(u8, row.values[3].text) catch return AuthError.DatabaseError,
+        .created_at = allocator.dupe(u8, row.values[4].text) catch return AuthError.DatabaseError,
+        .is_active = row.values[5].asBoolean() orelse false,
     };
 }
 
 /// Get user by client_id and username
 pub fn getUserByCredentials(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     client_id: []const u8,
     username: []const u8,
 ) !User {
-    const user_result = pool.query(
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [1024]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
         \\SELECT id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
-        \\FROM users WHERE client_id = $1 AND username = $2 AND is_active = true
+        \\FROM users WHERE client_id = '{s}' AND username = '{s}' AND is_active = true
     , .{ client_id, username }) catch return AuthError.DatabaseError;
+
+    const user_result = db.query(sql, .{}) catch return AuthError.DatabaseError;
     defer user_result.deinit();
 
-    const row = (try user_result.next()) orelse return AuthError.UserNotFound;
+    if (user_result.rows.len == 0) return AuthError.UserNotFound;
+    const row = user_result.rows[0];
 
     return User{
-        .id = allocator.dupe(u8, row.get([]const u8, 0)) catch return AuthError.DatabaseError,
-        .client_id = allocator.dupe(u8, row.get([]const u8, 1)) catch return AuthError.DatabaseError,
-        .username = allocator.dupe(u8, row.get([]const u8, 2)) catch return AuthError.DatabaseError,
-        .password_hash = allocator.dupe(u8, row.get([]const u8, 3)) catch return AuthError.DatabaseError,
-        .created_at = allocator.dupe(u8, row.get([]const u8, 4)) catch return AuthError.DatabaseError,
-        .is_active = row.get(bool, 5),
+        .id = allocator.dupe(u8, row.values[0].text) catch return AuthError.DatabaseError,
+        .client_id = allocator.dupe(u8, row.values[1].text) catch return AuthError.DatabaseError,
+        .username = allocator.dupe(u8, row.values[2].text) catch return AuthError.DatabaseError,
+        .password_hash = allocator.dupe(u8, row.values[3].text) catch return AuthError.DatabaseError,
+        .created_at = allocator.dupe(u8, row.values[4].text) catch return AuthError.DatabaseError,
+        .is_active = row.values[5].asBoolean() orelse false,
     };
 }
 
 /// Create session in database
 pub fn createSession(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     client_id: []const u8,
     user_id: []const u8,
     token_hash: []const u8,
     expires_at: i64,
 ) ![]const u8 {
-    std.log.info("Creating session: client_id={s}, user_id={s}, expires_at={}", .{ client_id, user_id, expires_at });
-    std.log.info("Token hash length: {}", .{token_hash.len});
-
-    // Convert expires_at to string for binding
-    const expires_at_str = try std.fmt.allocPrint(allocator, "{}", .{expires_at});
-    defer allocator.free(expires_at_str);
-
-    // Insert session into database
-    std.log.info("About to execute session INSERT with values: client_id='{s}', user_id='{s}', token_hash_len={}, expires_at={s}", .{ client_id, user_id, token_hash.len, expires_at_str });
-
-    const exec_result = pool.exec(
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [1024]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
         \\INSERT INTO sessions (client_id, user_id, token_hash, expires_at)
-        \\VALUES ($1, $2, $3, to_timestamp($4))
-    , .{ client_id, user_id, token_hash, expires_at_str }) catch |err| {
-        std.log.err("Session exec failed with error: {s} - client_id='{s}', user_id='{s}', token_hash_len={}, expires_at={s}", .{ @errorName(err), client_id, user_id, token_hash.len, expires_at_str });
-        return AuthError.DatabaseError;
-    };
+        \\VALUES ('{s}', '{s}', '{s}', to_timestamp({}))
+        \\RETURNING id::text
+    , .{ client_id, user_id, token_hash, expires_at }) catch return AuthError.DatabaseError;
 
-    std.log.info("Session exec succeeded, rows affected: {any}", .{exec_result});
-
-    // Query to get the session ID that was just created
-    const session_result = pool.query(
-        \\SELECT id::text FROM sessions
-        \\WHERE client_id = $1 AND user_id = $2 AND token_hash = $3
-        \\ORDER BY created_at DESC LIMIT 1
-    , .{ client_id, user_id, token_hash }) catch |err| {
-        std.log.err("Session query failed: {}", .{err});
+    const session_result = db.query(sql, .{}) catch |err| {
+        std.log.err("Session creation failed: {}", .{err});
         return AuthError.DatabaseError;
     };
     defer session_result.deinit();
 
-    const row = (try session_result.next()) orelse return AuthError.DatabaseError;
-    return allocator.dupe(u8, row.get([]const u8, 0));
+    if (session_result.rows.len == 0) return AuthError.DatabaseError;
+    return allocator.dupe(u8, session_result.rows[0].values[0].text);
 }
 
 /// Validate session token and return user
 pub fn validateSession(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     token_hash: []const u8,
 ) !User {
-    const session_result = pool.query(
-        \\SELECT u.id::text, u.client_id::text, u.username, u.password_hash,
-        \\       to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at,
-        \\       u.is_active
-        \\FROM users u
-        \\JOIN sessions s ON u.id = s.user_id
-        \\WHERE s.token_hash = $1
-        \\  AND s.expires_at > NOW()
-        \\  AND u.is_active = true
-        \\LIMIT 1
-    , .{token_hash}) catch |err| {
-        std.log.err("Database query failed: {}", .{err});
+    // First, get the user_id from the session (manual SQL construction)
+    var sql_buf: [512]u8 = undefined;
+    const session_sql = std.fmt.bufPrint(&sql_buf,
+        \\SELECT user_id::text FROM sessions WHERE token_hash = '{s}' AND expires_at > NOW() LIMIT 1
+    , .{token_hash}) catch return AuthError.DatabaseError;
+
+    const session_result = db.query(session_sql, .{}) catch |err| {
+        std.log.err("Session query failed: {}", .{err});
         return AuthError.DatabaseError;
     };
     defer session_result.deinit();
 
-    const row = (try session_result.next()) orelse return AuthError.InvalidToken;
+    if (session_result.rows.len == 0) return AuthError.InvalidToken;
+    const user_id = session_result.rows[0].values[0].text;
+
+    // Then, get the user details (manual SQL construction)
+    var user_sql_buf: [1024]u8 = undefined;
+    const user_sql = std.fmt.bufPrint(&user_sql_buf,
+        \\SELECT id::text, client_id::text, username, password_hash, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at, is_active
+        \\FROM users WHERE id = '{s}' AND is_active = true LIMIT 1
+    , .{user_id}) catch return AuthError.DatabaseError;
+
+    const user_result = db.query(user_sql, .{}) catch |err| {
+        std.log.err("User query failed: {}", .{err});
+        return AuthError.DatabaseError;
+    };
+    defer user_result.deinit();
+
+    if (user_result.rows.len == 0) return AuthError.InvalidToken;
+    const row = user_result.rows[0];
+
+    // Batch allocate all strings at once to reduce allocation overhead
+    const id = allocator.dupe(u8, row.values[0].text) catch return AuthError.DatabaseError;
+    errdefer allocator.free(id);
+    const client_id = allocator.dupe(u8, row.values[1].text) catch return AuthError.DatabaseError;
+    errdefer allocator.free(client_id);
+    const username = allocator.dupe(u8, row.values[2].text) catch return AuthError.DatabaseError;
+    errdefer allocator.free(username);
+    const password_hash = allocator.dupe(u8, row.values[3].text) catch return AuthError.DatabaseError;
+    errdefer allocator.free(password_hash);
+    const created_at = allocator.dupe(u8, row.values[4].text) catch return AuthError.DatabaseError;
+    errdefer allocator.free(created_at);
 
     return User{
-        .id = allocator.dupe(u8, row.get([]const u8, 0)) catch return AuthError.DatabaseError,
-        .client_id = allocator.dupe(u8, row.get([]const u8, 1)) catch return AuthError.DatabaseError,
-        .username = allocator.dupe(u8, row.get([]const u8, 2)) catch return AuthError.DatabaseError,
-        .password_hash = allocator.dupe(u8, row.get([]const u8, 3)) catch return AuthError.DatabaseError,
-        .created_at = allocator.dupe(u8, row.get([]const u8, 4)) catch return AuthError.DatabaseError,
-        .is_active = row.get(bool, 5),
+        .id = id,
+        .client_id = client_id,
+        .username = username,
+        .password_hash = password_hash,
+        .created_at = created_at,
+        .is_active = std.mem.eql(u8, row.values[5].text, "t"),
     };
 }
 
 /// Logout user by invalidating session
 pub fn deleteSession(
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     token_hash: []const u8,
 ) !void {
-    _ = pool.exec(
-        \\DELETE FROM sessions WHERE token_hash = $1
-    , .{token_hash}) catch return AuthError.DatabaseError;
+    _ = db.exec("DELETE FROM sessions WHERE token_hash = $1", .{token_hash}) catch return AuthError.DatabaseError;
 }
 
 /// Clean up expired sessions
-pub fn cleanupExpiredSessions(pool: *pg.Pool) !void {
+pub fn cleanupExpiredSessions(db: *zlay_db.Database) !void {
     const current_time = std.time.timestamp();
-    _ = pool.exec(
-        \\DELETE FROM sessions WHERE expires_at <= to_timestamp($1)
-    , .{current_time}) catch return AuthError.DatabaseError;
+    _ = db.exec("DELETE FROM sessions WHERE expires_at <= to_timestamp($1)", .{current_time}) catch return AuthError.DatabaseError;
 }
 
 /// Create a new project
 pub fn createProject(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     user_id: []const u8,
     name: []const u8,
     description: []const u8,
 ) ![]const u8 {
-    std.log.info("database.createProject: user_id={s}, name={s}", .{ user_id, name });
-
-    // Insert project
-    _ = pool.exec(
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [1024]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
         \\INSERT INTO projects (user_id, name, description)
-        \\VALUES ($1, $2, $3)
-    , .{ user_id, name, description }) catch |err| {
-        std.log.err("Project insertion failed: {}", .{err});
-        return AuthError.DatabaseError;
-    };
+        \\VALUES ('{s}', '{s}', '{s}')
+        \\RETURNING id::text
+    , .{ user_id, name, description }) catch return AuthError.DatabaseError;
 
-    // Get the created project ID
-    const result = pool.query(
-        \\SELECT id::text FROM projects
-        \\WHERE user_id = $1 AND name = $2
-        \\ORDER BY created_at DESC LIMIT 1
-    , .{ user_id, name }) catch |err| {
-        std.log.err("Project fetch failed: {}", .{err});
+    const result = db.query(sql, .{}) catch |err| {
+        std.log.err("Project creation failed: {}", .{err});
         return AuthError.DatabaseError;
     };
     defer result.deinit();
 
-    const row = (try result.next()) orelse return AuthError.DatabaseError;
-    return allocator.dupe(u8, row.get([]const u8, 0));
+    if (result.rows.len == 0) return AuthError.DatabaseError;
+    return allocator.dupe(u8, result.rows[0].values[0].text);
 }
 
 /// Get projects by user ID
 pub fn getProjectsByUser(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     user_id: []const u8,
 ) ![]Project {
-    const result = pool.query(
-        \\SELECT id::text, user_id::text, name, description, is_active,
-        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
-        \\FROM projects WHERE user_id = $1 AND is_active = true
-        \\ORDER BY created_at DESC
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [512]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
+        \\SELECT id::text, user_id::text, name, description, is_active::boolean, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
+        \\FROM projects WHERE user_id = '{s}' AND is_active = true ORDER BY created_at DESC
     , .{user_id}) catch return AuthError.DatabaseError;
+
+    const result = db.query(sql, .{}) catch return AuthError.DatabaseError;
     defer result.deinit();
 
     var projects = try std.ArrayList(Project).initCapacity(allocator, 0);
     defer projects.deinit(allocator);
 
-    while (try result.next()) |row| {
+    for (result.rows) |row| {
         try projects.append(allocator, Project{
-            .id = try allocator.dupe(u8, row.get([]const u8, 0)),
-            .user_id = try allocator.dupe(u8, row.get([]const u8, 1)),
-            .name = try allocator.dupe(u8, row.get([]const u8, 2)),
-            .description = try allocator.dupe(u8, row.get([]const u8, 3)),
-            .is_active = row.get(bool, 4),
-            .created_at = try allocator.dupe(u8, row.get([]const u8, 5)),
+            .id = try allocator.dupe(u8, row.values[0].text),
+            .user_id = try allocator.dupe(u8, row.values[1].text),
+            .name = try allocator.dupe(u8, row.values[2].text),
+            .description = try allocator.dupe(u8, row.values[3].text),
+            .is_active = row.values[4].asBoolean() orelse false,
+            .created_at = try allocator.dupe(u8, row.values[5].text),
         });
     }
 
@@ -259,51 +242,62 @@ pub fn getProjectsByUser(
 /// Get project by ID
 pub fn getProjectById(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     project_id: []const u8,
 ) !Project {
-    const result = pool.query(
-        \\SELECT id::text, user_id::text, name, description, is_active,
-        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
-        \\FROM projects WHERE id = $1 AND is_active = true
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [512]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
+        \\SELECT id::text, user_id::text, name, description, is_active::boolean, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
+        \\FROM projects WHERE id = '{s}' AND is_active = true
     , .{project_id}) catch return AuthError.DatabaseError;
+
+    const result = db.query(sql, .{}) catch return AuthError.DatabaseError;
     defer result.deinit();
 
-    const row = (try result.next()) orelse return AuthError.DatabaseError;
+    if (result.rows.len == 0) return AuthError.DatabaseError;
+    const row = result.rows[0];
     return Project{
-        .id = try allocator.dupe(u8, row.get([]const u8, 0)),
-        .user_id = try allocator.dupe(u8, row.get([]const u8, 1)),
-        .name = try allocator.dupe(u8, row.get([]const u8, 2)),
-        .description = try allocator.dupe(u8, row.get([]const u8, 3)),
-        .is_active = row.get(bool, 4),
-        .created_at = try allocator.dupe(u8, row.get([]const u8, 5)),
+        .id = try allocator.dupe(u8, row.values[0].text),
+        .user_id = try allocator.dupe(u8, row.values[1].text),
+        .name = try allocator.dupe(u8, row.values[2].text),
+        .description = try allocator.dupe(u8, row.values[3].text),
+        .is_active = row.values[4].boolean,
+        .created_at = try allocator.dupe(u8, row.values[5].text),
     };
 }
 
 /// Update project
 pub fn updateProject(
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     project_id: []const u8,
     name: []const u8,
     description: []const u8,
 ) !void {
-    _ = pool.exec(
-        \\UPDATE projects SET name = $1, description = $2
-        \\WHERE id = $3
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [512]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
+        \\UPDATE projects SET name = '{s}', description = '{s}' WHERE id = '{s}'
     , .{ name, description, project_id }) catch return AuthError.DatabaseError;
+
+    _ = db.exec(sql, .{}) catch return AuthError.DatabaseError;
 }
 
 /// Delete project (soft delete)
-pub fn deleteProject(pool: *pg.Pool, project_id: []const u8) !void {
-    _ = pool.exec(
-        \\UPDATE projects SET is_active = false WHERE id = $1
+pub fn deleteProject(db: *zlay_db.Database, project_id: []const u8) !void {
+    // Use manual SQL construction (workaround for zlay-db parameter binding issue)
+    var sql_buf: [256]u8 = undefined;
+    const sql = std.fmt.bufPrint(&sql_buf,
+        \\UPDATE projects SET is_active = false WHERE id = '{s}'
     , .{project_id}) catch return AuthError.DatabaseError;
+
+    _ = db.exec(sql, .{}) catch return AuthError.DatabaseError;
 }
 
 /// Create a new datasource
 pub fn createDatasource(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     project_id: []const u8,
     name: []const u8,
     ds_type: []const u8,
@@ -311,56 +305,38 @@ pub fn createDatasource(
 ) ![]const u8 {
     std.log.info("database.createDatasource: project_id={s}, name={s}", .{ project_id, name });
 
-    // Insert datasource
-    _ = pool.exec(
-        \\INSERT INTO datasources (project_id, name, type, config)
-        \\VALUES ($1, $2, $3, $4::jsonb)
-    , .{ project_id, name, ds_type, config }) catch |err| {
-        std.log.err("Datasource insertion failed: {}", .{err});
-        return AuthError.DatabaseError;
-    };
-
-    // Get the created datasource ID
-    const result = pool.query(
-        \\SELECT id::text FROM datasources
-        \\WHERE project_id = $1 AND name = $2
-        \\ORDER BY created_at DESC LIMIT 1
-    , .{ project_id, name }) catch |err| {
-        std.log.err("Datasource fetch failed: {}", .{err});
+    // Insert datasource and return ID in single query
+    const result = db.query("INSERT INTO datasources (project_id, name, type, config) VALUES ($1, $2, $3, $4::jsonb) RETURNING id::text", .{ project_id, name, ds_type, config }) catch |err| {
+        std.log.err("Datasource creation failed: {}", .{err});
         return AuthError.DatabaseError;
     };
     defer result.deinit();
 
-    const row = (try result.next()) orelse return AuthError.DatabaseError;
-    return allocator.dupe(u8, row.get([]const u8, 0));
+    if (result.rows.len == 0) return AuthError.DatabaseError;
+    return allocator.dupe(u8, result.rows[0].values[0].text);
 }
 
 /// Get datasources by project ID
 pub fn getDatasourcesByProject(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     project_id: []const u8,
 ) ![]Datasource {
-    const result = pool.query(
-        \\SELECT id::text, project_id::text, name, type, config::text, is_active,
-        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
-        \\FROM datasources WHERE project_id = $1 AND is_active = true
-        \\ORDER BY created_at DESC
-    , .{project_id}) catch return AuthError.DatabaseError;
+    const result = db.query("SELECT id::text, project_id::text, name, type, config::text, is_active::boolean, to_char(created_at, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as created_at FROM datasources WHERE project_id = $1 AND is_active = true ORDER BY created_at DESC", .{project_id}) catch return AuthError.DatabaseError;
     defer result.deinit();
 
     var datasources = try std.ArrayList(Datasource).initCapacity(allocator, 0);
     defer datasources.deinit(allocator);
 
-    while (try result.next()) |row| {
+    for (result.rows) |row| {
         try datasources.append(allocator, Datasource{
-            .id = try allocator.dupe(u8, row.get([]const u8, 0)),
-            .project_id = try allocator.dupe(u8, row.get([]const u8, 1)),
-            .name = try allocator.dupe(u8, row.get([]const u8, 2)),
-            .type = try allocator.dupe(u8, row.get([]const u8, 3)),
-            .config = try allocator.dupe(u8, row.get([]const u8, 4)),
-            .is_active = row.get(bool, 5),
-            .created_at = try allocator.dupe(u8, row.get([]const u8, 6)),
+            .id = try allocator.dupe(u8, row.values[0].text),
+            .project_id = try allocator.dupe(u8, row.values[1].text),
+            .name = try allocator.dupe(u8, row.values[2].text),
+            .type = try allocator.dupe(u8, row.values[3].text),
+            .config = try allocator.dupe(u8, row.values[4].text),
+            .is_active = row.values[5].asBoolean() orelse false,
+            .created_at = try allocator.dupe(u8, row.values[6].text),
         });
     }
 
@@ -370,45 +346,37 @@ pub fn getDatasourcesByProject(
 /// Get datasource by ID
 pub fn getDatasourceById(
     allocator: std.mem.Allocator,
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     datasource_id: []const u8,
 ) !Datasource {
-    const result = pool.query(
-        \\SELECT id::text, project_id::text, name, type, config::text, is_active,
-        \\       to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as created_at
-        \\FROM datasources WHERE id = $1 AND is_active = true
-    , .{datasource_id}) catch return AuthError.DatabaseError;
+    const result = db.query("SELECT id::text, project_id::text, name, type, config::text, is_active::boolean, to_char(created_at, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as created_at FROM datasources WHERE id = $1 AND is_active = true", .{datasource_id}) catch return AuthError.DatabaseError;
     defer result.deinit();
 
-    const row = (try result.next()) orelse return AuthError.DatabaseError;
+    if (result.rows.len == 0) return AuthError.DatabaseError;
+    const row = result.rows[0];
     return Datasource{
-        .id = try allocator.dupe(u8, row.get([]const u8, 0)),
-        .project_id = try allocator.dupe(u8, row.get([]const u8, 1)),
-        .name = try allocator.dupe(u8, row.get([]const u8, 2)),
-        .type = try allocator.dupe(u8, row.get([]const u8, 3)),
-        .config = try allocator.dupe(u8, row.get([]const u8, 4)),
-        .is_active = row.get(bool, 5),
-        .created_at = try allocator.dupe(u8, row.get([]const u8, 6)),
+        .id = try allocator.dupe(u8, row.values[0].text),
+        .project_id = try allocator.dupe(u8, row.values[1].text),
+        .name = try allocator.dupe(u8, row.values[2].text),
+        .type = try allocator.dupe(u8, row.values[3].text),
+        .config = try allocator.dupe(u8, row.values[4].text),
+        .is_active = row.values[5].asBoolean() orelse false,
+        .created_at = try allocator.dupe(u8, row.values[6].text),
     };
 }
 
 /// Update datasource
 pub fn updateDatasource(
-    pool: *pg.Pool,
+    db: *zlay_db.Database,
     datasource_id: []const u8,
     name: []const u8,
     ds_type: []const u8,
     config: []const u8,
 ) !void {
-    _ = pool.exec(
-        \\UPDATE datasources SET name = $1, type = $2, config = $3::jsonb
-        \\WHERE id = $4
-    , .{ name, ds_type, config, datasource_id }) catch return AuthError.DatabaseError;
+    _ = db.exec("UPDATE datasources SET name = $1, type = $2, config = $3::jsonb WHERE id = $4", .{ name, ds_type, config, datasource_id }) catch return AuthError.DatabaseError;
 }
 
 /// Delete datasource (soft delete)
-pub fn deleteDatasource(pool: *pg.Pool, datasource_id: []const u8) !void {
-    _ = pool.exec(
-        \\UPDATE datasources SET is_active = false WHERE id = $1
-    , .{datasource_id}) catch return AuthError.DatabaseError;
+pub fn deleteDatasource(db: *zlay_db.Database, datasource_id: []const u8) !void {
+    _ = db.exec("UPDATE datasources SET is_active = false WHERE id = $1", .{datasource_id}) catch return AuthError.DatabaseError;
 }

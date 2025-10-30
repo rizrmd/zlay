@@ -21,15 +21,7 @@ const isCreating = ref(false)
 const projectName = ref('')
 const createLoading = ref(false)
 
-// Add dummy project for UI testing
-const dummyProject: Project = {
-  id: 'dummy-1',
-  user_id: 'dummy-user',
-  name: 'Sample Project',
-  description: 'This is a dummy project to test the UI',
-  is_active: true,
-  created_at: new Date().toISOString()
-}
+
 
 const handleLogout = async () => {
   await logout()
@@ -41,8 +33,7 @@ const loadProjects = async () => {
     projectsLoading.value = true
     projectsError.value = null
     const apiProjects = await apiClient.getProjects()
-    // Add dummy project for UI testing
-    projects.value = [dummyProject, ...apiProjects]
+    projects.value = apiProjects
   } catch (error) {
     console.error('Failed to load projects:', error)
     projectsError.value = 'Failed to load projects'

@@ -91,7 +91,7 @@ const emit = defineEmits<{
 }>()
 
 const formatDate = (timestamp: string) => {
-  return new Date(parseFloat(timestamp) * 1000).toLocaleDateString()
+  return new Date(timestamp).toLocaleDateString()
 }
 
 const handleAddMember = () => {
