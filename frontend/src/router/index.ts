@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import ChatView from '@/views/ChatView.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
@@ -25,6 +26,12 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/p/:id/chat',
+      name: 'chat',
+      component: ChatView,
       meta: { requiresAuth: true },
     },
   ],
