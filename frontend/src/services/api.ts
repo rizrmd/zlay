@@ -22,6 +22,15 @@ export interface UserProfile {
   created_at: string
 }
 
+export interface Project {
+  id: string
+  user_id: string
+  name: string
+  description: string
+  is_active: boolean
+  created_at: string
+}
+
 class ApiClient {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`
@@ -100,6 +109,17 @@ class ApiClient {
 
   async getProfile(): Promise<{ success: boolean; user: UserProfile }> {
     return this.request<{ success: boolean; user: UserProfile }>('/api/auth/profile')
+  }
+
+  async getProjects(): Promise<Project[]> {
+    return this.request<Project[]>('/api/projects')
+  }
+
+  async createProject(name: string, description: string): Promise<{ success: boolean; message: string; project_id: string }> {
+    return this.request<{ success: boolean; message: string; project_id: string }>('/api/projects', {
+      method: 'POST',
+      body: JSON.stringify({ name, description }),
+    })
   }
 
   async checkHealth(): Promise<{ status: string }> {
