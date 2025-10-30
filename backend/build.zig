@@ -13,11 +13,25 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    // Add zlay-db module
+    const zlay_db = b.addModule("zlay-db", .{
+        .root_source_file = b.path("zlay-db/src/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("zlay-db", zlay_db);
+
+    // Keep pg for now during transition
     const pg = b.dependency("pg", .{
         .target = target,
         .optimize = optimize,
     });
     exe.root_module.addImport("pg", pg.module("pg"));
+
+    // Link required libraries for zlay-db
+    exe.linkLibC();
+    exe.linkSystemLibrary("sqlite3");
+    exe.linkSystemLibrary("pq"); // PostgreSQL
 
     b.installArtifact(exe);
 
@@ -40,11 +54,24 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    // Add zlay-db module to production build
+    const prod_zlay_db = b.addModule("zlay-db", .{
+        .root_source_file = b.path("zlay-db/src/main.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+    });
+    prod_exe.root_module.addImport("zlay-db", prod_zlay_db);
+
     const prod_pg = b.dependency("pg", .{
         .target = target,
         .optimize = .ReleaseFast,
     });
     prod_exe.root_module.addImport("pg", prod_pg.module("pg"));
+
+    // Link required libraries for production build
+    prod_exe.linkLibC();
+    prod_exe.linkSystemLibrary("sqlite3");
+    prod_exe.linkSystemLibrary("pq"); // PostgreSQL
 
     b.installArtifact(prod_exe);
 
