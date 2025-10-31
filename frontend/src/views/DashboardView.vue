@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/composables/useAuth'
 import { apiClient } from '@/services/api'
 import ProjectCard from '@/components/ProjectCard.vue'
+import Navbar from '@/components/Navbar.vue'
 import type { Project } from '@/services/api'
 
 const { user, isLoading, logout, checkAuth } = useAuth()
@@ -102,11 +103,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-8">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Dashboard</h1>
-      <Button @click="handleLogout" variant="outline">Logout</Button>
-    </div>
+  <div class="min-h-screen bg-gray-50">
+    <Navbar />
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
     <div v-if="isLoading" class="text-center">
       <p>Loading...</p>
@@ -114,21 +113,6 @@ onMounted(async () => {
 
     <!-- User Dashboard -->
     <div v-if="user" class="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome back!</CardTitle>
-          <CardDescription>Your profile information</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div class="space-y-2">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p>
-              <strong>Member since:</strong> {{ new Date(user.created_at).toLocaleDateString() }}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       <!-- Projects Section -->
       <div>
         <h2 class="text-2xl font-bold mb-6">Projects</h2>
@@ -285,8 +269,9 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-else class="text-center">
-      <p>Failed to load user profile</p>
+      <div v-else class="text-center py-8">
+        <p class="text-red-600">Failed to load dashboard</p>
+      </div>
     </div>
   </div>
 </template>

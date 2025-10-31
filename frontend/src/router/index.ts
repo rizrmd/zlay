@@ -4,6 +4,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import AdminDashboard from '@/views/AdminDashboard.vue'
 import ChatView from '@/views/ChatView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
@@ -34,6 +35,12 @@ const router = createRouter({
       name: 'admin',
       component: AdminDashboard,
       meta: { requiresAuth: true, requiresRoot: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/p/:id/chat',

@@ -2032,7 +2032,7 @@ pub fn main() !void {
     router.post(base_allocator, "/api/admin/clients/*/domains", addDomainHandler);
     router.options(base_allocator, "/api/admin/clients/*", corsHandler);
     router.put(base_allocator, "/api/admin/clients/*", updateClientHandler);
-    // router.delete(base_allocator, "/api/admin/clients/*", deleteClientHandler); // TODO: implement
+    router.delete(base_allocator, "/api/admin/clients/*", deleteClientHandler);
 
     if (production) {
         // In production, serve the SPA
@@ -2320,6 +2320,64 @@ fn updateClientHandler(req: *Request, res: *Response, allocator: std.mem.Allocat
     };
 
     const response_json = "{\"success\": true, \"message\": \"Client updated\"}";
+    res.json(allocator, response_json);
+}
+
+fn deleteClientHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, db: *zlay_db.Database) void {
+    // Add CORS headers
+    setCorsHeaders(res, req);
+
+    // Require root user
+    const user = requireRootUser(req, res, allocator, db) orelse return;
+    defer {
+        allocator.free(user.id);
+        allocator.free(user.username);
+        allocator.free(user.password_hash);
+        allocator.free(user.created_at);
+    }
+
+    // Parse client ID from path
+    const path_parts = std.mem.splitScalar(u8, req.path, '/');
+    var iter = path_parts;
+    _ = iter.next(); // skip empty
+    _ = iter.next(); // api
+    _ = iter.next(); // admin
+    _ = iter.next(); // clients
+    const client_id = iter.next() orelse {
+        res.status_code = 400;
+        const error_json = "{\"error\": \"Invalid client ID\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    // Check if client exists and is active
+    const client = auth.database.getClientById(allocator, db, client_id) catch |err| {
+        std.log.err("Failed to get client: {}", .{err});
+        res.status_code = 404;
+        const error_json = "{\"error\": \"Client not found\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+    defer {
+        allocator.free(client.id);
+        allocator.free(client.name);
+        allocator.free(client.slug);
+        if (client.ai_api_key) |key| allocator.free(key);
+        if (client.ai_api_url) |url| allocator.free(url);
+        if (client.ai_api_model) |model| allocator.free(model);
+        allocator.free(client.created_at);
+    }
+
+    // Delete client (hard delete)
+    auth.database.deleteClient(db, client_id) catch |err| {
+        std.log.err("Failed to delete client: {}", .{err});
+        res.status_code = 500;
+        const error_json = "{\"error\": \"Failed to delete client\"}";
+        res.json(allocator, error_json);
+        return;
+    };
+
+    const response_json = "{\"success\": true, \"message\": \"Client deleted\"}";
     res.json(allocator, response_json);
 }
 

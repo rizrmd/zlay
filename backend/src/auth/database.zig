@@ -564,9 +564,16 @@ pub fn updateClient(
     _ = db.exec(sql, .{}) catch return AuthError.DatabaseError;
 }
 
-/// Delete client (soft delete)
+/// Delete client (hard delete)
 pub fn deleteClient(db: *zlay_db.Database, client_id: []const u8) !void {
-    _ = db.exec("UPDATE clients SET is_active = false WHERE id = $1", .{client_id}) catch return AuthError.DatabaseError;
+    // Delete associated sessions first
+    _ = db.exec("DELETE FROM sessions WHERE client_id = $1", .{client_id}) catch return AuthError.DatabaseError;
+    // Delete associated users (this will cascade to projects and datasources)
+    _ = db.exec("DELETE FROM users WHERE client_id = $1", .{client_id}) catch return AuthError.DatabaseError;
+    // Delete associated domains
+    _ = db.exec("DELETE FROM domains WHERE client_id = $1", .{client_id}) catch return AuthError.DatabaseError;
+    // Finally delete the client
+    _ = db.exec("DELETE FROM clients WHERE id = $1", .{client_id}) catch return AuthError.DatabaseError;
 }
 
 /// Add domain to client

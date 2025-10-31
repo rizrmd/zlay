@@ -12,6 +12,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -31,12 +37,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import Navbar from '@/components/Navbar.vue'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Eye, Settings, MoreVertical } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
@@ -106,7 +107,10 @@ const editClientAiApiUrl = ref('')
 const editClientAiApiModel = ref('')
 const editClientLoading = ref(false)
 
-// Edit client dialog (old, removed)
+// Delete client confirmation dialog
+const showDeleteClientDialog = ref(false)
+const clientToDelete = ref<Client | null>(null)
+const deleteClientLoading = ref(false)
 
 const handleLogout = async () => {
   await logout()
@@ -282,17 +286,17 @@ const handleUpdateClient = async () => {
   }
 }
 
-const handleDeleteClient = async (client: Client) => {
-  if (
-    !confirm(
-      `Are you sure you want to delete client "${client.name}"? This will also delete all associated domains and users.`,
-    )
-  ) {
-    return
-  }
+const handleDeleteClient = (client: Client) => {
+  clientToDelete.value = client
+  showDeleteClientDialog.value = true
+}
+
+const confirmDeleteClient = async () => {
+  if (!clientToDelete.value) return
 
   try {
-    const response = await fetch(`/api/admin/clients/${client.id}`, {
+    deleteClientLoading.value = true
+    const response = await fetch(`/api/admin/clients/${clientToDelete.value.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -304,9 +308,13 @@ const handleDeleteClient = async (client: Client) => {
       throw new Error('Failed to delete client')
     }
 
+    showDeleteClientDialog.value = false
+    clientToDelete.value = null
     await loadClients()
   } catch (error) {
     console.error('Failed to delete client:', error)
+  } finally {
+    deleteClientLoading.value = false
   }
 }
 
@@ -337,10 +345,6 @@ const handleToggleDomainStatus = async (domain: Domain) => {
 }
 
 const handleDeleteDomain = async (domain: Domain) => {
-  if (!confirm(`Are you sure you want to remove domain "${domain.domain}"?`)) {
-    return
-  }
-
   try {
     const response = await fetch(`/api/admin/clients/${domain.client_id}/domains/${domain.id}`, {
       method: 'DELETE',
@@ -486,29 +490,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-8">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Administrator Dashboard</h1>
-      <Button @click="handleLogout" variant="outline">Logout</Button>
-    </div>
+  <div class="min-h-screen bg-gray-50">
+    <Navbar />
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 
     <div v-if="user" class="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Administrator Access</CardTitle>
-          <CardDescription>Manage clients and domains for the multi-tenant system</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div class="space-y-2">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Role:</strong> Administrator</p>
-             <p>
-               <strong>Member since:</strong> {{ new Date(user.created_at).toLocaleDateString() }}
-             </p>
-           </div>
-          </CardContent>
-        </Card>
-
       <!-- Clients Section -->
       <Dialog v-model:open="showEditModal">
         <DialogContent>
@@ -773,6 +759,31 @@ onMounted(async () => {
           </Table>
         </div>
       </DialogContent>
-     </Dialog>
-   </div>
+      </Dialog>
+
+      <!-- Delete Client Confirmation Dialog -->
+      <AlertDialog v-model:open="showDeleteClientDialog">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Client</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete client "{{ clientToDelete?.name }}"?
+              This action cannot be undone and will permanently remove the client along with all associated domains and users.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel @click="showDeleteClientDialog = false">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              @click="confirmDeleteClient"
+              :disabled="deleteClientLoading"
+              class="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              <span v-if="deleteClientLoading">Deleting...</span>
+              <span v-else>Delete Client</span>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+        </AlertDialog>
+    </div>
+  </div>
 </template>

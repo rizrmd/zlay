@@ -28,7 +28,7 @@ export default defineConfig({
         ws: true,
       },
     },
-    allowedHosts: ['dev.maldevta.local'],
+    allowedHosts: ['dev.maldevta.local', 'domain.example.local'],
   },
   clearScreen: false,
 })
