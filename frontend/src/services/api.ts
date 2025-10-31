@@ -59,7 +59,7 @@ class ApiClient {
 
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const url = `${API_BASE_URL}/api/auth/login`
-    
+
     const config: RequestInit = {
       method: 'POST',
       headers: {
@@ -73,7 +73,16 @@ class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`)
+      const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`
+
+      // Create specific error types for different scenarios
+      if (response.status === 400 && errorMessage === 'Invalid client') {
+        throw new Error('CLIENT_INVALID')
+      } else if (response.status === 401) {
+        throw new Error('AUTH_INVALID')
+      } else {
+        throw new Error(errorMessage)
+      }
     }
 
     return response.json()

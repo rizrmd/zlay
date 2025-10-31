@@ -3,6 +3,18 @@ CREATE TABLE IF NOT EXISTS clients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
+    ai_api_key VARCHAR(500),
+    ai_api_url VARCHAR(500),
+    ai_api_model VARCHAR(100),
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create domains table
+CREATE TABLE IF NOT EXISTS domains (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    domain VARCHAR(255) NOT NULL UNIQUE,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -10,7 +22,7 @@ CREATE TABLE IF NOT EXISTS clients (
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    client_id TEXT NOT NULL,
+    client_id UUID NOT NULL,
     username VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_active BOOLEAN DEFAULT true,
@@ -21,7 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Create projects table
 CREATE TABLE IF NOT EXISTS projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     is_active BOOLEAN DEFAULT true,
@@ -31,7 +43,7 @@ CREATE TABLE IF NOT EXISTS projects (
 -- Create datasources table
 CREATE TABLE IF NOT EXISTS datasources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL, -- e.g., 'postgres', 'mysql', 'mongodb'
     config JSONB NOT NULL, -- Connection details as JSON
@@ -42,8 +54,8 @@ CREATE TABLE IF NOT EXISTS datasources (
 -- Create sessions table
 CREATE TABLE IF NOT EXISTS sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    client_id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
+    client_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     token_hash VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -56,8 +68,16 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user_token_expires ON sessions(user_id, 
 CREATE INDEX IF NOT EXISTS idx_users_client_id_username ON users(client_id, username);
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 CREATE INDEX IF NOT EXISTS idx_datasources_project_id ON datasources(project_id);
+CREATE INDEX IF NOT EXISTS idx_domains_client_id ON domains(client_id);
+CREATE INDEX IF NOT EXISTS idx_domains_domain ON domains(domain);
 
 -- Insert a default client for development
-INSERT INTO clients (name, slug, is_active) 
+INSERT INTO clients (name, slug, is_active)
 VALUES ('Development Client', 'dev', true)
 ON CONFLICT (slug) DO NOTHING;
+
+-- Insert root user (password: 12345678)
+INSERT INTO users (client_id, username, password_hash, is_active)
+SELECT c.id, 'root', '2qULuXcLmuJ2JeqwuEazZbnKk/ghkyDK36dob/4kutFoart8F2thvJnylwQ5eFas', true
+FROM clients c WHERE c.slug = 'dev'
+ON CONFLICT (client_id, username) DO NOTHING;

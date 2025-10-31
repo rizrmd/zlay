@@ -19,7 +19,6 @@ pub const DatabaseConfig = struct {
     pub fn fromEnvironment(allocator: std.mem.Allocator) !DatabaseConfig {
         // Get database URL from environment
         const database_url = try getEnvVar(allocator, "DATABASE_URL");
-        defer allocator.free(database_url);
 
         // Determine database type from URL
         if (std.mem.startsWith(u8, database_url, "postgresql://") or

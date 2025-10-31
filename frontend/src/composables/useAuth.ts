@@ -19,7 +19,21 @@ export const useAuth = () => {
       return { success: false, message: response.message || 'Login failed' }
     } catch (error) {
       console.error('Login error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Network error occurred'
+      let errorMessage = 'Network error occurred'
+
+      if (error instanceof Error) {
+        switch (error.message) {
+          case 'CLIENT_INVALID':
+            errorMessage = 'This application is not properly configured for your domain. Please contact your administrator.'
+            break
+          case 'AUTH_INVALID':
+            errorMessage = 'Invalid username or password'
+            break
+          default:
+            errorMessage = error.message
+        }
+      }
+
       return { success: false, message: errorMessage }
     } finally {
       isLoading.value = false

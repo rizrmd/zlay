@@ -33,6 +33,14 @@ pub fn loginUser(
     db: *zlay_db.Database,
     req: LoginRequest,
 ) !LoginResult {
+    // Special handling for root user - bypass client validation
+    const is_root = std.mem.eql(u8, req.username, "root");
+
+    // Validate client exists and is active (unless root user)
+    if (!is_root) {
+        try database.validateClient(db, req.client_id);
+    }
+
     // Get user
     const user = try database.getUserByCredentials(allocator, db, req.client_id, req.username);
 

@@ -26,6 +26,7 @@ This is a full-stack project with Zig backend and Vue.js frontend using shadcn-v
 - Vue 3 Composition API with `<script setup lang="ts">`
 - Import order: external libs, internal modules, relative imports
 - Naming: camelCase for variables, PascalCase for components
+- **ALWAYS** use shadcn-vue UI components for consistent design
 
 **Backend (Zig):**
 - Follow Zig style guide (4-space indentation)

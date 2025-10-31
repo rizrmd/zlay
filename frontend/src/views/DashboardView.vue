@@ -2,9 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useAuth } from '@/composables/useAuth'
 import { apiClient } from '@/services/api'
 import ProjectCard from '@/components/ProjectCard.vue'
@@ -20,8 +19,6 @@ const projectsError = ref<string | null>(null)
 const isCreating = ref(false)
 const projectName = ref('')
 const createLoading = ref(false)
-
-
 
 const handleLogout = async () => {
   await logout()
@@ -99,7 +96,7 @@ onMounted(async () => {
     window.location.href = '/login'
     return
   }
-  
+
   await loadProjects()
 })
 </script>
@@ -115,7 +112,8 @@ onMounted(async () => {
       <p>Loading...</p>
     </div>
 
-    <div v-else-if="user" class="space-y-6">
+    <!-- User Dashboard -->
+    <div v-if="user" class="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Welcome back!</CardTitle>
@@ -141,37 +139,63 @@ onMounted(async () => {
 
         <div v-else-if="projectsError" class="text-center py-8">
           <p class="text-red-600">{{ projectsError }}</p>
-          <Button @click="loadProjects" variant="outline" class="mt-2">
-            Try Again
-          </Button>
+          <Button @click="loadProjects" variant="outline" class="mt-2"> Try Again </Button>
         </div>
 
         <div v-else-if="projects.length === 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <!-- Create Project Card (only card when no projects) -->
-          <Card class="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors duration-200 h-full flex flex-col">
+          <Card
+            class="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors duration-200 h-full flex flex-col"
+          >
             <CardContent class="p-6 flex-1 flex flex-col">
               <!-- Default state -->
-              <div v-if="!isCreating" class="flex flex-col items-center justify-center text-center h-full cursor-pointer" @click="handleCreateProject">
-                <svg class="w-12 h-12 text-gray-400 mb-3 hover:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <div
+                v-if="!isCreating"
+                class="flex flex-col items-center justify-center text-center h-full cursor-pointer"
+                @click="handleCreateProject"
+              >
+                <svg
+                  class="w-12 h-12 text-gray-400 mb-3 hover:text-blue-500 transition-colors"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
-                <p class="text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors">Create Project</p>
+                <p class="text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                  Create Project
+                </p>
               </div>
-              
+
               <!-- Form state -->
               <div v-else class="flex flex-col items-center justify-center h-full">
                 <div class="w-full max-w-xs space-y-4">
-                  <Input 
-                    v-model="projectName" 
+                  <Input
+                    v-model="projectName"
                     placeholder="Enter project name"
                     @keyup.enter="handleSubmitProject"
                     ref="projectNameInput"
                   />
                   <div class="flex space-x-2">
-                    <Button variant="outline" @click="handleCancelCreate" :disabled="createLoading" class="flex-1">
+                    <Button
+                      variant="outline"
+                      @click="handleCancelCreate"
+                      :disabled="createLoading"
+                      class="flex-1"
+                    >
                       Cancel
                     </Button>
-                    <Button @click="handleSubmitProject" :disabled="createLoading || !projectName.trim()" class="flex-1">
+                    <Button
+                      @click="handleSubmitProject"
+                      :disabled="createLoading || !projectName.trim()"
+                      class="flex-1"
+                    >
                       <span v-if="createLoading">Creating...</span>
                       <span v-else>Submit</span>
                     </Button>
@@ -195,32 +219,60 @@ onMounted(async () => {
             @delete-project="handleDeleteProject"
             @click="navigateToChat"
           />
-          
+
           <!-- Create Project Card (always at the end) -->
-          <Card class="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors duration-200 h-full flex flex-col">
+          <Card
+            class="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors duration-200 h-full flex flex-col"
+          >
             <CardContent class="p-6 flex-1 flex flex-col">
               <!-- Default state -->
-              <div v-if="!isCreating" class="flex flex-col items-center justify-center text-center h-full cursor-pointer" @click="handleCreateProject">
-                <svg class="w-12 h-12 text-gray-400 mb-3 hover:text-blue-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <div
+                v-if="!isCreating"
+                class="flex flex-col items-center justify-center text-center h-full cursor-pointer"
+                @click="handleCreateProject"
+              >
+                <svg
+                  class="w-12 h-12 text-gray-400 mb-3 hover:text-blue-500 transition-colors"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
-                <p class="text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors">Create Project</p>
+                <p class="text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors">
+                  Create Project
+                </p>
               </div>
-              
+
               <!-- Form state -->
               <div v-else class="flex flex-col items-center justify-center h-full">
                 <div class="w-full max-w-xs space-y-4">
-                  <Input 
-                    v-model="projectName" 
+                  <Input
+                    v-model="projectName"
                     placeholder="Enter project name"
                     @keyup.enter="handleSubmitProject"
                     ref="projectNameInput"
                   />
                   <div class="flex space-x-2">
-                    <Button variant="outline" @click="handleCancelCreate" :disabled="createLoading" class="flex-1">
+                    <Button
+                      variant="outline"
+                      @click="handleCancelCreate"
+                      :disabled="createLoading"
+                      class="flex-1"
+                    >
                       Cancel
                     </Button>
-                    <Button @click="handleSubmitProject" :disabled="createLoading || !projectName.trim()" class="flex-1">
+                    <Button
+                      @click="handleSubmitProject"
+                      :disabled="createLoading || !projectName.trim()"
+                      class="flex-1"
+                    >
                       <span v-if="createLoading">Creating...</span>
                       <span v-else>Submit</span>
                     </Button>

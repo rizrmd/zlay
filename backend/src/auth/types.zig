@@ -8,6 +8,7 @@ pub const AuthError = error{
     SessionExpired,
     DatabaseError,
     InvalidClient,
+    ClientNotFound,
 };
 
 pub const User = struct {
@@ -64,4 +65,29 @@ pub const Datasource = struct {
     config: []const u8, // JSON string
     is_active: bool,
     created_at: []const u8,
+};
+
+pub const Client = struct {
+    id: []const u8,
+    name: []const u8,
+    slug: []const u8,
+    ai_api_key: ?[]const u8,
+    ai_api_url: ?[]const u8,
+    ai_api_model: ?[]const u8,
+    is_active: bool,
+    created_at: []const u8,
+};
+
+pub const Domain = struct {
+    id: []const u8,
+    client_id: []const u8,
+    domain: []const u8,
+    is_active: bool,
+    created_at: []const u8,
+};
+
+pub const ClientSettings = struct {
+    ai_api_key: ?[]const u8,
+    ai_api_url: ?[]const u8,
+    ai_api_model: ?[]const u8,
 };
