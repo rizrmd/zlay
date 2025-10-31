@@ -78,7 +78,10 @@ export const useAuth = () => {
       }
       return false
     } catch (error) {
-      console.error('Check auth error:', error)
+      // Only log unexpected errors, not authentication failures
+      if (!(error instanceof Error) || error.message !== 'Authentication required') {
+        console.error('Check auth error:', error)
+      }
       user.value = null
       return false
     }

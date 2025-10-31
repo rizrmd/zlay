@@ -17,10 +17,15 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        credentials: true,
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            const origin = req.headers.origin || req.headers.referer || `http://${req.headers.host}`;
+            proxyReq.setHeader('X-Original-Origin', origin);
+          });
+        },
       },
       '/ws': {
         target: 'http://localhost:8080',
@@ -28,7 +33,7 @@ export default defineConfig({
         ws: true,
       },
     },
-    allowedHosts: ['dev.maldevta.local', 'domain.example.local'],
+    allowedHosts: ['dev.maldevta.local', 'domain.example.local', 'cobodomain.com'],
   },
   clearScreen: false,
 })

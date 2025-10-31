@@ -450,6 +450,10 @@ fn healthHandler(req: *Request, res: *Response, allocator: std.mem.Allocator) vo
 
 // Helper function to extract client_id from request
 fn getClientId(req: *Request, allocator: std.mem.Allocator, db: *zlay_db.Database) ?[]const u8 {
+    // Log for debugging domain lookup
+    const request_host = req.headers.get("Host") orelse req.headers.get("host") orelse "none";
+    std.log.info("DEBUG: getClientId called with host: {s}", .{request_host});
+
     // Try to get client_id from X-Client-ID header first
     if (req.headers.get("X-Client-ID")) |client_id_header| {
         return allocator.dupe(u8, client_id_header) catch null;
@@ -459,19 +463,26 @@ fn getClientId(req: *Request, allocator: std.mem.Allocator, db: *zlay_db.Databas
     var resolved_domain: ?[]const u8 = null;
     var needs_free = false;
 
-    // Priority: Origin -> Referer -> Host
-    if (req.headers.get("Origin")) |origin| {
+    // Priority: X-Original-Origin (from proxy) -> Origin -> Referer -> Host
+    if (req.headers.get("X-Original-Origin")) |original_origin| {
+        resolved_domain = extractDomainFromOrigin(original_origin);
+        std.log.info("DEBUG: Extracted domain from X-Original-Origin '{s}': '{s}'", .{ original_origin, resolved_domain orelse "null" });
+        needs_free = false; // extractDomainFromOrigin returns a slice, no free needed
+    } else if (req.headers.get("Origin")) |origin| {
         resolved_domain = extractDomainFromOrigin(origin);
+        std.log.info("DEBUG: Extracted domain from origin '{s}': '{s}'", .{ origin, resolved_domain orelse "null" });
         needs_free = false; // extractDomainFromOrigin returns a slice, no free needed
     } else if (req.headers.get("Referer")) |referer| {
         resolved_domain = extractDomainFromOrigin(referer);
+        std.log.info("DEBUG: Extracted domain from referer '{s}': '{s}'", .{ referer, resolved_domain orelse "null" });
         needs_free = false; // extractDomainFromOrigin returns a slice, no free needed
-    } else if (req.headers.get("Host")) |host| {
+    } else if (req.headers.get("Host")) |host_header| {
         // Fallback to Host header (remove port)
-        resolved_domain = if (std.mem.indexOfScalar(u8, host, ':')) |colon_pos|
-            allocator.dupe(u8, host[0..colon_pos]) catch null
+        resolved_domain = if (std.mem.indexOfScalar(u8, host_header, ':')) |colon_pos|
+            allocator.dupe(u8, host_header[0..colon_pos]) catch null
         else
-            allocator.dupe(u8, host) catch null;
+            allocator.dupe(u8, host_header) catch null;
+        std.log.info("DEBUG: Extracted domain from host '{s}': '{s}'", .{ host_header, resolved_domain orelse "null" });
         needs_free = true; // allocator.dupe needs to be freed
     }
 
@@ -482,6 +493,7 @@ fn getClientId(req: *Request, allocator: std.mem.Allocator, db: *zlay_db.Databas
 
         // Look up client by domain (try exact match first)
         const domain_result = db.query("SELECT client_id::text FROM domains WHERE domain = $1 AND is_active = true LIMIT 1", .{domain}) catch null;
+        std.log.info("DEBUG: Domain lookup for '{s}': found={}", .{ domain, domain_result != null and domain_result.?.rows.len > 0 });
         if (domain_result) |result| {
             defer result.deinit();
             if (result.rows.len > 0) {
@@ -504,11 +516,18 @@ fn getClientId(req: *Request, allocator: std.mem.Allocator, db: *zlay_db.Databas
         }
     }
 
-    // No valid client found - return null to trigger client validation error
     return null;
 }
 
 fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, db: *zlay_db.Database) void {
+    // Log request origin for debugging at the start
+    const request_origin = req.headers.get("X-Original-Origin") orelse
+        req.headers.get("Origin") orelse
+        req.headers.get("origin") orelse
+        "none";
+    const request_host = req.headers.get("Host") orelse req.headers.get("host") orelse "none";
+    std.log.info("DEBUG: Login request from origin: {s}, host: {s}", .{ request_origin, request_host });
+
     // Add CORS headers
     setCorsHeaders(res, req);
 
@@ -661,7 +680,9 @@ fn loginHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, db:
         req.headers.get("origin") orelse
         "http://localhost:5173";
     const cookie_domain = extractDomainFromOrigin(origin);
-    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; Domain={s}; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax", .{ result.token, cookie_domain }) catch {
+    // For development, set Domain= to avoid browser restrictions
+    const domain_part = if (std.mem.eql(u8, cookie_domain, "dev.maldevta.local")) "" else std.fmt.allocPrint(allocator, "Domain={s}; ", .{cookie_domain}) catch "";
+    const cookie_value = std.fmt.allocPrint(allocator, "session_token={s}; {s}Path=/; Max-Age=86400; HttpOnly; SameSite=Lax", .{ result.token, domain_part }) catch {
         res.status_code = 500;
         const error_json = "{\"error\": \"Failed to create cookie\"}";
         res.json(allocator, error_json);
@@ -833,12 +854,15 @@ fn logoutHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, db
     setCorsHeaders(res, req);
 
     // Get session token from cookie
-    const cookie_header = req.headers.get("Cookie") orelse {
+    const cookie_header = req.headers.get("Cookie") orelse req.headers.get("cookie") orelse {
+        std.log.info("DEBUG: Logout - no cookie header found", .{});
         res.status_code = 401;
         const error_json = "{\"error\": \"No session found\"}";
         res.json(allocator, error_json);
         return;
     };
+
+    std.log.info("DEBUG: Logout - cookie header: {s}", .{cookie_header});
 
     var token: ?[]const u8 = null;
     var cookie_iter = std.mem.tokenizeScalar(u8, cookie_header, ';');
@@ -850,8 +874,12 @@ fn logoutHandler(req: *Request, res: *Response, allocator: std.mem.Allocator, db
         }
     }
 
+    std.log.info("DEBUG: Logout - extracted token: {s}", .{token orelse "null"});
+
     if (token) |session_token| {
-        auth.logoutUser(allocator, db, session_token) catch {};
+        auth.logoutUser(allocator, db, session_token) catch |err| {
+            std.log.err("DEBUG: Logout - logoutUser error: {}", .{err});
+        };
     }
 
     // Clear session cookie

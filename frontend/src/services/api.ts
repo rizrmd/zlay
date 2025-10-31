@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8080' : window.location.origin
+const API_BASE_URL = import.meta.env.DEV ? '' : window.location.origin
 
 export interface LoginRequest {
   username: string
@@ -73,7 +73,8 @@ class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`
+      const errorMessage =
+        errorData.error || errorData.message || `HTTP error! status: ${response.status}`
 
       // Create specific error types for different scenarios
       if (response.status === 400 && errorMessage === 'Invalid client') {
@@ -90,7 +91,7 @@ class ApiClient {
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const url = `${API_BASE_URL}/api/auth/register`
-    
+
     const config: RequestInit = {
       method: 'POST',
       headers: {
@@ -104,7 +105,9 @@ class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`)
+      throw new Error(
+        errorData.error || errorData.message || `HTTP error! status: ${response.status}`,
+      )
     }
 
     return response.json()
@@ -116,19 +119,32 @@ class ApiClient {
     })
   }
 
-  async getProfile(): Promise<{ success: boolean; user: UserProfile }> {
-    return this.request<{ success: boolean; user: UserProfile }>('/api/auth/profile')
+  async getProfile(): Promise<{ success: boolean; user?: UserProfile }> {
+    try {
+      return await this.request<{ success: boolean; user: UserProfile }>('/api/auth/profile')
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Authentication required') {
+        return { success: false }
+      }
+      throw error
+    }
   }
 
   async getProjects(): Promise<Project[]> {
     return this.request<Project[]>('/api/projects')
   }
 
-  async createProject(name: string, description: string): Promise<{ success: boolean; message: string; project_id: string }> {
-    return this.request<{ success: boolean; message: string; project_id: string }>('/api/projects', {
-      method: 'POST',
-      body: JSON.stringify({ name, description }),
-    })
+  async createProject(
+    name: string,
+    description: string,
+  ): Promise<{ success: boolean; message: string; project_id: string }> {
+    return this.request<{ success: boolean; message: string; project_id: string }>(
+      '/api/projects',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name, description }),
+      },
+    )
   }
 
   async checkHealth(): Promise<{ status: string }> {
