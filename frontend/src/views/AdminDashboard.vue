@@ -37,6 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Eye, Settings, MoreVertical } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import { apiClient } from '@/services/api'
@@ -90,6 +91,10 @@ const createDomainLoading = ref(false)
 const showViewModal = ref(false)
 const selectedClient = ref<Client | null>(null)
 const clientDomains = ref<Domain[]>([])
+
+// Add domain in modal
+const newDomainInModal = ref('')
+const addDomainInModalLoading = ref(false)
 
 // Edit client modal
 const showEditModal = ref(false)
@@ -323,6 +328,9 @@ const handleToggleDomainStatus = async (domain: Domain) => {
     }
 
     await loadDomains(domain.client_id)
+    if (selectedClient.value && selectedClient.value.id === domain.client_id) {
+      clientDomains.value = domains.value
+    }
   } catch (error) {
     console.error('Failed to update domain status:', error)
   }
@@ -347,6 +355,9 @@ const handleDeleteDomain = async (domain: Domain) => {
     }
 
     await loadDomains(domain.client_id)
+    if (selectedClient.value && selectedClient.value.id === domain.client_id) {
+      clientDomains.value = domains.value
+    }
   } catch (error) {
     console.error('Failed to remove domain:', error)
   }
@@ -395,6 +406,39 @@ const handleEditClient = (client: Client) => {
   editClientAiApiUrl.value = client.ai_api_url || ''
   editClientAiApiModel.value = client.ai_api_model || ''
   showEditModal.value = true
+}
+
+const handleAddDomainInModal = async () => {
+  const domain = newDomainInModal.value.trim()
+  if (!selectedClient.value || !domain || domain === '') {
+    return
+  }
+
+  addDomainInModalLoading.value = true
+  try {
+    const response = await fetch(`/api/admin/clients/${selectedClient.value.id}/domains`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        domain: domain,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to add domain')
+    }
+
+    newDomainInModal.value = ''
+    await loadDomains(selectedClient.value.id)
+    clientDomains.value = domains.value
+  } catch (error) {
+    console.error('Failed to add domain:', error)
+  } finally {
+    addDomainInModalLoading.value = false
+  }
 }
 
 const handleSaveEditClient = async () => {
@@ -458,200 +502,14 @@ onMounted(async () => {
           <div class="space-y-2">
             <p><strong>Username:</strong> {{ user.username }}</p>
             <p><strong>Role:</strong> Administrator</p>
-            <p>
-              <strong>Member since:</strong> {{ new Date(user.created_at).toLocaleDateString() }}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+             <p>
+               <strong>Member since:</strong> {{ new Date(user.created_at).toLocaleDateString() }}
+             </p>
+           </div>
+          </CardContent>
+        </Card>
 
       <!-- Clients Section -->
-      <div>
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold">Clients</h2>
-          <Dialog v-model:open="showCreateClient">
-            <DialogTrigger as-child>
-              <Button>Create Client</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Client</DialogTitle>
-                <DialogDescription>
-                  Add a new client to the system. The slug will be used for client identification.
-                </DialogDescription>
-              </DialogHeader>
-              <div class="space-y-4">
-                <div>
-                  <Label for="client-name">Client Name</Label>
-                  <Input id="client-name" v-model="newClientName" placeholder="Enter client name" />
-                </div>
-                <div>
-                  <Label for="client-ai-api-key">AI API Key (optional)</Label>
-                  <Input
-                    id="client-ai-api-key"
-                    v-model="newClientAiApiKey"
-                    placeholder="Enter AI API key"
-                  />
-                </div>
-                <div>
-                  <Label for="client-ai-api-url">AI API URL (optional)</Label>
-                  <Input
-                    id="client-ai-api-url"
-                    v-model="newClientAiApiUrl"
-                    placeholder="Enter AI API URL"
-                  />
-                </div>
-                <div>
-                  <Label for="client-ai-api-model">AI API Model (optional)</Label>
-                  <Input
-                    id="client-ai-api-model"
-                    v-model="newClientAiApiModel"
-                    placeholder="Enter AI API model"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" @click="showCreateClient = false">Cancel</Button>
-                <Button
-                  @click="handleCreateClient"
-                  :disabled="createClientLoading || !newClientName.trim()"
-                >
-                  <span v-if="createClientLoading">Creating...</span>
-                  <span v-else>Create Client</span>
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog v-model:open="showEditModal">
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Edit Client</DialogTitle>
-                <DialogDescription>
-                  Update the client details. The slug is used for client identification.
-                </DialogDescription>
-              </DialogHeader>
-              <div class="space-y-4">
-                <div>
-                  <Label for="edit-client-name">Client Name</Label>
-                  <Input
-                    id="edit-client-name"
-                    v-model="editClientName"
-                    placeholder="Enter client name"
-                  />
-                </div>
-                <div>
-                  <Label for="edit-client-slug">Client Slug</Label>
-                  <Input
-                    id="edit-client-slug"
-                    v-model="editClientSlug"
-                    placeholder="Enter client slug"
-                  />
-                </div>
-                <div>
-                  <Label for="edit-client-ai-api-key">AI API Key (optional)</Label>
-                  <Input
-                    id="edit-client-ai-api-key"
-                    v-model="editClientAiApiKey"
-                    placeholder="Enter AI API key"
-                  />
-                </div>
-                <div>
-                  <Label for="edit-client-ai-api-url">AI API URL (optional)</Label>
-                  <Input
-                    id="edit-client-ai-api-url"
-                    v-model="editClientAiApiUrl"
-                    placeholder="Enter AI API URL"
-                  />
-                </div>
-                <div>
-                  <Label for="edit-client-ai-api-model">AI API Model (optional)</Label>
-                  <Input
-                    id="edit-client-ai-api-model"
-                    v-model="editClientAiApiModel"
-                    placeholder="Enter AI API model"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" @click="showEditModal = false">Cancel</Button>
-                <Button
-                  @click="handleUpdateClient"
-                  :disabled="editClientLoading || !editClientName.trim() || !editClientSlug.trim()"
-                >
-                  <span v-if="editClientLoading">Updating...</span>
-                  <span v-else>Update Client</span>
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <div v-if="clientsLoading" class="text-center py-8">
-          <p>Loading clients...</p>
-        </div>
-
-        <div v-else-if="clientsError" class="text-center py-8">
-          <p class="text-red-600">{{ clientsError }}</p>
-          <Button @click="loadClients" variant="outline" class="mt-2"> Try Again </Button>
-        </div>
-
-        <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card v-for="client in clients" :key="client.id" class="relative">
-            <CardHeader>
-              <div class="flex justify-between items-start">
-                <div>
-                  <CardTitle class="flex items-center gap-2">
-                    {{ client.name }}
-                    <span
-                      :class="
-                        client.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      "
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                    >
-                      {{ client.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>Slug: {{ client.slug }}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div class="space-y-2 text-sm">
-                <p><strong>ID:</strong> {{ client.id }}</p>
-                <p>
-                  <strong>Created:</strong> {{ new Date(client.created_at).toLocaleDateString() }}
-                </p>
-                <p><strong>Domains:</strong> Click "View Domains" to manage</p>
-              </div>
-            </CardContent>
-            <CardFooter class="flex justify-end gap-2">
-              <Button variant="outline" size="sm" @click="handleViewClient(client)">
-                <Eye class="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" @click="handleEditClient(client)">
-                <Settings class="w-4 h-4" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <Button variant="outline" size="sm">
-                    <MoreVertical class="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem @click="handleToggleClientStatus(client)">
-                    {{ client.is_active ? 'Deactivate' : 'Activate' }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem class="text-red-600" @click="handleDeleteClient(client)">
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </CardFooter>
-          </Card>
-         </div>
-       </div>
-
-      <!-- Edit Client Modal -->
       <Dialog v-model:open="showEditModal">
         <DialogContent>
           <DialogHeader>
@@ -692,11 +550,146 @@ onMounted(async () => {
         </DialogContent>
       </Dialog>
 
+       <!-- Clients Section -->
+       <div>
+         <div class="flex justify-between items-center mb-6">
+           <h2 class="text-2xl font-bold">Clients</h2>
+           <Dialog v-model:open="showCreateClient">
+             <DialogTrigger as-child>
+               <Button>Create Client</Button>
+             </DialogTrigger>
+             <DialogContent>
+               <DialogHeader>
+                 <DialogTitle>Create New Client</DialogTitle>
+                 <DialogDescription>
+                   Add a new client to the multi-tenant system.
+                 </DialogDescription>
+               </DialogHeader>
+               <div class="space-y-4">
+                 <div>
+                   <Label for="create-name">Name</Label>
+                   <Input id="create-name" v-model="newClientName" placeholder="Client name" />
+                 </div>
+                 <div>
+                   <Label for="create-ai-key">AI API Key (optional)</Label>
+                   <Input id="create-ai-key" v-model="newClientAiApiKey" placeholder="API key" />
+                 </div>
+                 <div>
+                   <Label for="create-ai-url">AI API URL (optional)</Label>
+                   <Input id="create-ai-url" v-model="newClientAiApiUrl" placeholder="API URL" />
+                 </div>
+                 <div>
+                   <Label for="create-ai-model">AI API Model (optional)</Label>
+                   <Input id="create-ai-model" v-model="newClientAiApiModel" placeholder="Model name" />
+                 </div>
+               </div>
+               <DialogFooter>
+                 <Button @click="showCreateClient = false" variant="outline">Cancel</Button>
+                 <Button @click="handleCreateClient" :disabled="createClientLoading || !newClientName.trim()">
+                   <span v-if="createClientLoading">Creating...</span>
+                   <span v-else>Create</span>
+                 </Button>
+               </DialogFooter>
+             </DialogContent>
+           </Dialog>
+         </div>
+
+         <div v-if="clientsLoading" class="text-center py-8">
+           <p>Loading clients...</p>
+         </div>
+
+         <div v-else-if="clientsError" class="text-center py-8">
+           <p class="text-red-600">{{ clientsError }}</p>
+           <Button @click="loadClients" variant="outline" class="mt-2">Try Again</Button>
+         </div>
+
+         <div v-else-if="clients.length === 0" class="text-center py-8">
+           <p class="text-gray-600">No clients found. Create your first client to get started.</p>
+         </div>
+
+         <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+           <!-- Client Cards -->
+           <Card
+             v-for="client in clients"
+             :key="client.id"
+             class="group hover:shadow-md transition-shadow duration-200 h-full flex flex-col"
+           >
+             <CardHeader class="pb-3">
+               <div class="flex items-start justify-between">
+                 <div class="flex-1 min-w-0">
+                   <div class="flex items-center space-x-2 mb-2">
+                     <span
+                       :class="client.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                       class="px-2 py-1 rounded-full text-xs font-medium"
+                     >
+                       {{ client.is_active ? 'Active' : 'Inactive' }}
+                     </span>
+                     <span class="text-sm text-gray-600">Created {{ new Date(client.created_at).toLocaleDateString() }}</span>
+                   </div>
+                   <CardTitle class="text-lg font-semibold truncate">{{ client.name }}</CardTitle>
+                   <CardDescription class="text-sm text-gray-500">{{ client.slug }}</CardDescription>
+                 </div>
+
+                 <div class="flex items-center space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                   <Button
+                     @click="handleViewClient(client)"
+                     variant="outline"
+                     size="sm"
+                     title="View Domains"
+                   >
+                     <Eye class="w-4 h-4" />
+                   </Button>
+                   <Button
+                     @click="handleEditClient(client)"
+                     variant="outline"
+                     size="sm"
+                     title="Edit Settings"
+                   >
+                     <Settings class="w-4 h-4" />
+                   </Button>
+                   <DropdownMenu>
+                     <DropdownMenuTrigger as-child>
+                       <Button variant="outline" size="sm">
+                         <MoreVertical class="w-4 h-4" />
+                       </Button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent>
+                       <DropdownMenuItem @click="handleToggleClientStatus(client)">
+                         {{ client.is_active ? 'Deactivate' : 'Activate' }} Client
+                       </DropdownMenuItem>
+                       <DropdownMenuItem @click="handleDeleteClient(client)" class="text-red-600 hover:text-red-700 hover:bg-red-50">
+                         Delete Client
+                       </DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                 </div>
+               </div>
+             </CardHeader>
+
+             <CardContent class="pt-0 flex-1">
+               <div class="space-y-2 text-sm text-gray-600">
+                 <div v-if="client.ai_api_key" class="flex items-center space-x-2">
+                   <span class="font-medium">AI Key:</span>
+                   <span class="truncate">{{ client.ai_api_key }}</span>
+                 </div>
+                 <div v-if="client.ai_api_url" class="flex items-center space-x-2">
+                   <span class="font-medium">AI URL:</span>
+                   <span class="truncate">{{ client.ai_api_url }}</span>
+                 </div>
+                 <div v-if="client.ai_api_model" class="flex items-center space-x-2">
+                   <span class="font-medium">AI Model:</span>
+                   <span class="truncate">{{ client.ai_api_model }}</span>
+                 </div>
+               </div>
+             </CardContent>
+           </Card>
+         </div>
+       </div>
      </div>
 
      <div v-else class="text-center">
-      <p>Failed to load user profile</p>
-    </div>
+       <p>Failed to load user profile</p>
+     </div>
 
     <!-- View Domains Modal -->
     <Dialog v-model:open="showViewModal">
@@ -706,61 +699,78 @@ onMounted(async () => {
           <DialogDescription> Manage domains for this client. </DialogDescription>
         </DialogHeader>
         <div class="space-y-4">
-          <div v-if="clientDomains.length === 0" class="text-center py-8">
-            <p class="text-gray-600">No domains configured for this client.</p>
+          <!-- Add Domain Form -->
+          <div class="flex gap-2">
+            <Input
+              v-model="newDomainInModal"
+              placeholder="Enter domain (e.g., example.com)"
+              @keyup.enter="handleAddDomainInModal"
+            />
+            <Button
+              @click="handleAddDomainInModal"
+              :disabled="addDomainInModalLoading || !newDomainInModal.trim()"
+            >
+              <span v-if="addDomainInModalLoading">Adding...</span>
+              <span v-else>Add Domain</span>
+            </Button>
           </div>
-          <div v-else class="grid gap-4 md:grid-cols-2">
-            <Card v-for="domain in clientDomains" :key="domain.id">
-              <CardHeader>
-                <CardTitle class="flex items-center gap-2">
-                  {{ domain.domain }}
+
+          <!-- Domains Table -->
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Domain</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-if="clientDomains.length === 0">
+                <TableCell colspan="3" class="text-center py-8 text-gray-600">
+                  No domains configured for this client.
+                </TableCell>
+              </TableRow>
+              <TableRow v-else v-for="domain in clientDomains" :key="domain.id">
+                <TableCell>{{ domain.domain }}</TableCell>
+                <TableCell>
                   <span
-                    :class="
-                      domain.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    "
+                    :class="domain.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                     class="px-2 py-1 rounded-full text-xs font-medium"
                   >
                     {{ domain.is_active ? 'Active' : 'Inactive' }}
                   </span>
-                </CardTitle>
-                <CardDescription
-                  >Created: {{ new Date(domain.created_at).toLocaleDateString() }}</CardDescription
-                >
-              </CardHeader>
-              <CardContent>
-                <!-- Optional content -->
-              </CardContent>
-              <CardFooter class="flex gap-2">
-                <Button
-                  :variant="domain.is_active ? 'destructive' : 'default'"
-                  size="sm"
-                  @click="handleToggleDomainStatus(domain)"
-                >
-                  {{ domain.is_active ? 'Deactivate' : 'Activate' }}
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger as-child>
-                    <Button variant="destructive" size="sm">Remove Domain</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Remove Domain</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to remove "{{ domain.domain }}"? This action cannot be
-                        undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction @click="handleDeleteDomain(domain)"
-                        >Remove</AlertDialogAction
-                      >
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardFooter>
-            </Card>
-          </div>
+                </TableCell>
+                <TableCell>
+                  <div class="flex gap-2">
+                    <Button
+                      :variant="domain.is_active ? 'destructive' : 'default'"
+                      size="sm"
+                      @click="handleToggleDomainStatus(domain)"
+                    >
+                      {{ domain.is_active ? 'Deactivate' : 'Activate' }}
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger as-child>
+                        <Button variant="destructive" size="sm">Delete</Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Domain</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{{ domain.domain }}"? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction @click="handleDeleteDomain(domain)">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       </DialogContent>
      </Dialog>

@@ -515,7 +515,7 @@ const handleClickOutside = (event: MouseEvent) => {
     sidebarOpen.value = false
   }
   
-  if (showSettingsMenu && !target.closest('.settings-dropdown')) {
+  if (showSettingsMenu.value && !target.closest('.settings-dropdown')) {
     showSettingsMenu.value = false
   }
 }
