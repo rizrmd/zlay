@@ -3,6 +3,7 @@ package websocket
 import (
 	"encoding/json"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,15 @@ type Connection struct {
 
 	// Hub reference for broadcasting
 	hub *Hub
+
+	// Reference to the WebSocket handler for routing messages
+	handler *Handler
+	
+	// Track if send channel is closed to prevent double-close
+	closed int32 // 0 = open, 1 = closed
+	
+	// Track if connection is unregistered to prevent double-unregister
+	unregistered int32 // 0 = not unregistered, 1 = unregistered
 }
 
 // NewConnection creates a new connection instance
@@ -43,6 +53,7 @@ func NewConnection(ws *websocket.Conn, userID, clientID string, hub *Hub) *Conne
 		hub:         hub,
 		TokensUsed:  0,
 		TokensLimit: 1000000, // Default limit of 1M tokens per connection
+		handler:     nil,
 	}
 }
 
@@ -50,6 +61,8 @@ func NewConnection(ws *websocket.Conn, userID, clientID string, hub *Hub) *Conne
 func (c *Connection) ReadPump() {
 	defer func() {
 		c.hub.unregister <- c
+		// Close the outbound message channel to stop the WritePump
+		c.closeSendChannel()
 		c.ws.Close()
 	}()
 
@@ -80,7 +93,7 @@ func (c *Connection) ReadPump() {
 		// Add connection metadata to message
 		message.Timestamp = time.Now().UnixMilli()
 
-		// Route message based on type
+	// Route message based on type
 		switch message.Type {
 		case "user_message":
 			c.handleUserMessage(message)
@@ -90,8 +103,26 @@ func (c *Connection) ReadPump() {
 			c.handleProjectLeave(message)
 		case "ping":
 			c.handlePing()
+		// New chat-related message types routed to handler methods
+		case "get_conversations":
+			if c.handler != nil {
+				c.handler.handleGetConversations(c, &message)
+			}
+		case "create_conversation":
+			if c.handler != nil {
+				c.handler.handleCreateConversation(c, &message)
+			}
+		case "get_conversation":
+			if c.handler != nil {
+				c.handler.handleGetConversation(c, &message)
+			}
+		case "delete_conversation":
+			if c.handler != nil {
+				c.handler.handleDeleteConversation(c, &message)
+			}
 		default:
-			log.Printf("Unknown message type: %s", message.Type)
+			// For unhandled message types, just log but don't error
+			log.Printf("Received message type: %s (no handler yet)", message.Type)
 		}
 
 		// Reset read deadline
@@ -274,4 +305,21 @@ func (c *Connection) handlePing() {
 			Timestamp: time.Now().UnixMilli(),
 		},
 	})
+}
+
+// closeSendChannel safely closes the send channel if not already closed
+func (c *Connection) closeSendChannel() {
+	if atomic.CompareAndSwapInt32(&c.closed, 0, 1) {
+		close(c.send)
+	}
+}
+
+// shouldUnregister checks if this connection should be unregistered
+func (c *Connection) shouldUnregister() bool {
+	return atomic.CompareAndSwapInt32(&c.unregistered, 0, 1)
+}
+
+// isUnregistered checks if this connection is already unregistered
+func (c *Connection) isUnregistered() bool {
+	return atomic.LoadInt32(&c.unregistered) == 1
 }

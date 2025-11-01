@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/flate"
 	"encoding/json"
-	"io"
 	"log"
 	"sync"
 	"time"
@@ -162,6 +161,8 @@ type Hub struct {
 	projectJoin  chan *ProjectJoin
 	projectLeave chan *ProjectLeave
 
+	// Chat service handler reference
+	handler interface{}
 	// Mutex for thread-safe operations
 	mutex sync.RWMutex
 }
@@ -202,6 +203,11 @@ func (h *Hub) Run() {
 			log.Printf("Connection registered: %s", conn.ID)
 
 		case conn := <-h.unregister:
+			// Check if connection is already unregistered to prevent double-unregister
+			if conn.isUnregistered() {
+				continue
+			}
+			
 			h.mutex.Lock()
 			if _, ok := h.connections[conn]; ok {
 				delete(h.connections, conn)
@@ -216,8 +222,9 @@ func (h *Hub) Run() {
 					}
 				}
 
-				close(conn.send)
-				h.mutex.Unlock()
+				// Mark as unregistered and close send channel safely
+				conn.shouldUnregister()
+				conn.closeSendChannel()
 				log.Printf("Connection unregistered: %s", conn.ID)
 			}
 			h.mutex.Unlock()
@@ -249,7 +256,7 @@ func (h *Hub) Run() {
 				case conn.send <- message:
 				default:
 					// Connection send buffer is full, skip this connection
-					close(conn.send)
+					conn.closeSendChannel()
 					delete(h.connections, conn)
 				}
 			}
@@ -289,7 +296,7 @@ func (h *Hub) BroadcastToProject(projectID string, message interface{}) {
 			case conn.send <- sendData:
 			default:
 				// Connection send buffer is full
-				close(conn.send)
+				conn.closeSendChannel()
 				delete(conns, conn)
 				delete(h.connections, conn)
 			}
@@ -323,13 +330,12 @@ func (h *Hub) SendToConnection(conn *Connection, message interface{}) {
 	case conn.send <- sendData:
 	default:
 		// Connection send buffer is full
-		close(conn.send)
+		conn.closeSendChannel()
 		h.mutex.Lock()
 		delete(h.connections, conn)
 		h.mutex.Unlock()
 		log.Printf("Connection %s removed due to full send buffer", conn.ID)
 	}
-}
 }
 
 // GetProjectConnectionCount returns the number of connections in a project room
