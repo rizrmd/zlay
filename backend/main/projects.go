@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Project struct {
@@ -31,7 +31,14 @@ type UpdateProjectRequest struct {
 
 func (app *App) getProjectsHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 
 	resultSet, err := app.ZDB.Query(ctx,
 		"SELECT id, user_id, name, description, is_active, created_at FROM projects WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC",
@@ -46,27 +53,27 @@ func (app *App) getProjectsHandler(c *gin.Context) {
 		if len(row.Values) < 6 {
 			continue
 		}
-		
+
 		var project Project
-		if id, err := row.Values[0].GetString(); err == nil {
+		if id, ok := row.Values[0].AsString(); ok {
 			project.ID = id
 		}
-		if userID, err := row.Values[1].GetString(); err == nil {
+		if userID, ok := row.Values[1].AsString(); ok {
 			project.UserID = userID
 		}
-		if name, err := row.Values[2].GetString(); err == nil {
+		if name, ok := row.Values[2].AsString(); ok {
 			project.Name = name
 		}
-		if description, err := row.Values[3].GetString(); err == nil {
+		if description, ok := row.Values[3].AsString(); ok {
 			project.Description = description
 		}
-		if isActive, err := row.Values[4].GetBool(); err == nil {
+		if isActive, ok := row.Values[4].AsBool(); ok {
 			project.IsActive = isActive
 		}
-		if createdAt, err := row.Values[5].GetTime(); err == nil {
-			project.CreatedAt = createdAt.Format(time.RFC3339)
+		if createdAt, ok := row.Values[5].AsTimestamp(); ok {
+			project.CreatedAt = createdAt.Time.Format(time.RFC3339)
 		}
-		
+
 		projects = append(projects, project)
 	}
 
@@ -75,7 +82,14 @@ func (app *App) getProjectsHandler(c *gin.Context) {
 
 func (app *App) createProjectHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 
 	var req CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -96,9 +110,9 @@ func (app *App) createProjectHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
 		return
 	}
-	
-	createdAt, err := row.Values[0].GetTime()
-	if err != nil {
+
+	createdAt, ok := row.Values[0].AsTimestamp()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse timestamp"})
 		return
 	}
@@ -109,7 +123,7 @@ func (app *App) createProjectHandler(c *gin.Context) {
 		Name:        req.Name,
 		Description: req.Description,
 		IsActive:    true,
-		CreatedAt:   createdAt.Format(time.RFC3339),
+		CreatedAt:   createdAt.Time.Format(time.RFC3339),
 	}
 
 	c.JSON(http.StatusCreated, project)
@@ -117,7 +131,14 @@ func (app *App) createProjectHandler(c *gin.Context) {
 
 func (app *App) getProjectHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	projectID := c.Param("id")
 
 	row, err := app.ZDB.QueryRow(ctx,
@@ -127,35 +148,41 @@ func (app *App) getProjectHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
+
 	if len(row.Values) < 6 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
 		return
 	}
-	
+
 	var project Project
-	if err := row.Values[0].GetString(&project.ID); err != nil {
+	var ok bool
+	project.ID, ok = row.Values[0].AsString()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse project ID"})
 		return
 	}
-	if err := row.Values[1].GetString(&project.UserID); err != nil {
+	project.UserID, ok = row.Values[1].AsString()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse user ID"})
 		return
 	}
-	if err := row.Values[2].GetString(&project.Name); err != nil {
+	project.Name, ok = row.Values[2].AsString()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse project name"})
 		return
 	}
-	if err := row.Values[3].GetString(&project.Description); err != nil {
+	project.Description, ok = row.Values[3].AsString()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse project description"})
 		return
 	}
-	if err := row.Values[4].GetBool(&project.IsActive); err != nil {
+	project.IsActive, ok = row.Values[4].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse active status"})
 		return
 	}
-	if createdAt, err := row.Values[5].GetTime(); err == nil {
-		project.CreatedAt = createdAt.Format(time.RFC3339)
+	if createdAt, ok := row.Values[5].AsTimestamp(); ok {
+		project.CreatedAt = createdAt.Time.Format(time.RFC3339)
 	}
 
 	c.JSON(http.StatusOK, project)
@@ -163,7 +190,14 @@ func (app *App) getProjectHandler(c *gin.Context) {
 
 func (app *App) updateProjectHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	projectID := c.Param("id")
 
 	var req UpdateProjectRequest
@@ -180,13 +214,13 @@ func (app *App) updateProjectHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
 		return
@@ -229,7 +263,14 @@ func (app *App) updateProjectHandler(c *gin.Context) {
 
 func (app *App) deleteProjectHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	projectID := c.Param("id")
 
 	// Soft delete by setting is_active to false

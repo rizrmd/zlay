@@ -126,8 +126,6 @@ func (r *DefaultToolRegistry) RegisterBuiltInTools() {
 	if err := r.RegisterTool(dbTool); err != nil {
 		log.Printf("Failed to register DatabaseQueryTool: %v", err)
 	}
-	
-	log.Printf("Registered %d built-in tools", len(r.tools))
 }
 
 // EmptyToolRegistry implements ToolRegistry with no tools

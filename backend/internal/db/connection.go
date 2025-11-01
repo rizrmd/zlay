@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/lib/pq"    // PostgreSQL
+	_ "github.com/jackc/pgx/v5/stdlib" // PostgreSQL pgx/v5 driver
+	_ "github.com/lib/pq"            // PostgreSQL legacy (keep for compatibility)
 	_ "github.com/go-sql-driver/mysql" // MySQL
 	_ "github.com/mattn/go-sqlite3" // SQLite
 )
@@ -146,13 +147,9 @@ func Connect(config ConnectionConfig) (*Database, error) {
 	if config.ConnectionString != "" {
 		// Try to detect database type from connection string
 		if strings.Contains(config.ConnectionString, "postgres://") {
-			driverName = "postgres"
-			// Ensure SSL mode is set
-			if !strings.Contains(config.ConnectionString, "sslmode=") {
-				dsn = config.ConnectionString + "?sslmode=disable"
-			} else {
-				dsn = config.ConnectionString
-			}
+			driverName = "pgx"
+			// pgx/v5 uses the connection string directly
+			dsn = config.ConnectionString
 		} else if strings.Contains(config.ConnectionString, "mysql://") {
 			driverName = "mysql"
 			dsn = config.ConnectionString
@@ -163,19 +160,15 @@ func Connect(config ConnectionConfig) (*Database, error) {
 			driverName = "trino"
 			dsn = config.ConnectionString
 		} else {
-			driverName = "postgres" // Default to postgres
-			// Ensure SSL mode is set
-			if !strings.Contains(config.ConnectionString, "sslmode=") {
-				dsn = config.ConnectionString + "?sslmode=disable"
-			} else {
-				dsn = config.ConnectionString
-			}
+			driverName = "pgx" // Default to pgx for PostgreSQL
+			// pgx/v5 uses connection string directly  
+			dsn = config.ConnectionString
 		}
 	} else {
 		switch config.DatabaseType {
 		case DatabaseTypePostgreSQL:
 			dsn = buildPostgreSQLDSN(config)
-			driverName = "postgres"
+			driverName = "pgx"
 		case DatabaseTypeMySQL:
 			dsn = buildMySQLDSN(config)
 			driverName = "mysql"

@@ -55,10 +55,22 @@ func (c *OpenAIClient) StreamChat(ctx context.Context, req *LLMRequest, callback
 
 	// Split content into words for simulated streaming
 	words := strings.Fields(content)
+	totalWords := len(words)
+	
 	for i, word := range words {
+		// Distribute tokens proportionally across chunks
+		chunkTokens := 0
+		if resp.TokensUsed > 0 {
+			chunkTokens = resp.TokensUsed / totalWords
+			if i == totalWords-1 { // Last chunk gets remaining tokens
+				chunkTokens = resp.TokensUsed - (chunkTokens * (totalWords - 1))
+			}
+		}
+		
 		chunk := &StreamingChunk{
-			Content: word + " ",
-			Done:    i == len(words)-1,
+			Content:    word + " ",
+			Done:       i == totalWords-1,
+			TokensUsed: chunkTokens,
 		}
 		
 		if err := callback(chunk); err != nil {
@@ -115,7 +127,12 @@ func (c *OpenAIClient) Chat(ctx context.Context, req *LLMRequest) (*LLMResponse,
 
 	choice := resp.Choices[0]
 	
-	// Convert tool calls
+	// Calculate tokens used
+	tokensUsed := 0
+	if resp.Usage.TotalTokens > 0 {
+		tokensUsed = int(resp.Usage.TotalTokens)
+	}
+
 	// Convert tool calls from OpenAI format to our format
 	var toolCalls interface{}
 	if len(choice.Message.ToolCalls) > 0 {
@@ -124,10 +141,11 @@ func (c *OpenAIClient) Chat(ctx context.Context, req *LLMRequest) (*LLMResponse,
 
 	// Build response
 	response := &LLMResponse{
-		Content:   choice.Message.Content,
-		ToolCalls: toolCalls,
-		Usage:     &resp.Usage,
-		Model:     model,
+		Content:    choice.Message.Content,
+		ToolCalls:  toolCalls,
+		Usage:      resp.Usage,
+		Model:      model,
+		TokensUsed: tokensUsed,
 	}
 
 	return response, nil

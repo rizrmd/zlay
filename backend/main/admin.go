@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Client struct {
@@ -70,33 +70,33 @@ func (app *App) getClientsHandler(c *gin.Context) {
 		if len(row.Values) < 8 {
 			continue
 		}
-		
+
 		var client Client
-		if id, err := row.Values[0].GetString(); err == nil {
+		if id, ok := row.Values[0].AsString(); ok {
 			client.ID = id
 		}
-		if name, err := row.Values[1].GetString(); err == nil {
+		if name, ok := row.Values[1].AsString(); ok {
 			client.Name = name
 		}
-		if slug, err := row.Values[2].GetString(); err == nil {
+		if slug, ok := row.Values[2].AsString(); ok {
 			client.Slug = slug
 		}
-		if aiAPIKey, err := row.Values[3].GetString(); err == nil {
+		if aiAPIKey, ok := row.Values[3].AsString(); ok {
 			client.AIAPIKey = &aiAPIKey
 		}
-		if aiAPIURL, err := row.Values[4].GetString(); err == nil {
+		if aiAPIURL, ok := row.Values[4].AsString(); ok {
 			client.AIAPIURL = &aiAPIURL
 		}
-		if aiAPIModel, err := row.Values[5].GetString(); err == nil {
+		if aiAPIModel, ok := row.Values[5].AsString(); ok {
 			client.APIModel = &aiAPIModel
 		}
-		if isActive, err := row.Values[6].GetBool(); err == nil {
+		if isActive, ok := row.Values[6].AsBool(); ok {
 			client.IsActive = isActive
 		}
-		if createdAt, err := row.Values[7].GetTime(); err == nil {
-			client.CreatedAt = createdAt.Format(time.RFC3339)
+		if createdAt, ok := row.Values[7].AsTimestamp(); ok {
+			client.CreatedAt = createdAt.Time.Format(time.RFC3339)
 		}
-		
+
 		clients = append(clients, client)
 	}
 
@@ -130,13 +130,13 @@ func (app *App) createClientHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if exists {
 		c.JSON(http.StatusConflict, gin.H{"error": "Client slug already exists"})
 		return
@@ -150,7 +150,7 @@ func (app *App) createClientHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create client"})
 		return
 	}
-	
+
 	// Get created timestamp using ZDB
 	row, err = app.ZDB.QueryRow(ctx,
 		"SELECT created_at FROM clients WHERE id = $1",
@@ -159,9 +159,9 @@ func (app *App) createClientHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get client details"})
 		return
 	}
-	
-	createdAt, err := row.Values[0].GetTime()
-	if err != nil {
+
+	createdAt, ok := row.Values[0].AsTimestamp()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse timestamp"})
 		return
 	}
@@ -174,7 +174,7 @@ func (app *App) createClientHandler(c *gin.Context) {
 		AIAPIURL:  req.AIAPIURL,
 		APIModel:  req.APIModel,
 		IsActive:  true,
-		CreatedAt: createdAt.Format(time.RFC3339),
+		CreatedAt: createdAt.Time.Format(time.RFC3339),
 	}
 
 	c.JSON(http.StatusCreated, client)
@@ -191,20 +191,20 @@ func (app *App) updateClientHandler(c *gin.Context) {
 	}
 
 	// Check if client exists using ZDB
-	row, err := app.ZDB.QueryRow(ctx,
+	existsRow, err := app.ZDB.QueryRow(ctx,
 		"SELECT EXISTS(SELECT 1 FROM clients WHERE id = $1)",
 		clientID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := existsRow.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Client not found"})
 		return
@@ -219,13 +219,13 @@ func (app *App) updateClientHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 			return
 		}
-		
-		var slugExists bool
-		if err := row.Values[0].GetBool(&slugExists); err != nil {
+
+		slugExists, ok := row.Values[0].AsBool()
+		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 			return
 		}
-		
+
 		if slugExists {
 			c.JSON(http.StatusConflict, gin.H{"error": "Client slug already exists"})
 			return
@@ -333,24 +333,24 @@ func (app *App) getDomainsHandler(c *gin.Context) {
 		if len(row.Values) < 5 {
 			continue
 		}
-		
+
 		var domain Domain
-		if id, err := row.Values[0].GetString(); err == nil {
+		if id, ok := row.Values[0].AsString(); ok {
 			domain.ID = id
 		}
-		if clientID, err := row.Values[1].GetString(); err == nil {
+		if clientID, ok := row.Values[1].AsString(); ok {
 			domain.ClientID = clientID
 		}
-		if domainName, err := row.Values[2].GetString(); err == nil {
+		if domainName, ok := row.Values[2].AsString(); ok {
 			domain.Domain = domainName
 		}
-		if isActive, err := row.Values[3].GetBool(); err == nil {
+		if isActive, ok := row.Values[3].AsBool(); ok {
 			domain.IsActive = isActive
 		}
-		if createdAt, err := row.Values[4].GetTime(); err == nil {
-			domain.CreatedAt = createdAt.Format(time.RFC3339)
+		if createdAt, ok := row.Values[4].AsTimestamp(); ok {
+			domain.CreatedAt = createdAt.Time.Format(time.RFC3339)
 		}
-		
+
 		domains = append(domains, domain)
 	}
 
@@ -384,13 +384,13 @@ func (app *App) createDomainHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var clientExists bool
-	if err := row.Values[0].GetBool(&clientExists); err != nil {
+
+	clientExists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !clientExists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid client"})
 		return
@@ -404,13 +404,13 @@ func (app *App) createDomainHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var domainExists bool
-	if err := row.Values[0].GetBool(&domainExists); err != nil {
+
+	domainExists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if domainExists {
 		c.JSON(http.StatusConflict, gin.H{"error": "Domain already exists"})
 		return
@@ -424,9 +424,9 @@ func (app *App) createDomainHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create domain"})
 		return
 	}
-	
-	createdAt, err := row.Values[0].GetTime()
-	if err != nil {
+
+	createdAt, ok := row.Values[0].AsTimestamp()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse timestamp"})
 		return
 	}
@@ -436,7 +436,7 @@ func (app *App) createDomainHandler(c *gin.Context) {
 		ClientID:  req.ClientID,
 		Domain:    req.Domain,
 		IsActive:  true,
-		CreatedAt: createdAt.Format(time.RFC3339),
+		CreatedAt: createdAt.Time.Format(time.RFC3339),
 	}
 
 	c.JSON(http.StatusCreated, domain)
@@ -460,13 +460,13 @@ func (app *App) updateDomainHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Domain not found"})
 		return
@@ -481,13 +481,13 @@ func (app *App) updateDomainHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 			return
 		}
-		
-		var domainExists bool
-		if err := row.Values[0].GetBool(&domainExists); err != nil {
+
+		domainExists, ok := row.Values[0].AsBool()
+		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 			return
 		}
-		
+
 		if domainExists {
 			c.JSON(http.StatusConflict, gin.H{"error": "Domain already exists"})
 			return

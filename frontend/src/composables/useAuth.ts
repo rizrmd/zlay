@@ -3,6 +3,7 @@ import { apiClient, type UserProfile } from '@/services/api'
 
 const user = ref<UserProfile | null>(null)
 const isLoading = ref(false)
+let checkAuthPromise: Promise<boolean> | null = null
 
 export const useAuth = () => {
   const isAuthenticated = computed(() => !!user.value)
@@ -68,23 +69,34 @@ export const useAuth = () => {
   }
 
   const checkAuth = async () => {
-    try {
-      // Try to validate with server (will check cookies)
-      const response = await apiClient.getProfile()
-      console.log('Check auth response:', response)
-      if (response.success && response.user) {
-        user.value = response.user
-        return true
-      }
-      return false
-    } catch (error) {
-      // Only log unexpected errors, not authentication failures
-      if (!(error instanceof Error) || error.message !== 'Authentication required') {
-        console.error('Check auth error:', error)
-      }
-      user.value = null
-      return false
+    // Return existing promise if checkAuth is already in progress
+    if (checkAuthPromise) {
+      return checkAuthPromise
     }
+    
+    checkAuthPromise = (async () => {
+      try {
+        // Try to validate with server (will check cookies)
+        const response = await apiClient.getProfile()
+        console.log('Check auth response:', response)
+        if (response.success && response.user) {
+          user.value = response.user
+          return true
+        }
+        return false
+      } catch (error) {
+        // Only log unexpected errors, not authentication failures
+        if (!(error instanceof Error) || error.message !== 'Authentication required') {
+          console.error('Check auth error:', error)
+        }
+        user.value = null
+        return false
+      } finally {
+        checkAuthPromise = null
+      }
+    })()
+    
+    return checkAuthPromise
   }
 
   return {

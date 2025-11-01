@@ -109,3 +109,12 @@ db.query("SELECT * FROM users WHERE active = true AND created_at > NOW()");
 - **NEVER** remove node_modules or package-lock.json
 - Always ask user to start/stop services when needed
 - Test with provided curl commands only when user explicitly requests
+
+## Database Type Handling
+
+**Internal DB Package Issues:**
+- There is a prominent problem with how Golang parses values returned from the database
+- UUID fields are not properly handled and become nil when retrieved
+- **CRITICAL**: Fix type handling issues in the reusable internal/db package itself, not per-case
+- Ensure proper scanning of PostgreSQL UUID types into Go UUID structs
+- Test database value parsing for all commonly used types (UUID, timestamps, JSON, etc.)

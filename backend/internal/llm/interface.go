@@ -17,9 +17,10 @@ type LLMRequest struct {
 
 // StreamingChunk represents a chunk from streaming LLM response
 type StreamingChunk struct {
-	Content string `json:"content"`
+	Content   string `json:"content"`
 	ToolCalls interface{} `json:"tool_calls,omitempty"`
-	Done     bool       `json:"done"`
+	Done      bool    `json:"done"`
+	TokensUsed int     `json:"tokens_used,omitempty"`
 }
 
 // LLMClient defines the interface for LLM providers
@@ -39,8 +40,9 @@ type LLMClient interface {
 
 // LLMResponse represents a complete LLM response
 type LLMResponse struct {
-	Content   string        `json:"content"`
-	ToolCalls interface{}   `json:"tool_calls,omitempty"`
-	Usage     interface{}   `json:"usage,omitempty"`
-	Model     string        `json:"model"`
+	Content    string        `json:"content"`
+	ToolCalls  interface{}   `json:"tool_calls,omitempty"`
+	Usage      interface{}   `json:"usage,omitempty"`
+	Model      string        `json:"model"`
+	TokensUsed int           `json:"tokens_used"`
 }

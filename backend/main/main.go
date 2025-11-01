@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"zlay-backend/internal/db"
 	"zlay-backend/internal/websocket"
@@ -23,10 +24,11 @@ type Config struct {
 }
 
 type App struct {
-	Config   *Config
-	ZDB      *db.Database // Zlay-db abstraction - SINGLE source of truth for database operations
-	Router   *gin.Engine
-	WSServer *websocket.Server
+	Config      *Config
+	ZDB         *db.Database // Zlay-db abstraction - SINGLE source of truth for database operations
+	Router      *gin.Engine
+	WSServer    *websocket.Server
+	DomainCache map[string]uuid.UUID // Cache for domain -> client_id mapping
 }
 
 type RequestUser struct {
@@ -43,7 +45,7 @@ func main() {
 
 	config := &Config{
 		DatabaseURL: getEnv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/zlay"),
-		Port:        getEnv("PORT", "8080"),
+		Port:        getEnv("PORT", "8080"), // Backend runs on 8080
 		// Add WebSocket port
 		WSPort: getEnv("WS_PORT", "6070"),
 	}
@@ -63,7 +65,6 @@ func main() {
 
 	// Start WebSocket server in separate goroutine
 	go func() {
-		log.Printf("WebSocket server starting on port %s", config.WSPort)
 		if err := app.WSServer.Start(); err != nil {
 			log.Printf("WebSocket server error: %v", err)
 		}
@@ -84,8 +85,6 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-
-
 func (app *App) InitZDB() error {
 	// Create zlay-db connection using the same database configuration
 	zdb, err := db.NewConnectionBuilder(db.DatabaseTypePostgreSQL).
@@ -97,6 +96,67 @@ func (app *App) InitZDB() error {
 
 	app.ZDB = zdb
 	return nil
+}
+
+func extractDomainFromOrigin(origin string) string {
+	// Remove protocol
+	if strings.HasPrefix(origin, "https://") {
+		origin = origin[8:]
+	} else if strings.HasPrefix(origin, "http://") {
+		origin = origin[7:]
+	}
+
+	// Remove port
+	if colonIndex := strings.Index(origin, ":"); colonIndex != -1 {
+		origin = origin[:colonIndex]
+	}
+
+	return origin
+}
+
+func extractDomainFromHost(host string) string {
+	if colonIndex := strings.Index(host, ":"); colonIndex != -1 {
+		return host[:colonIndex]
+	}
+	return host
+}
+
+func (app *App) loadDomainCache() {
+	ctx := context.Background()
+	app.DomainCache = make(map[string]uuid.UUID)
+
+	resultSet, err := app.ZDB.Query(ctx, "SELECT client_id, domain FROM domains WHERE is_active = true")
+	if err != nil {
+		log.Printf("Failed to load domain cache: %v", err)
+		return
+	}
+
+	for _, row := range resultSet.Rows {
+		if len(row.Values) >= 2 {
+			// Handle client_id - could be binary (UUID) or text
+			var clientID string
+			if row.Values[0].Type == "binary" {
+				bytes, ok := row.Values[0].AsBytes()
+				if ok {
+					// PostgreSQL UUIDs come as ASCII bytes of the UUID string
+					clientID = string(bytes)
+				}
+			} else {
+				clientID, _ = row.Values[0].AsString()
+			}
+			
+			domain, _ := row.Values[1].AsString()
+			if clientID != "" && domain != "" {
+				parsedClientID, err := uuid.Parse(clientID)
+				if err == nil {
+					normalizedDomain := extractDomainFromOrigin(domain)
+					app.DomainCache[normalizedDomain] = parsedClientID
+				}
+			}
+		}
+	}
+
+	log.Printf("Loaded %d domain entries into cache", len(app.DomainCache))
 }
 
 func (app *App) InitRouter() {
@@ -111,6 +171,9 @@ func (app *App) InitRouter() {
 	// Initialize WebSocket server with ZDB only
 	wsServer := websocket.NewServer(app.ZDB, app.Config.WSPort)
 	app.WSServer = wsServer
+
+	// Load domain cache
+	app.loadDomainCache()
 
 	// CORS configuration
 	config := cors.DefaultConfig()
@@ -139,7 +202,7 @@ func (app *App) InitRouter() {
 			auth.POST("/register", app.registerHandler)
 			auth.POST("/login", app.loginHandler)
 			auth.POST("/logout", app.logoutHandler)
-			auth.GET("/profile", app.authMiddleware(), app.profileHandler)
+			auth.GET("/profile", app.profileHandler)
 			auth.OPTIONS("/register", app.corsHandler)
 			auth.OPTIONS("/login", app.corsHandler)
 			auth.OPTIONS("/logout", app.corsHandler)
@@ -148,7 +211,6 @@ func (app *App) InitRouter() {
 
 		// Project routes
 		projects := api.Group("/projects")
-		projects.Use(app.authMiddleware())
 		{
 			projects.GET("", app.getProjectsHandler)
 			projects.POST("", app.createProjectHandler)
@@ -161,7 +223,6 @@ func (app *App) InitRouter() {
 
 		// Datasource routes
 		datasources := api.Group("/datasources")
-		datasources.Use(app.authMiddleware())
 		{
 			datasources.GET("", app.getDatasourcesHandler)
 			datasources.POST("", app.createDatasourceHandler)
@@ -174,7 +235,6 @@ func (app *App) InitRouter() {
 
 		// Admin routes
 		admin := api.Group("/admin")
-		admin.Use(app.authMiddleware())
 		{
 			admin.GET("/clients", app.adminMiddleware(), app.getClientsHandler)
 			admin.POST("/clients", app.adminMiddleware(), app.createClientHandler)
@@ -209,24 +269,29 @@ func (app *App) healthHandler(c *gin.Context) {
 }
 
 // Helper function to extract client ID from request using ZDB
-func (app *App) getClientID(c *gin.Context) (string, error) {
+func (app *App) getClientID(c *gin.Context) (uuid.UUID, error) {
 	ctx := c.Request.Context()
 
-	// Try to get client_id from X-Client-ID header first
-	if clientID := c.GetHeader("X-Client-ID"); clientID != "" {
+	// Try X-Client-ID header first
+	if clientIDStr := c.GetHeader("X-Client-ID"); clientIDStr != "" {
+		clientID, err := uuid.Parse(clientIDStr)
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("invalid client ID format: %w", err)
+		}
+
 		// Verify client exists using ZDB
 		row, err := app.ZDB.QueryRow(ctx,
 			"SELECT EXISTS(SELECT 1 FROM clients WHERE id = $1 AND is_active = true)",
 			clientID)
 		if err != nil {
-			return "", fmt.Errorf("database error: %w", err)
+			return uuid.Nil, fmt.Errorf("database error: %w", err)
 		}
-		
-		var exists bool
-		if err := row.Values[0].GetBool(&exists); err != nil {
-			return "", fmt.Errorf("failed to parse result: %w", err)
+
+		exists, ok := row.Values[0].AsBool()
+		if !ok {
+			return uuid.Nil, fmt.Errorf("failed to parse result")
 		}
-		
+
 		if exists {
 			return clientID, nil
 		}
@@ -245,12 +310,20 @@ func (app *App) getClientID(c *gin.Context) (string, error) {
 	}
 
 	if domain != "" {
-		// Look up client by domain using ZDB
+		// Check cache first
+		if clientID, exists := app.DomainCache[domain]; exists {
+			return clientID, nil
+		}
+
+		// Fallback to database lookup
 		row, err := app.ZDB.QueryRow(ctx,
 			"SELECT client_id FROM domains WHERE domain = $1 AND is_active = true LIMIT 1",
 			domain)
 		if err == nil && len(row.Values) > 0 {
-			if clientID, err := row.Values[0].GetString(); err == nil {
+			if clientIDStr, ok := row.Values[0].AsString(); ok {
+				clientID := uuid.MustParse(clientIDStr)
+				// Update cache
+				app.DomainCache[domain] = clientID
 				return clientID, nil
 			}
 		}
@@ -260,10 +333,13 @@ func (app *App) getClientID(c *gin.Context) (string, error) {
 		if err == nil {
 			for _, row := range resultSet.Rows {
 				if len(row.Values) >= 2 {
-					dbClientID, _ := row.Values[0].GetString()
-					dbDomain, _ := row.Values[1].GetString()
+					dbClientIDStr, _ := row.Values[0].AsString()
+					dbDomain, _ := row.Values[1].AsString()
 					normalizedDomain := extractDomainFromOrigin(dbDomain)
 					if domain == normalizedDomain {
+						dbClientID := uuid.MustParse(dbClientIDStr)
+						// Update cache
+						app.DomainCache[domain] = dbClientID
 						return dbClientID, nil
 					}
 				}
@@ -271,28 +347,15 @@ func (app *App) getClientID(c *gin.Context) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no valid client found")
-}
-
-func extractDomainFromOrigin(origin string) string {
-	// Remove protocol
-	if strings.HasPrefix(origin, "https://") {
-		origin = origin[8:]
-	} else if strings.HasPrefix(origin, "http://") {
-		origin = origin[7:]
+	// Fallback: if no domain match, use first active client (for development)
+	row, err := app.ZDB.QueryRow(ctx,
+		"SELECT id FROM clients WHERE is_active = true ORDER BY created_at ASC LIMIT 1")
+	if err == nil && len(row.Values) > 0 {
+		if clientIDStr, ok := row.Values[0].AsString(); ok {
+			clientID := uuid.MustParse(clientIDStr)
+			return clientID, nil
+		}
 	}
 
-	// Remove port
-	if colonIndex := strings.Index(origin, ":"); colonIndex != -1 {
-		origin = origin[:colonIndex]
-	}
-
-	return origin
-}
-
-func extractDomainFromHost(host string) string {
-	if colonIndex := strings.Index(host, ":"); colonIndex != -1 {
-		return host[:colonIndex]
-	}
-	return host
+	panic("not implemented")
 }

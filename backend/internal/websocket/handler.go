@@ -1,20 +1,21 @@
 package websocket
 
 import (
+	"compress/flate"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"zlay-backend/internal/chat"
 	"zlay-backend/internal/db"
+	"zlay-backend/internal/messages"
 )
 
 var upgrader = websocket.Upgrader{
@@ -24,20 +25,25 @@ var upgrader = websocket.Upgrader{
 		// TODO: Add proper origin checking in production
 		return true
 	},
+	// Enable WebSocket compression
+	EnableCompression: true,
+	CompressionLevel: flate.BestCompression,
 }
 
 // Handler manages WebSocket connections
 type Handler struct {
-	hub         *Hub
-	chatService chat.ChatService
-	db          *db.Database
+	hub              *Hub
+	chatService       chat.ChatService
+	db               *db.Database
+	clientConfigCache *ClientConfigCache
 }
 
 // NewHandler creates a new WebSocket handler
-func NewHandler(hub *Hub, db *db.Database) *Handler {
+func NewHandler(hub *Hub, db *db.Database, clientConfigCache *ClientConfigCache) *Handler {
 	return &Handler{
-		hub: hub,
-		db:  db,
+		hub:              hub,
+		db:               db,
+		clientConfigCache: clientConfigCache,
 	}
 }
 
@@ -105,30 +111,42 @@ func (h *Handler) authenticateToken(token string) (string, string, error) {
 	tokenHashStr := base64.StdEncoding.EncodeToString(tokenHash[:])
 
 	// Query session and user data
-	var userID, clientID string
-	var expiresAt time.Time
-	err := h.db.QueryRow(context.Background(),
-		`SELECT u.id, u.client_id, s.expires_at 
-		FROM sessions s 
-		JOIN users u ON s.user_id = u.id 
+	row, err := h.db.QueryRow(context.Background(),
+		`SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
 		WHERE s.token_hash = $1 AND u.is_active = true`,
-		tokenHashStr).Scan(&userID, &clientID, &expiresAt)
-	
+		tokenHashStr)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return "", "", fmt.Errorf("invalid or expired token")
-		}
 		return "", "", fmt.Errorf("database error: %w", err)
+	}
+
+	if len(row.Values) != 3 {
+		return "", "", fmt.Errorf("invalid session data")
+	}
+
+	userID, ok := row.Values[0].AsString()
+	if !ok {
+		return "", "", fmt.Errorf("invalid user ID")
+	}
+	clientID, ok := row.Values[1].AsString()
+	if !ok {
+		return "", "", fmt.Errorf("invalid client ID")
+	}
+	expiresAtStr, ok := row.Values[2].AsString()
+	if !ok {
+		return "", "", fmt.Errorf("invalid expires at")
+	}
+
+	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid expires at format")
 	}
 
 	// Check if session has expired
 	if time.Now().After(expiresAt) {
 		return "", "", fmt.Errorf("token expired")
-	}
-
-	// Validate returned values
-	if userID == "" || clientID == "" {
-		return "", "", fmt.Errorf("invalid session data")
 	}
 
 	return userID, clientID, nil
@@ -172,6 +190,20 @@ func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage)
 		return
 	}
 
+	// Add connection metadata per AsyncAPI spec
+	data["connection_id"] = conn.ID
+	data["user_id"] = conn.UserID
+	data["project_id"] = conn.ProjectID
+	data["client_id"] = conn.ClientID
+
+	// Get client-specific LLM configuration
+	clientConfig, err := h.clientConfigCache.GetClientConfig(context.Background(), conn.ClientID)
+	if err != nil {
+		log.Printf("Failed to get client LLM config: %v", err)
+		h.sendErrorResponse(conn, conversationID, "Failed to load LLM configuration", err.Error())
+		return
+	}
+
 	// Create chat request
 	chatReq := &chat.ChatRequest{
 		ConversationID: conversationID,
@@ -179,34 +211,49 @@ func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage)
 		ProjectID:      conn.ProjectID,
 		Content:        content,
 		ConnectionID:   conn.ID,
+		AddTokensFunc:  conn.AddTokens, // Token tracking function
+		Connection:     conn,           // Connection reference for token info
 	}
 
-	// Process through ChatService
+	// Process through ChatService with client-specific LLM
 	if h.chatService != nil {
-		err := h.chatService.ProcessUserMessage(chatReq)
+		// Temporarily update chat service's LLM client (for now)
+		// TODO: Refactor to have client-specific chat services
+		chatServiceWithClientLLM := h.chatService.WithLLMClient(clientConfig.LLMClient)
+		
+		err := chatServiceWithClientLLM.ProcessUserMessage(chatReq)
 		if err != nil {
 			log.Printf("Error processing user message: %v", err)
-			
-			// Send error response
-			errorResponse := formatAsyncAPIMessage("error", gin.H{
-				"conversation_id": conversationID,
-				"message":        "Failed to process message",
-				"error":          err.Error(),
-				"timestamp":      time.Now().Format(time.RFC3339),
-			})
-			h.hub.SendToConnection(conn, errorResponse)
+			h.sendErrorResponse(conn, conversationID, "Failed to process message", err.Error())
 		}
 	} else {
 		// Fallback for when chat service is not initialized
-		response := formatAsyncAPIMessage("assistant_response", gin.H{
-			"conversation_id": conversationID,
-			"content":         fmt.Sprintf("I received your message: %s. Chat service not available.", content),
-			"message_id":      "msg-" + uuid.New().String(),
-			"timestamp":       time.Now().Format(time.RFC3339),
-			"done":           true,
-		})
+		response := messages.WebSocketMessage{
+			Type: "assistant_response",
+			Data: AssistantResponseData{
+				ConversationID: conversationID,
+				Content:        fmt.Sprintf("I received your message: %s. Chat service not available.", content),
+				MessageID:      "msg-" + uuid.New().String(),
+				Timestamp:      time.Now().Format(time.RFC3339),
+				Done:           true,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		}
 		h.hub.SendToConnection(conn, response)
 	}
+}
+
+// sendErrorResponse sends a formatted error response
+func (h *Handler) sendErrorResponse(conn *Connection, conversationID, message, details string) {
+	errorResponse := WebSocketMessage{
+		Type: "error",
+		Data: ErrorData{
+			Error:   message,
+			Details: map[string]interface{}{"conversation_id": conversationID, "error": details},
+		},
+		Timestamp: time.Now().UnixMilli(),
+	}
+	h.hub.SendToConnection(conn, errorResponse)
 }
 
 // handleCreateConversation creates a new conversation
@@ -227,38 +274,51 @@ func (h *Handler) handleCreateConversation(conn *Connection, message *WebSocketM
 		conversation, err := h.chatService.CreateConversation(conn.UserID, conn.ProjectID, title)
 		if err != nil {
 			log.Printf("Error creating conversation: %v", err)
-			errorResponse := formatAsyncAPIMessage("error", gin.H{
-				"message": "Failed to create conversation",
-				"error":   err.Error(),
-			})
+			errorResponse := WebSocketMessage{
+				Type: "error",
+				Data: ErrorData{
+					Error:   "Failed to create conversation",
+					Details: map[string]interface{}{"error": err.Error()},
+				},
+				Timestamp: time.Now().UnixMilli(),
+			}
 			h.hub.SendToConnection(conn, errorResponse)
 			return
 		}
 
-		// Send success response
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversation_created", gin.H{
-			"conversation": conversation,
-			"success":     true,
-		}))
+		// Send success response matching AsyncAPI spec
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversation_created",
+			Data: ConversationCreatedData{
+				Conversation: convertConversation(conversation),
+				Success:      true,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	} else {
 		// Fallback for when chat service is not initialized
-		conversation := gin.H{
-			"id":         "conv-" + uuid.New().String(),
-			"title":      title,
-			"user_id":    conn.UserID,
-			"project_id": conn.ProjectID,
-			"created_at": time.Now().Format(time.RFC3339),
+		conversation := Conversation{
+			ID:        "conv-" + uuid.New().String(),
+			Title:     title,
+			UserID:    conn.UserID,
+			ProjectID: conn.ProjectID,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 
 		// Send success response in AsyncAPI format
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversation_created", gin.H{
-			"conversation": conversation,
-			"success":     true,
-		}))
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversation_created",
+			Data: ConversationCreatedData{
+				Conversation: conversation,
+				Success:      true,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	}
 }
 
-// formatAsyncAPIMessage creates a properly formatted AsyncAPI message
+// formatAsyncAPIMessage creates a properly formatted AsyncAPI message (deprecated - use typed structs)
 func formatAsyncAPIMessage(messageType string, data interface{}) WebSocketMessage {
 	return WebSocketMessage{
 		Type:      messageType,
@@ -274,75 +334,101 @@ func (h *Handler) handleGetConversations(conn *Connection, message *WebSocketMes
 		conversations, err := h.chatService.GetConversations(conn.UserID, conn.ProjectID)
 		if err != nil {
 			log.Printf("Error getting conversations: %v", err)
-			errorResponse := formatAsyncAPIMessage("error", gin.H{
-				"message": "Failed to get conversations",
-				"error":   err.Error(),
-			})
+			errorResponse := WebSocketMessage{
+				Type: "error",
+				Data: ErrorData{
+					Error:   "Failed to get conversations",
+					Details: map[string]interface{}{"error": err.Error()},
+				},
+				Timestamp: time.Now().UnixMilli(),
+			}
 			h.hub.SendToConnection(conn, errorResponse)
 			return
 		}
 
-		// Send conversations list
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversations_list", gin.H{
-			"conversations": conversations,
-		}))
+		// Send conversations list matching AsyncAPI spec
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversations_list",
+			Data: ConversationsListData{
+				Conversations: convertConversations(conversations),
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	} else {
 		// Fallback for when chat service is not initialized
-		conversations := []gin.H{
+		conversations := []Conversation{
 			{
-				"id":         "conv-1",
-				"title":      "Sample Conversation 1",
-				"user_id":    conn.UserID,
-				"project_id": conn.ProjectID,
-				"created_at": time.Now().Add(-24 * time.Hour).Format(time.RFC3339),
+				ID:        "conv-1",
+				Title:     "Sample Conversation 1",
+				UserID:    conn.UserID,
+				ProjectID: conn.ProjectID,
+				CreatedAt: time.Now().Add(-24 * time.Hour),
+				UpdatedAt: time.Now().Add(-24 * time.Hour),
 			},
 			{
-				"id":         "conv-2",
-				"title":      "Sample Conversation 2",
-				"user_id":    conn.UserID,
-				"project_id": conn.ProjectID,
-				"created_at": time.Now().Add(-2 * 24 * time.Hour).Format(time.RFC3339),
+				ID:        "conv-2",
+				Title:     "Sample Conversation 2",
+				UserID:    conn.UserID,
+				ProjectID: conn.ProjectID,
+				CreatedAt: time.Now().Add(-2 * 24 * time.Hour),
+				UpdatedAt: time.Now().Add(-2 * 24 * time.Hour),
 			},
 		}
 
 		// Send conversations list in AsyncAPI format
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversations_list", gin.H{
-			"conversations": conversations,
-		}))
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversations_list",
+			Data: ConversationsListData{
+				Conversations: conversations,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	}
 }
 
 // handleToolExecutionStarted sends tool execution started notification
 func (h *Handler) handleToolExecutionStarted(conn *Connection, toolName, toolCallID, conversationID, messageID string) {
-	h.hub.BroadcastToProject(conn.ProjectID, formatAsyncAPIMessage("tool_execution_started", gin.H{
-		"tool_name":     toolName,
-		"tool_call_id":  toolCallID,
-		"conversation_id": conversationID,
-		"message_id":     messageID,
-	}))
+	h.hub.BroadcastToProject(conn.ProjectID, WebSocketMessage{
+		Type: "tool_execution_started",
+		Data: ToolExecutionStartedData{
+			ToolName:       toolName,
+			ToolCallID:     toolCallID,
+			ConversationID: conversationID,
+			MessageID:      messageID,
+		},
+		Timestamp: time.Now().UnixMilli(),
+	})
 }
 
 // handleToolExecutionCompleted sends tool execution completed notification
 func (h *Handler) handleToolExecutionCompleted(conn *Connection, toolName, toolCallID, conversationID, messageID string, result interface{}, executionTimeMs int) {
-	h.hub.BroadcastToProject(conn.ProjectID, formatAsyncAPIMessage("tool_execution_completed", gin.H{
-		"tool_name":       toolName,
-		"tool_call_id":    toolCallID,
-		"conversation_id":   conversationID,
-		"result":          result,
-		"execution_time_ms": executionTimeMs,
-		"success":         true,
-	}))
+	h.hub.BroadcastToProject(conn.ProjectID, WebSocketMessage{
+		Type: "tool_execution_completed",
+		Data: ToolExecutionCompletedData{
+			ToolName:         toolName,
+			ToolCallID:       toolCallID,
+			ConversationID:   conversationID,
+			Success:          true,
+			Result:           result,
+			ExecutionTimeMs:  executionTimeMs,
+		},
+		Timestamp: time.Now().UnixMilli(),
+	})
 }
 
 // handleToolExecutionFailed sends tool execution failed notification
 func (h *Handler) handleToolExecutionFailed(conn *Connection, toolName, toolCallID, conversationID, errorMsg, errorCode string) {
-	h.hub.BroadcastToProject(conn.ProjectID, formatAsyncAPIMessage("tool_execution_failed", gin.H{
-		"tool_name":   toolName,
-		"tool_call_id": toolCallID,
-		"conversation_id": conversationID,
-		"error":       errorMsg,
-		"error_code":  errorCode,
-	}))
+	h.hub.BroadcastToProject(conn.ProjectID, WebSocketMessage{
+		Type: "tool_execution_failed",
+		Data: ToolExecutionFailedData{
+			ToolName:       toolName,
+			ToolCallID:     toolCallID,
+			ConversationID: conversationID,
+			Error:          errorMsg,
+			ErrorCode:      errorCode,
+		},
+		Timestamp: time.Now().UnixMilli(),
+	})
 }
 
 // handleGetConversation retrieves a specific conversation with messages
@@ -364,41 +450,49 @@ func (h *Handler) handleGetConversation(conn *Connection, message *WebSocketMess
 		conversation, err := h.chatService.GetConversation(conversationID, conn.UserID)
 		if err != nil {
 			log.Printf("Error getting conversation: %v", err)
-			errorResponse := formatAsyncAPIMessage("error", gin.H{
-				"message": "Failed to get conversation",
-				"error":   err.Error(),
-			})
+			errorResponse := WebSocketMessage{
+				Type: "error",
+				Data: ErrorData{
+					Error:   "Failed to get conversation",
+					Details: map[string]interface{}{"error": err.Error()},
+				},
+				Timestamp: time.Now().UnixMilli(),
+			}
 			h.hub.SendToConnection(conn, errorResponse)
 			return
 		}
 
-		// Send conversation with messages
+		// Send conversation with messages matching AsyncAPI spec
 		h.hub.SendToConnection(conn, WebSocketMessage{
 			Type: "conversation_details",
-			Data: gin.H{
-				"conversation": conversation,
+			Data: ConversationDetailsData{
+				Conversation: convertConversationDetails(conversation),
 			},
+			Timestamp: time.Now().UnixMilli(),
 		})
 	} else {
 		// Fallback for when chat service is not initialized
-		conversation := gin.H{
-			"id":         conversationID,
-			"title":      "Sample Conversation",
-			"user_id":    conn.UserID,
-			"project_id": conn.ProjectID,
-			"created_at": time.Now().Format(time.RFC3339),
-			"messages": []gin.H{
+		conversation := ConversationWithMessages{
+			Conversation: Conversation{
+				ID:        conversationID,
+				Title:     "Sample Conversation",
+				UserID:    conn.UserID,
+				ProjectID: conn.ProjectID,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			Messages: []Message{
 				{
-					"id":         "msg-1",
-					"role":       "user",
-					"content":     "Hello, how are you?",
-					"created_at": time.Now().Add(-5 * time.Minute).Format(time.RFC3339),
+					ID:        "msg-1",
+					Role:      "user",
+					Content:   "Hello, how are you?",
+					CreatedAt: time.Now().Add(-5 * time.Minute),
 				},
 				{
-					"id":         "msg-2",
-					"role":       "assistant",
-					"content":     "I'm doing well, thank you for asking!",
-					"created_at": time.Now().Add(-4 * time.Minute).Format(time.RFC3339),
+					ID:        "msg-2",
+					Role:      "assistant",
+					Content:   "I'm doing well, thank you for asking!",
+					CreatedAt: time.Now().Add(-4 * time.Minute),
 				},
 			},
 		}
@@ -406,9 +500,10 @@ func (h *Handler) handleGetConversation(conn *Connection, message *WebSocketMess
 		// Send conversation with messages
 		h.hub.SendToConnection(conn, WebSocketMessage{
 			Type: "conversation_details",
-			Data: gin.H{
-				"conversation": conversation,
+			Data: ConversationDetailsData{
+				Conversation: conversation,
 			},
+			Timestamp: time.Now().UnixMilli(),
 		})
 	}
 }
@@ -432,26 +527,38 @@ func (h *Handler) handleDeleteConversation(conn *Connection, message *WebSocketM
 		err := h.chatService.DeleteConversation(conversationID, conn.UserID)
 		if err != nil {
 			log.Printf("Error deleting conversation: %v", err)
-			errorResponse := formatAsyncAPIMessage("error", gin.H{
-				"message": "Failed to delete conversation",
-				"error":   err.Error(),
-			})
+			errorResponse := WebSocketMessage{
+				Type: "error",
+				Data: ErrorData{
+					Error:   "Failed to delete conversation",
+					Details: map[string]interface{}{"error": err.Error()},
+				},
+				Timestamp: time.Now().UnixMilli(),
+			}
 			h.hub.SendToConnection(conn, errorResponse)
 			return
 		}
 
-		// Send success response
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversation_deleted", gin.H{
-			"conversation_id": conversationID,
-			"success":        true,
-		}))
+		// Send success response matching AsyncAPI spec
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversation_deleted",
+			Data: gin.H{
+				"conversation_id": conversationID,
+				"success":         true,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	} else {
 		// Fallback for when chat service is not initialized
 		// Send success response in AsyncAPI format
-		h.hub.SendToConnection(conn, formatAsyncAPIMessage("conversation_deleted", gin.H{
-			"conversation_id": conversationID,
-			"success":        true,
-		}))
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "conversation_deleted",
+			Data: gin.H{
+				"conversation_id": conversationID,
+				"success":         true,
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	}
 }
 

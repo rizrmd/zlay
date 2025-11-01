@@ -1,0 +1,355 @@
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 402 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  [94m[BACKEND][0m  2025/11/01 16:57:34 Registered tool: database_query
+  [94m[BACKEND][0m  2025/11/01 16:57:34 Loaded 1 domain entries into cache
+  [94m[BACKEND][0m  2025/11/01 16:57:34 HTTP server starting on port 6090
+  [94m[BACKEND][0m  2025/11/01 16:57:35 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:35 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:36 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:36 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:36 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:36 | 200 |  227.438708ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:57:36 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 16:57:36 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:36 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:36 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:36 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:36 | 200 |  174.252917ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 16:57:41 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:41 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:41 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:41 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:41 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:42 | 201 |  488.662291ms |             ::1 | POST     "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 16:57:42 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:42 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:42 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:42 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:42 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:42 | 200 |  105.524458ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 16:57:43 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:43 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:43 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:43 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:43 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:43 | 200 |  112.575917ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:57:45 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:45 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:45 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:45 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:45 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:45 | 200 |  127.532542ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:57:46 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:46 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:46 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:46 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:46 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:46 | 200 |  117.332917ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:57:48 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:57:48 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:57:48 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:57:48 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:57:48 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:57:48 | 200 |   101.08875ms |             ::1 | GET      "/api/auth/profile"
+  [92m[FRONTEND][0m 4:58:36 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 4:58:41 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 16:58:57 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:58:57 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:58:57 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:58:57 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:58:57 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:58:57 | 200 |  124.022334ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:59:02 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:59:02 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:02 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:02 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:02 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:02 | 200 |   103.83525ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:59:02 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 16:59:02 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:02 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:02 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:02 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:02 | 200 |  124.064375ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 16:59:03 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:59:03 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:03 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:03 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:03 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:03 | 200 |   60.792042ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:59:04 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:59:04 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:04 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:04 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:04 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:04 | 200 |   113.43725ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 16:59:04 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:59:04 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:04 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:04 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:04 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:04 | 200 |  126.183583ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 16:59:05 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 16:59:05 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 16:59:05 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 16:59:05 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 16:59:05 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 16:59:05 | 200 |  138.727416ms |             ::1 | GET      "/api/auth/profile"
+  [92m[FRONTEND][0m 5:01:30 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/views/ChatView.vue?vue&type=style&index=0&scoped=a497a79e&lang.css, /src/assets/main.css
+  [92m[FRONTEND][0m 5:01:44 PM [vite] (client) hmr update /src/assets/main.css
+  [92m[FRONTEND][0m 5:01:44 PM [vite] (client) hmr update /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 17:01:46 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:01:46 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:01:46 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:01:46 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:01:46 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:01:46 | 200 |  146.289709ms |             ::1 | GET      "/api/auth/profile"
+  [92m[FRONTEND][0m 5:02:10 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:02:18 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:02:25 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:02:31 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 17:02:33 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:33 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:33 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:33 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:33 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:33 | 200 |  140.824083ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:33 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:33 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:33 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:33 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:33 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:33 | 200 |  126.590166ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:02:34 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:34 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:34 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:34 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:34 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:34 | 200 |  498.904917ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:35 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:35 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:36 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:36 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:36 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:36 | 200 |  104.254625ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:36 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:36 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:36 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:36 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:36 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:36 | 200 |  172.824583ms |             ::1 | GET      "/api/projects"
+  [92m[FRONTEND][0m 5:02:46 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 17:02:48 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:48 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:48 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:48 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:48 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:48 | 200 |    230.9515ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:49 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:49 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:50 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:50 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:50 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:50 | 200 |  139.287417ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:51 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:51 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:51 | 200 |  155.116875ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:51 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:51 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:51 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:51 | 200 |   157.44325ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:02:52 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:52 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:52 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:52 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:52 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:52 | 200 |   78.639291ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:53 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:02:53 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:53 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:53 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:53 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:53 | 200 |  127.319042ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:02:53 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:53 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:53 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:53 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:53 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:53 | 200 |  128.694375ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:02:54 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:02:54 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:02:54 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:02:54 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:02:54 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:02:54 | 200 |   106.50775ms |             ::1 | GET      "/api/auth/profile"
+  [92m[FRONTEND][0m 5:03:30 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:03:48 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:04:07 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:10 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:10 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:10 | 200 |  136.698792ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:10 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:10 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:10 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:10 | 200 |  128.754291ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:04:11 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:04:11 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:11 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:11 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:11 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:11 | 200 |   58.469875ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:12 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:12 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:12 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:12 | 200 |     64.9025ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:12 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:12 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:12 | 200 |  144.623708ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:04:12 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:12 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:13 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:13 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:13 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:13 | 200 |   61.779792ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:16 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:16 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:16 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:16 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:16 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:16 | 200 |  137.864667ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:16 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:16 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:16 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:16 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:16 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:16 | 200 |  138.129125ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:04:18 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:04:18 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:18 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:18 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:18 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:18 | 200 |  145.466916ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:18 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:18 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:18 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:18 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:18 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:18 | 200 |   117.74875ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:04:25 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:25 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:25 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:25 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:25 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:25 | 200 |  125.136041ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:26 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:26 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:26 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:26 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:26 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:26 | 200 |     130.114ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:04:26 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:04:26 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:04:26 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:04:26 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:04:26 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:04:26 | 200 |  108.100291ms |             ::1 | GET      "/api/projects"
+  [92m[FRONTEND][0m 5:05:19 PM [vite] (client) hmr update /src/components/ProjectCard.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:05:29 PM [vite] (client) hmr update /src/components/ProjectCard.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:05:34 PM [vite] (client) hmr update /src/components/ProjectCard.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:06:49 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:04 PM [vite] (client) hmr update /src/components/ui/dropdown/DropdownItem.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:21 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:30 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:44 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:46 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:47 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:49 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:54 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:55 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:07:59 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:02 PM [vite] (client) hmr update /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:04 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:15 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:18 PM [vite] (client) hmr update /src/components/ui/dropdown/Dropdown.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:18 PM [vite] (client) hmr update /src/assets/main.css
+  [92m[FRONTEND][0m 5:08:21 PM [vite] (client) hmr update /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/01 17:08:22 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+  [94m[BACKEND][0m  2025/11/01 17:08:22 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:08:22 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:08:22 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:08:22 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:08:22 | 200 |  528.212625ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/01 17:08:22 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:08:22 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:08:22 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:08:22 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:08:22 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:08:22 | 200 |     236.599ms |             ::1 | GET      "/api/projects"
+  [94m[BACKEND][0m  2025/11/01 17:08:28 Auth middleware - cookies: [twk_uuid_669a7d4e32dca6db2cb22ba7=%7B%22uuid%22%3A%221.HQ3i4s4GtvJpUpp77QxvkBRJ1RNk5yqPzcBeQOmG2ljTQ6cDerrhuG1dRRIV7c41bh8nPO9nbqSc03IEqSUQ85i2aVyc2ES4lahAX%22%2C%22version%22%3A3%2C%22domain%22%3Anull%2C%22ts%22%3A1758068815802%7D ajs_anonymous_id=051b399a-23b5-4c84-83ac-b234e59a2267 session_token=bs-u3X7HVe6KpDkwNGjCHYQvM4LBBEtcY3FDHaOJz9c%3D]
+2025/11/01 17:08:28 Auth middleware - tokenHashStr: MMCOo5B/qtwQx5lTlaZSwcNAqlrvVWRODnNqC8/+n7g= (length: 44)
+  [94m[BACKEND][0m  2025/11/01 17:08:28 Auth middleware - raw row values: [{Type:uuid Data:c70e6074-5e6f-45a4-8218-4cece629f911 Valid:true} {Type:text Data:56c28eb6-8ea3-40f7-bdff-dbf089069138 Valid:true} {Type:text Data:moka Valid:true} {Type:text Data:$2a$10$5Y3hFXJ69AZGwkCBlN1KF.v0AI1ZW0uWrr9y0Qv7k9kYSlxeSa2SW Valid:true} {Type:boolean Data:true Valid:true} {Type:timestamp Data:2025-11-01 08:46:33.683224 +0000 UTC Valid:true}]
+2025/11/01 17:08:28 Auth middleware - user ID: c70e6074-5e6f-45a4-8218-4cece629f911, ok: true
+2025/11/01 17:08:28 Auth middleware - client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138, ok: true
+  [94m[BACKEND][0m  [GIN] 2025/11/01 - 17:08:28 | 200 |  109.015292ms |             ::1 | GET      "/api/auth/profile"
+  [92m[FRONTEND][0m 5:08:59 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 5:09:00 PM [vite] (client) hmr update /src/views/ChatView.vue, /src/assets/main.css
+  [92m[FRONTEND][0m error: script "dev" exited with code 143
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 473 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  [92m[FRONTEND][0m error: script "dev" exited with code 143
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 488 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  [92m[FRONTEND][0m   ➜  Network: use --host to expose
+  [92m[FRONTEND][0m   ➜  press h + enter to show help
+  [92m[FRONTEND][0m error: script "dev" exited with code 143
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 554 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  [92m[FRONTEND][0m error: script "dev" exited with code 143
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 409 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  [92m[FRONTEND][0m error: script "dev" exited with code 143
+  [92m[FRONTEND][0m $ vite
+  [92m[FRONTEND][0m 
+  VITE v7.1.12  ready in 415 ms
+
+  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Network: use --host to expose
+  [92m[FRONTEND][0m   ➜  press h + enter to show help

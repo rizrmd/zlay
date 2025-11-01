@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Datasource struct {
@@ -36,7 +36,14 @@ type UpdateDatasourceRequest struct {
 
 func (app *App) getDatasourcesHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 
 	// Get project ID from query param or check if user has access to all projects
 	projectID := c.Query("project_id")
@@ -53,13 +60,13 @@ func (app *App) getDatasourcesHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 			return
 		}
-		
-		var exists bool
-		if err := row.Values[0].GetBool(&exists); err != nil {
+
+		exists, ok := row.Values[0].AsBool()
+		if !ok {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 			return
 		}
-		
+
 		if !exists {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found or no access"})
 			return
@@ -88,30 +95,30 @@ func (app *App) getDatasourcesHandler(c *gin.Context) {
 		if len(row.Values) < 7 {
 			continue
 		}
-		
+
 		var datasource Datasource
-		if id, err := row.Values[0].GetString(); err == nil {
+		if id, ok := row.Values[0].AsString(); ok {
 			datasource.ID = id
 		}
-		if projectID, err := row.Values[1].GetString(); err == nil {
+		if projectID, ok := row.Values[1].AsString(); ok {
 			datasource.ProjectID = projectID
 		}
-		if name, err := row.Values[2].GetString(); err == nil {
+		if name, ok := row.Values[2].AsString(); ok {
 			datasource.Name = name
 		}
-		if datasourceType, err := row.Values[3].GetString(); err == nil {
+		if datasourceType, ok := row.Values[3].AsString(); ok {
 			datasource.Type = datasourceType
 		}
-		if config, err := row.Values[4].GetRaw(); err == nil {
+		if config, ok := row.Values[4].AsBytes(); ok {
 			datasource.Config = config
 		}
-		if isActive, err := row.Values[5].GetBool(); err == nil {
+		if isActive, ok := row.Values[5].AsBool(); ok {
 			datasource.IsActive = isActive
 		}
-		if createdAt, err := row.Values[6].GetTime(); err == nil {
-			datasource.CreatedAt = createdAt.Format(time.RFC3339)
+		if createdAt, ok := row.Values[6].AsTimestamp(); ok {
+			datasource.CreatedAt = createdAt.Time.Format(time.RFC3339)
 		}
-		
+
 		datasources = append(datasources, datasource)
 	}
 
@@ -120,7 +127,14 @@ func (app *App) getDatasourcesHandler(c *gin.Context) {
 
 func (app *App) createDatasourceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 
 	var req CreateDatasourceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -140,19 +154,19 @@ func (app *App) createDatasourceHandler(c *gin.Context) {
 
 	// Check if user owns the project using ZDB
 	row, err := app.ZDB.QueryRow(ctx,
-		"SELECT EXISTS(SELECT 1 FROM projects WHERE id = $1 AND user_id = $2 AND is_active = true)",
+		"SELECT EXISTS(SELECT 1 FROM projects p JOIN user_projects up ON p.id = up.project_id WHERE p.id = $1 AND up.user_id = $2)",
 		req.ProjectID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found or no access"})
 		return
@@ -166,18 +180,18 @@ func (app *App) createDatasourceHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create datasource"})
 		return
 	}
-	
+
 	// Get created timestamp using ZDB
-	row, err := app.ZDB.QueryRow(ctx,
+	row, err = app.ZDB.QueryRow(ctx,
 		"SELECT created_at FROM datasources WHERE id = $1",
 		datasourceID)
 	if err != nil || len(row.Values) == 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get datasource details"})
 		return
 	}
-	
-	createdAt, err := row.Values[0].GetTime()
-	if err != nil {
+
+	createdAt, ok := row.Values[0].AsTimestamp()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse timestamp"})
 		return
 	}
@@ -189,7 +203,7 @@ func (app *App) createDatasourceHandler(c *gin.Context) {
 		Type:      req.Type,
 		Config:    req.Config,
 		IsActive:  true,
-		CreatedAt: createdAt.Format(time.RFC3339),
+		CreatedAt: createdAt.Time.Format(time.RFC3339),
 	}
 
 	c.JSON(http.StatusCreated, datasource)
@@ -197,7 +211,14 @@ func (app *App) createDatasourceHandler(c *gin.Context) {
 
 func (app *App) getDatasourceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	datasourceID := c.Param("id")
 
 	row, err := app.ZDB.QueryRow(ctx,
@@ -210,28 +231,28 @@ func (app *App) getDatasourceHandler(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Datasource not found"})
 		return
 	}
-	
+
 	var datasource Datasource
-	if id, err := row.Values[0].GetString(); err == nil {
+	if id, ok := row.Values[0].AsString(); ok {
 		datasource.ID = id
 	}
-	if projectID, err := row.Values[1].GetString(); err == nil {
+	if projectID, ok := row.Values[1].AsString(); ok {
 		datasource.ProjectID = projectID
 	}
-	if name, err := row.Values[2].GetString(); err == nil {
+	if name, ok := row.Values[2].AsString(); ok {
 		datasource.Name = name
 	}
-	if datasourceType, err := row.Values[3].GetString(); err == nil {
+	if datasourceType, ok := row.Values[3].AsString(); ok {
 		datasource.Type = datasourceType
 	}
-	if config, err := row.Values[4].GetRaw(); err == nil {
+	if config, ok := row.Values[4].AsBytes(); ok {
 		datasource.Config = config
 	}
-	if isActive, err := row.Values[5].GetBool(); err == nil {
+	if isActive, ok := row.Values[5].AsBool(); ok {
 		datasource.IsActive = isActive
 	}
-	if createdAt, err := row.Values[6].GetTime(); err == nil {
-		datasource.CreatedAt = createdAt.Format(time.RFC3339)
+	if createdAt, ok := row.Values[6].AsTimestamp(); ok {
+		datasource.CreatedAt = createdAt.Time.Format(time.RFC3339)
 	}
 
 	c.JSON(http.StatusOK, datasource)
@@ -239,7 +260,14 @@ func (app *App) getDatasourceHandler(c *gin.Context) {
 
 func (app *App) updateDatasourceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	datasourceID := c.Param("id")
 
 	var req UpdateDatasourceRequest
@@ -258,13 +286,13 @@ func (app *App) updateDatasourceHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
-	
-	var exists bool
-	if err := row.Values[0].GetBool(&exists); err != nil {
+
+	exists, ok := row.Values[0].AsBool()
+	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse result"})
 		return
 	}
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Datasource not found"})
 		return
@@ -313,7 +341,14 @@ func (app *App) updateDatasourceHandler(c *gin.Context) {
 
 func (app *App) deleteDatasourceHandler(c *gin.Context) {
 	ctx := c.Request.Context()
-	userID := c.GetString("user_id")
+	
+	// Get current user
+	user, err := app.getCurrentUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		return
+	}
+	userID := user.ID
 	datasourceID := c.Param("id")
 
 	// Soft delete by setting is_active to false using ZDB

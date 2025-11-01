@@ -52,6 +52,10 @@ class WebSocketService {
   private projectID: string | null = null
   private connectionPromise: Promise<void> | null = null
 
+  // Token usage tracking
+  private tokensUsed = 0
+  private tokensLimit = 1000000
+
   async connect(projectID: string, token: string): Promise<void> {
     // If already connecting, wait for existing connection
     if (this.connectionPromise) {
@@ -63,13 +67,21 @@ class WebSocketService {
         // Determine WebSocket URL
         const wsUrl = this.getWebSocketURL(projectID, token)
         
-        this.ws = new WebSocket(wsUrl)
+        // Create WebSocket with compression enabled
+        this.ws = new WebSocket(wsUrl, [], {
+          // WebSocket compression parameters
+          extensions: 'permessage-deflate; client_max_window_bits',
+        } as any)
 
         this.ws.onopen = () => {
           console.log('WebSocket connected')
           this.projectID = projectID
           this.reconnectAttempts = 0
           this.reconnectDelay = 1000
+          
+          // Set up connection-level handlers
+          this.setupConnectionHandlers()
+          
           resolve()
         }
 
@@ -146,6 +158,18 @@ class WebSocketService {
   }
 
   private handleMessage(message: WebSocketMessage): void {
+    // Track tokens from responses
+    if (message.data && typeof message.data === 'object') {
+      if (message.data.tokens_used) {
+        this.trackTokenUsage(message.data.tokens_used)
+      }
+      
+      // Also handle responses that include token usage in nested objects
+      if (message.data.response && message.data.response.tokens_used) {
+        this.trackTokenUsage(message.data.response.tokens_used)
+      }
+    }
+
     const handler = this.messageHandlers.get(message.type)
     if (handler) {
       handler(message.data)
@@ -228,9 +252,52 @@ class WebSocketService {
     this.sendMessage('leave_project', {})
   }
 
+  // Connection-level message handlers
+  private setupConnectionHandlers() {
+    // Ping for health check
+    this.onMessage('ping', () => {
+      this.sendMessage('pong', { timestamp: Date.now() })
+    })
+  }
+
   // Utility methods
+  sendPing() {
+    this.sendMessage('ping', {})
+  }
   isConnected(): boolean {
     return this.ws !== null && this.ws.readyState === WebSocket.OPEN
+  }
+
+  // Token usage tracking methods
+  getTokenUsage() {
+    return {
+      used: this.tokensUsed,
+      limit: this.tokensLimit,
+      remaining: this.tokensLimit - this.tokensUsed,
+      percentage: (this.tokensUsed / this.tokensLimit) * 100
+    }
+  }
+
+  isTokenLimitExceeded() {
+    return this.tokensUsed >= this.tokensLimit
+  }
+
+  setTokenLimit(limit: number) {
+    this.tokensLimit = limit
+  }
+
+  resetTokenUsage() {
+    this.tokensUsed = 0
+  }
+
+  // Private method to track tokens from responses
+  private trackTokenUsage(tokens: number) {
+    this.tokensUsed += tokens
+    console.log(`Token usage updated: ${tokens} tokens used, total: ${this.tokensUsed}`)
+    
+    if (this.isTokenLimitExceeded()) {
+      console.warn('Token limit exceeded!')
+    }
   }
 
   getConnectionState(): string {

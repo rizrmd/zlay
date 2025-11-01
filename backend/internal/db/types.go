@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // DatabaseType represents supported database types
@@ -12,14 +14,14 @@ type DatabaseType string
 
 const (
 	DatabaseTypePostgreSQL DatabaseType = "postgresql"
-	DatabaseTypeMySQL     DatabaseType = "mysql"
-	DatabaseTypeSQLite    DatabaseType = "sqlite"
-	DatabaseTypeSQLServer DatabaseType = "sqlserver"
-	DatabaseTypeOracle    DatabaseType = "oracle"
+	DatabaseTypeMySQL      DatabaseType = "mysql"
+	DatabaseTypeSQLite     DatabaseType = "sqlite"
+	DatabaseTypeSQLServer  DatabaseType = "sqlserver"
+	DatabaseTypeOracle     DatabaseType = "oracle"
 	DatabaseTypeClickHouse DatabaseType = "clickhouse"
-	DatabaseTypeTrino     DatabaseType = "trino"
-	DatabaseTypeCSV       DatabaseType = "csv"
-	DatabaseTypeExcel     DatabaseType = "excel"
+	DatabaseTypeTrino      DatabaseType = "trino"
+	DatabaseTypeCSV        DatabaseType = "csv"
+	DatabaseTypeExcel      DatabaseType = "excel"
 )
 
 // ValueType represents the type of a database value
@@ -35,6 +37,7 @@ const (
 	ValueTypeDate      ValueType = "date"
 	ValueTypeTime      ValueType = "time"
 	ValueTypeTimestamp ValueType = "timestamp"
+	ValueTypeUUID      ValueType = "uuid"
 )
 
 // Value represents a unified database value
@@ -53,9 +56,9 @@ type Date struct {
 
 // Time represents a time value
 type Time struct {
-	Hour   int
-	Minute int
-	Second int
+	Hour    int
+	Minute  int
+	Second  int
 	Nanosec int
 }
 
@@ -148,8 +151,17 @@ func NewTimeValue(hour, minute, second, nanosec int) Value {
 // NewTimestampValue creates a new timestamp value
 func NewTimestampValue(t time.Time) Value {
 	return Value{
-		Type: ValueTypeTimestamp,
-		Data: Timestamp{Time: t},
+		Type:  ValueTypeTimestamp,
+		Data:  Timestamp{Time: t},
+		Valid: true,
+	}
+}
+
+// NewUUIDValue creates a new UUID value
+func NewUUIDValue(u uuid.UUID) Value {
+	return Value{
+		Type:  ValueTypeUUID,
+		Data:  u,
 		Valid: true,
 	}
 }
@@ -172,10 +184,35 @@ func (v Value) AsFloat64() (float64, bool) {
 
 // AsString returns value as string
 func (v Value) AsString() (string, bool) {
-	if v.Type == ValueTypeText && v.Valid {
-		return v.Data.(string), true
+	if !v.Valid {
+		return "", false
 	}
-	return "", false
+
+	switch v.Type {
+	case ValueTypeText:
+		return v.Data.(string), true
+	case ValueTypeUUID:
+		// Convert UUID to string representation
+		if uuidVal, ok := v.Data.(uuid.UUID); ok {
+			return uuidVal.String(), true
+		}
+		return "", false
+	case ValueTypeBinary:
+		// Special case: if binary is 16 bytes, it's likely a UUID
+		if byteSlice, ok := v.Data.([]byte); ok && len(byteSlice) == 16 {
+			var parsedUUID uuid.UUID
+			copy(parsedUUID[:], byteSlice)
+			return parsedUUID.String(), true
+		}
+		// For other binary types, convert to hex string
+		if byteSlice, ok := v.Data.([]byte); ok {
+			return fmt.Sprintf("[% x]", byteSlice), true
+		}
+		return "", false
+	default:
+		// For other types, try to convert to string
+		return fmt.Sprintf("%v", v.Data), true
+	}
 }
 
 // AsBool returns value as bool
@@ -216,6 +253,14 @@ func (v Value) AsTimestamp() (Timestamp, bool) {
 		return v.Data.(Timestamp), true
 	}
 	return Timestamp{}, false
+}
+
+// AsUUID returns value as UUID
+func (v Value) AsUUID() (uuid.UUID, bool) {
+	if v.Type == ValueTypeUUID && v.Valid {
+		return v.Data.(uuid.UUID), true
+	}
+	return uuid.Nil, false
 }
 
 // IsNull returns true if value is null
@@ -306,7 +351,13 @@ func mapSQLTypeToValueType(sqlType string) ValueType {
 		return ValueTypeTime
 	case containsIgnoreCase(sqlType, "timestamp"):
 		return ValueTypeTimestamp
+	case containsIgnoreCase(sqlType, "uuid"):
+		return ValueTypeUUID
 	case containsIgnoreCase(sqlType, "blob"), containsIgnoreCase(sqlType, "binary"):
+		// Special case: if SQL type name contains "uuid" but detected as binary, treat as UUID
+		if containsIgnoreCase(sqlType, "uuid") {
+			return ValueTypeUUID
+		}
 		return ValueTypeBinary
 	default:
 		return ValueTypeText
@@ -328,26 +379,64 @@ func convertSQLValueToValue(val interface{}, expectedType ValueType) Value {
 	case float64:
 		return NewFloatValue(v)
 	case string:
+		// Try to parse as UUID if expected type is UUID
+		if expectedType == ValueTypeUUID {
+			if parsedUUID, err := uuid.Parse(v); err == nil {
+				return Value{
+					Type:  ValueTypeUUID,
+					Data:  parsedUUID,
+					Valid: true,
+				}
+			}
+		}
 		return NewTextValue(v)
 	case bool:
 		return NewBooleanValue(v)
 	case []byte:
+		// Handle UUIDs returned as byte arrays (PostgreSQL returns UUIDs as strings scanned as []byte)
+		if expectedType == ValueTypeUUID {
+			// Convert bytes to string and parse as UUID
+			strVal := string(v)
+			if parsedUUID, err := uuid.Parse(strVal); err == nil {
+				return Value{
+					Type:  ValueTypeUUID,
+					Data:  parsedUUID,
+					Valid: true,
+				}
+			}
+		}
+		// Any 16-byte array is a UUID - convert it regardless of expected type
+		if len(v) == 16 {
+			var parsedUUID uuid.UUID
+			copy(parsedUUID[:], v)
+			return Value{
+				Type:  ValueTypeUUID,
+				Data:  parsedUUID,
+				Valid: true,
+			}
+		}
 		return NewBinaryValue(v)
 	case time.Time:
 		if v.IsZero() {
 			return NewNullValue()
 		}
 		return NewTimestampValue(v)
+	case uuid.UUID:
+		return Value{
+			Type:  ValueTypeUUID,
+			Data:  v,
+			Valid: true,
+		}
 	default:
 		return NewTextValue(string(fmt.Sprintf("%v", v)))
 	}
 }
 
 func containsIgnoreCase(s, substr string) bool {
-	return len(s) >= len(substr) && 
-		(s[:len(substr)] == substr || 
-		 s[len(s)-len(substr):] == substr ||
-		 findSubstringIgnoreCase(s, substr))
+	return len(s) >= len(substr) &&
+		(s[:len(substr)] == substr ||
+			s[len(s)-len(substr):] == substr ||
+			findSubstringIgnoreCase(s, substr))
 }
 
 func findSubstringIgnoreCase(s, substr string) bool {

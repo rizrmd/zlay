@@ -66,6 +66,14 @@ type ChatRequest struct {
 	ClientID      string `json:"client_id"`
 	ProjectID     string `json:"project_id"`
 	ConnectionID  string `json:"connection_id"`
+	
+	// Token tracking function (optional)
+	AddTokensFunc func(tokens int64) bool
+	
+	// Connection reference for real-time token info
+	Connection interface {
+		GetTokenUsage() (used int64, limit int64, remaining int64)
+	}
 }
 
 // ChatResponse represents a streaming chat response

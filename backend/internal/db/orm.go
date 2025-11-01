@@ -291,6 +291,9 @@ func convertSQLValueToGoValue(v Value) interface{} {
 	case ValueTypeTimestamp:
 		val, _ := v.AsTimestamp()
 		return val.Time
+	case ValueTypeUUID:
+		val, _ := v.AsUUID()
+		return val
 	default:
 		return nil
 	}

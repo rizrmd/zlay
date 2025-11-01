@@ -95,7 +95,7 @@ await new Promise(resolve => setTimeout(resolve, 1500))
 const logStream = createWriteStream('backend.log', { flags: 'w' })
 
 // Build backend
-const buildProcess = spawn('go', ['build', '.'], {
+const buildProcess = spawn('go', ['build', '-o', 'zlay-backend', './main'], {
   cwd: backendPath,
   stdio: 'inherit'
 })
@@ -110,48 +110,75 @@ await new Promise((resolve, reject) => {
   })
 })
 
-const backend = spawn('./zlay-backend', [], {
-  cwd: backendPath,
-  stdio: ['inherit', 'pipe', 'pipe'],
-  env: { ...process.env, ...envVars }
-})
+let shuttingDown = false
 
-backend.stdout?.on('data', (data) => {
-  const output = `  \x1b[94m[BACKEND]\x1b[0m  ${data.toString()}`
-  process.stdout.write(output)
-  logStream.write(output)
-})
-backend.stderr?.on('data', (data) => {
-  const output = `  \x1b[94m[BACKEND]\x1b[0m  ${data.toString()}`
-  process.stderr.write(output)
-  logStream.write(output)
-})
+const startBackend = () => {
+  const backend = spawn('./zlay-backend', [], {
+    cwd: backendPath,
+    stdio: ['inherit', 'pipe', 'pipe'],
+    env: { ...process.env, ...envVars }
+  })
 
-const frontend = spawn('bun', ['run', 'dev'], {
-  cwd: frontendPath,
-  stdio: ['inherit', 'pipe', 'pipe']
-})
+  backend.stdout?.on('data', (data) => {
+    const output = `  \x1b[94m[BACKEND]\x1b[0m  ${data.toString()}`
+    process.stdout.write(output)
+    logStream.write(output)
+  })
+  backend.stderr?.on('data', (data) => {
+    const output = `  \x1b[94m[BACKEND]\x1b[0m  ${data.toString()}`
+    process.stderr.write(output)
+    logStream.write(output)
+  })
 
-frontend.stdout?.on('data', (data) => {
-  const output = `  \x1b[92m[FRONTEND]\x1b[0m ${data.toString()}`
-  process.stdout.write(output)
-  logStream.write(output)
-})
-frontend.stderr?.on('data', (data) => {
-  const output = `  \x1b[92m[FRONTEND]\x1b[0m ${data.toString()}`
-  process.stderr.write(output)
-  logStream.write(output)
-})
+  backend.on('close', (code) => {
+    if (!shuttingDown && code !== 0) {
+      console.log('🔄 Backend crashed, restarting...')
+      startBackend()
+    }
+  })
+
+  return backend
+}
+
+const backend = startBackend()
+
+const startFrontend = () => {
+  const frontend = spawn('bun', ['run', 'dev'], {
+    cwd: frontendPath,
+    stdio: ['inherit', 'pipe', 'pipe']
+  })
+
+  frontend.stdout?.on('data', (data) => {
+    const output = `  \x1b[92m[FRONTEND]\x1b[0m ${data.toString()}`
+    process.stdout.write(output)
+    logStream.write(output)
+  })
+  frontend.stderr?.on('data', (data) => {
+    const output = `  \x1b[92m[FRONTEND]\x1b[0m ${data.toString()}`
+    process.stderr.write(output)
+    logStream.write(output)
+  })
+
+  frontend.on('close', (code) => {
+    if (!shuttingDown && code !== 0) {
+      console.log('🔄 Frontend crashed, restarting...')
+      startFrontend()
+    }
+  })
+
+  return frontend
+}
+
+const frontend = startFrontend()
 
 process.on('SIGINT', () => {
   console.log('\n🛑 Shutting down...')
+  shuttingDown = true
   backend.kill('SIGINT')
   frontend.kill('SIGINT')
   logStream.end()
   process.exit(0)
 })
 
-Promise.all([
-  new Promise((resolve) => backend.on('close', resolve)),
-  new Promise((resolve) => frontend.on('close', resolve))
-]).then(() => process.exit(0))
+// Keep the process running indefinitely
+process.stdin.resume()

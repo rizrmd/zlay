@@ -122,6 +122,31 @@ export const useChatStore = defineStore('chat', () => {
       }
     })
 
+    // Tool execution started
+    webSocketService.onMessage('tool_execution_started', (data: any) => {
+      console.log('Tool execution started:', data)
+    })
+
+    // Tool execution completed
+    webSocketService.onMessage('tool_execution_completed', (data: any) => {
+      console.log('Tool execution completed:', data)
+    })
+
+    // Tool execution failed
+    webSocketService.onMessage('tool_execution_failed', (data: any) => {
+      console.log('Tool execution failed:', data)
+    })
+
+    // Project joined
+    webSocketService.onMessage('project_joined', (data: any) => {
+      console.log('Project joined:', data)
+    })
+
+    // Pong response
+    webSocketService.onMessage('pong', (data: any) => {
+      console.log('Pong received:', data)
+    })
+
     // Error handling
     webSocketService.onMessage('error', (data: any) => {
       console.error('WebSocket error:', data)

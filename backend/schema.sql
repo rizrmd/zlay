@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS clients (
     ai_api_key VARCHAR(500),
     ai_api_url VARCHAR(500),
     ai_api_model VARCHAR(100),
+    ai_api_type VARCHAR(50),
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

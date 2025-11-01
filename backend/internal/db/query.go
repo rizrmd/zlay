@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 )
 
 // Execute executes a non-query SQL statement
@@ -45,19 +46,44 @@ func (db *Database) QueryRow(ctx context.Context, query string, args ...interfac
 		return db.trinoAdapter.QueryRow(ctx, query, args...)
 	}
 
-	row := db.db.QueryRowContext(ctx, query, args...)
-	
-	// For a single row, we need to scan into a map since sql.Row doesn't expose column info
-	var result map[string]interface{}
-	if err := row.Scan(&result); err != nil {
+	// Execute the query with regular Query to get column information
+	rows, err := db.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Get column types
+	columnTypes, err := rows.ColumnTypes()
+	if err != nil {
 		return nil, err
 	}
 
-	// Convert map to Row
-	rowValues := make([]Value, 0, len(result))
-	for _, val := range result {
-		expectedType := mapSQLTypeToValueType("")
-		rowValues = append(rowValues, convertSQLValueToValue(val, expectedType))
+	// Check if we have any rows
+	if !rows.Next() {
+		return nil, fmt.Errorf("no rows found")
+	}
+
+	// Prepare scan values
+	columns := len(columnTypes)
+	values := make([]interface{}, columns)
+	valuePtrs := make([]interface{}, columns)
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
+
+	// Scan the row
+	if err := rows.Scan(valuePtrs...); err != nil {
+		return nil, err
+	}
+
+	// Convert to our Row format
+	rowValues := make([]Value, columns)
+	for i, val := range values {
+		dbType := columnTypes[i].DatabaseTypeName()
+		expectedType := mapSQLTypeToValueType(dbType)
+
+		rowValues[i] = convertSQLValueToValue(val, expectedType)
 	}
 
 	return &Row{Values: rowValues}, nil

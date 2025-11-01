@@ -24,6 +24,10 @@ type Connection struct {
 	ClientID  string
 	ProjectID string
 
+	// Token usage tracking
+	TokensUsed int64
+	TokensLimit int64
+
 	// Hub reference for broadcasting
 	hub *Hub
 }
@@ -31,12 +35,14 @@ type Connection struct {
 // NewConnection creates a new connection instance
 func NewConnection(ws *websocket.Conn, userID, clientID string, hub *Hub) *Connection {
 	return &Connection{
-		ws:        ws,
-		send:      make(chan []byte, 256),
-		ID:        uuid.New().String(),
-		UserID:    userID,
-		ClientID:  clientID,
-		hub:       hub,
+		ws:          ws,
+		send:        make(chan []byte, 256),
+		ID:          uuid.New().String(),
+		UserID:      userID,
+		ClientID:    clientID,
+		hub:         hub,
+		TokensUsed:  0,
+		TokensLimit: 1000000, // Default limit of 1M tokens per connection
 	}
 }
 
@@ -145,13 +151,14 @@ func (c *Connection) JoinProject(projectID string) {
 		ProjectID:  projectID,
 	}
 
-	// Send confirmation
+	// Send confirmation matching AsyncAPI spec
 	c.hub.SendToConnection(c, WebSocketMessage{
 		Type: "project_joined",
-		Data: gin.H{
-			"project_id": projectID,
-			"success":    true,
+		Data: ProjectJoinedData{
+			ProjectID: projectID,
+			Success:   true,
 		},
+		Timestamp: time.Now().UnixMilli(),
 	})
 }
 
@@ -232,13 +239,39 @@ func (c *Connection) handleProjectLeave(message WebSocketMessage) {
 	}
 }
 
+// AddTokens adds to the token usage count and returns true if within limit
+func (c *Connection) AddTokens(tokens int64) bool {
+	c.TokensUsed += tokens
+	return c.TokensUsed <= c.TokensLimit
+}
+
+// GetTokenUsage returns current token usage statistics
+func (c *Connection) GetTokenUsage() (used int64, limit int64, remaining int64) {
+	return c.TokensUsed, c.TokensLimit, c.TokensLimit - c.TokensUsed
+}
+
+// IsTokenLimitExceeded checks if token limit has been exceeded
+func (c *Connection) IsTokenLimitExceeded() bool {
+	return c.TokensUsed > c.TokensLimit
+}
+
+// SetTokenLimit updates the token limit for this connection
+func (c *Connection) SetTokenLimit(limit int64) {
+	c.TokensLimit = limit
+}
+
+// ResetTokenUsage resets the token usage counter
+func (c *Connection) ResetTokenUsage() {
+	c.TokensUsed = 0
+}
+
 // handlePing processes ping messages
 func (c *Connection) handlePing() {
 	c.hub.SendToConnection(c, WebSocketMessage{
 		Type:      "pong",
 		Timestamp: time.Now().UnixMilli(),
-		Data: gin.H{
-			"timestamp": time.Now().UnixMilli(),
+		Data: PongData{
+			Timestamp: time.Now().UnixMilli(),
 		},
 	})
 }

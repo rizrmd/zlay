@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/openai/openai-go"
 	"zlay-backend/internal/llm"
+	"zlay-backend/internal/messages"
 	"zlay-backend/internal/tools"
 )
 
@@ -20,19 +21,20 @@ type ChatService interface {
 	GetConversations(userID, projectID string) ([]*Conversation, error)
 	GetConversation(conversationID, userID string) (*ConversationDetails, error)
 	DeleteConversation(conversationID, userID string) error
+	WithLLMClient(llmClient llm.LLMClient) ChatService
 }
 
-// PostgreSQLChatService implements ChatService for PostgreSQL
-type PostgreSQLChatService struct {
+// chatService implements ChatService interface
+type chatService struct {
 	db           tools.DBConnection
-	hub          tools.WebSocketHub
+	hub          messages.Hub
 	llmClient    llm.LLMClient
 	toolRegistry tools.ToolRegistry
 }
 
-// NewPostgreSQLChatService creates a new chat service
-func NewPostgreSQLChatService(db tools.DBConnection, hub tools.WebSocketHub, llmClient llm.LLMClient, toolRegistry tools.ToolRegistry) *PostgreSQLChatService {
-	return &PostgreSQLChatService{
+// NewChatService creates a new chat service
+func NewChatService(db tools.DBConnection, hub messages.Hub, llmClient llm.LLMClient, toolRegistry tools.ToolRegistry) *chatService {
+	return &chatService{
 		db:           db,
 		hub:          hub,
 		llmClient:    llmClient,
@@ -40,8 +42,20 @@ func NewPostgreSQLChatService(db tools.DBConnection, hub tools.WebSocketHub, llm
 	}
 }
 
+// WithLLMClient returns a new chat service instance with the specified LLM client
+func (s *chatService) WithLLMClient(llmClient llm.LLMClient) ChatService {
+	// Create a copy of the service with the new LLM client
+	newService := &chatService{
+		db:           s.db,
+		hub:          s.hub,
+		llmClient:    llmClient,
+		toolRegistry: s.toolRegistry,
+	}
+	return newService
+}
+
 // ProcessUserMessage handles an incoming user message
-func (s *PostgreSQLChatService) ProcessUserMessage(req *ChatRequest) error {
+func (s *chatService) ProcessUserMessage(req *ChatRequest) error {
 	ctx := context.Background()
 
 	// Create and save user message
@@ -77,7 +91,7 @@ func (s *PostgreSQLChatService) ProcessUserMessage(req *ChatRequest) error {
 }
 
 // CreateConversation creates a new conversation
-func (s *PostgreSQLChatService) CreateConversation(userID, projectID, title string) (*Conversation, error) {
+func (s *chatService) CreateConversation(userID, projectID, title string) (*Conversation, error) {
 	ctx := context.Background()
 	conversation := NewConversation(projectID, userID, title)
 
@@ -105,7 +119,7 @@ func (s *PostgreSQLChatService) CreateConversation(userID, projectID, title stri
 }
 
 // GetConversations retrieves all conversations for a user and project
-func (s *PostgreSQLChatService) GetConversations(userID, projectID string) ([]*Conversation, error) {
+func (s *chatService) GetConversations(userID, projectID string) ([]*Conversation, error) {
 	ctx := context.Background()
 
 	query := `
@@ -137,7 +151,7 @@ func (s *PostgreSQLChatService) GetConversations(userID, projectID string) ([]*C
 }
 
 // GetConversation retrieves a specific conversation with messages
-func (s *PostgreSQLChatService) GetConversation(conversationID, userID string) (*ConversationDetails, error) {
+func (s *chatService) GetConversation(conversationID, userID string) (*ConversationDetails, error) {
 	ctx := context.Background()
 
 	// Get conversation details
@@ -203,7 +217,7 @@ func (s *PostgreSQLChatService) GetConversation(conversationID, userID string) (
 }
 
 // DeleteConversation deletes a conversation and its messages
-func (s *PostgreSQLChatService) DeleteConversation(conversationID, userID string) error {
+func (s *chatService) DeleteConversation(conversationID, userID string) error {
 	ctx := context.Background()
 
 	tx, err := s.db.Begin(ctx)
@@ -228,7 +242,7 @@ func (s *PostgreSQLChatService) DeleteConversation(conversationID, userID string
 }
 
 // streamLLMResponse streams LLM response to WebSocket
-func (s *PostgreSQLChatService) streamLLMResponse(ctx context.Context, req *ChatRequest, messages []openai.ChatCompletionMessageParamUnion, tools []Tool) error {
+func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, messages []openai.ChatCompletionMessageParamUnion, tools []Tool) error {
 	// Convert tools to OpenAI format
 	var openaiTools []openai.ChatCompletionToolParam
 	for _, tool := range tools {
@@ -257,14 +271,50 @@ func (s *PostgreSQLChatService) streamLLMResponse(ctx context.Context, req *Chat
 	streamStarted := false
 
 	callback := func(chunk *llm.StreamingChunk) error {
+		// Track token usage
+		var chunkTokens int64 = 0
+		if chunk.TokensUsed > 0 {
+			chunkTokens = int64(chunk.TokensUsed)
+		}
+
+		// Check token limit using connection reference
+		var tokensUsed, tokensLimit, tokensRemaining int64
+		if req.Connection != nil {
+			tokensUsed, tokensLimit, tokensRemaining = req.Connection.GetTokenUsage()
+			
+			// Apply new tokens to get updated state
+			if chunkTokens > 0 {
+				if !req.AddTokensFunc(chunkTokens) {
+					// Send token limit exceeded message
+					errorResponse := messages.NewWebSocketMessage(
+						"error",
+						gin.H{
+							"error": "Token limit exceeded",
+							"code": "TOKEN_LIMIT_EXCEEDED",
+							"conversation_id": req.ConversationID,
+						},
+						tokensUsed, tokensLimit, tokensRemaining,
+					)
+					errorResponse.Timestamp = time.Now().UnixMilli()
+					s.hub.BroadcastToProject(req.ProjectID, errorResponse)
+					return fmt.Errorf("token limit exceeded for connection %s", req.ConnectionID)
+				}
+				// Get updated token usage after adding tokens
+				tokensUsed, tokensLimit, tokensRemaining = req.Connection.GetTokenUsage()
+			}
+		} else {
+			// Fallback for when connection is not available
+			tokensUsed, tokensLimit, tokensRemaining = chunkTokens, 1000000, 1000000-chunkTokens
+		}
+
 		// Accumulate content
 		if chunk.Content != "" {
 			assistantMsg.Content += chunk.Content
 			assistantMsg.CreatedAt = time.Now()
 		}
 
-		// Send streaming chunk to client
-		response := WebSocketMessage{
+		// Send streaming chunk to client with token info
+		response := messages.WebSocketMessage{
 			Type: "assistant_response",
 			Data: gin.H{
 				"conversation_id": req.ConversationID,
@@ -274,7 +324,10 @@ func (s *PostgreSQLChatService) streamLLMResponse(ctx context.Context, req *Chat
 				"done":            chunk.Done,
 				"tool_calls":      chunk.ToolCalls,
 			},
-			Timestamp: time.Now().UnixMilli(),
+			Timestamp:       time.Now().UnixMilli(),
+			TokensUsed:     tokensUsed,
+			TokensLimit:    tokensLimit,
+			TokensRemaining: tokensRemaining,
 		}
 
 		if !streamStarted && chunk.Content != "" {
@@ -288,7 +341,7 @@ func (s *PostgreSQLChatService) streamLLMResponse(ctx context.Context, req *Chat
 			streamStarted = true
 		}
 
-		s.hub.BroadcastToProject(req.ProjectID, response)
+		s.hub.BroadcastToProject(req.ProjectID, &response)
 		return nil
 	}
 
@@ -343,7 +396,7 @@ func (s *PostgreSQLChatService) streamLLMResponse(ctx context.Context, req *Chat
 }
 
 // processToolCalls executes pending tool calls
-func (s *PostgreSQLChatService) processToolCalls(ctx context.Context, req *ChatRequest, assistantMsg *Message) error {
+func (s *chatService) processToolCalls(ctx context.Context, req *ChatRequest, assistantMsg *Message) error {
 	for _, toolCall := range assistantMsg.ToolCalls {
 		if toolCall.Status != "pending" {
 			continue
@@ -418,7 +471,7 @@ func (s *PostgreSQLChatService) processToolCalls(ctx context.Context, req *ChatR
 }
 
 // broadcastToolStatus sends tool execution status to clients
-func (s *PostgreSQLChatService) broadcastToolStatus(projectID, conversationID, messageID string, index int, toolCall ToolCall) {
+func (s *chatService) broadcastToolStatus(projectID, conversationID, messageID string, index int, toolCall ToolCall) {
 	toolStatus := WebSocketMessage{
 		Type: "tool_execution",
 		Data: gin.H{
@@ -433,7 +486,7 @@ func (s *PostgreSQLChatService) broadcastToolStatus(projectID, conversationID, m
 
 // Helper methods
 
-func (s *PostgreSQLChatService) saveMessage(ctx context.Context, msg *Message) error {
+func (s *chatService) saveMessage(ctx context.Context, msg *Message) error {
 	toolCallsJSON, _ := json.Marshal(msg.ToolCalls)
 	metadataJSON, _ := json.Marshal(msg.Metadata)
 
@@ -450,7 +503,7 @@ func (s *PostgreSQLChatService) saveMessage(ctx context.Context, msg *Message) e
 	return err
 }
 
-func (s *PostgreSQLChatService) getConversationHistory(ctx context.Context, conversationID, userID string) ([]*Message, error) {
+func (s *chatService) getConversationHistory(ctx context.Context, conversationID, userID string) ([]*Message, error) {
 	query := `
 		SELECT id, conversation_id, role, content, metadata, tool_calls, created_at
 		FROM messages
@@ -491,7 +544,7 @@ func (s *PostgreSQLChatService) getConversationHistory(ctx context.Context, conv
 	return messages, nil
 }
 
-func (s *PostgreSQLChatService) convertToOpenAIMessages(messages []*Message) []openai.ChatCompletionMessageParamUnion {
+func (s *chatService) convertToOpenAIMessages(messages []*Message) []openai.ChatCompletionMessageParamUnion {
 	var openaiMessages []openai.ChatCompletionMessageParamUnion
 
 	// Add system message if needed (project context, rules, etc.)
@@ -520,7 +573,7 @@ func (s *PostgreSQLChatService) convertToOpenAIMessages(messages []*Message) []o
 	return openaiMessages
 }
 
-func (s *PostgreSQLChatService) convertTools(availableTools []tools.Tool) []Tool {
+func (s *chatService) convertTools(availableTools []tools.Tool) []Tool {
 	var convertedTools []Tool
 
 	for _, tool := range availableTools {

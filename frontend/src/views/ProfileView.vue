@@ -4,12 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/composables/useAuth'
 import Navbar from '@/components/Navbar.vue'
 
-const { user, checkAuth } = useAuth()
+const { user } = useAuth()
 const isLoading = ref(false)
 
 onMounted(async () => {
-  isLoading.value = true
-  await checkAuth()
+  // Router guard already handles authentication check
   isLoading.value = false
 })
 

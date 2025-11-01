@@ -31,7 +31,7 @@ const loadProjects = async () => {
     projectsLoading.value = true
     projectsError.value = null
     const apiProjects = await apiClient.getProjects()
-    projects.value = apiProjects
+    projects.value = apiProjects || []
   } catch (error) {
     console.error('Failed to load projects:', error)
     projectsError.value = 'Failed to load projects'
@@ -92,12 +92,7 @@ const handleCancelCreate = () => {
 }
 
 onMounted(async () => {
-  const isAuthenticated = await checkAuth()
-  if (!isAuthenticated) {
-    window.location.href = '/login'
-    return
-  }
-
+  // Router guard already handles authentication check, no need to call again
   await loadProjects()
 })
 </script>
@@ -126,7 +121,7 @@ onMounted(async () => {
           <Button @click="loadProjects" variant="outline" class="mt-2"> Try Again </Button>
         </div>
 
-        <div v-else-if="projects.length === 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div v-else-if="!projects || projects.length === 0" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <!-- Create Project Card (only card when no projects) -->
           <Card
             class="border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors duration-200 h-full flex flex-col"
@@ -193,7 +188,7 @@ onMounted(async () => {
         <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <!-- Project Cards -->
           <ProjectCard
-            v-for="project in projects"
+            v-for="project in (projects || [])"
             :key="project.id"
             :project="project"
             :chat-count="0"

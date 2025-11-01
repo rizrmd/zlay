@@ -200,6 +200,30 @@ func GenerateUUID() string {
 	return uuid.New().String()
 }
 
+// GenerateUUIDValue creates a new UUID Value
+func GenerateUUIDValue() Value {
+	return NewUUIDValue(uuid.New())
+}
+
+// ParseUUID parses a UUID string and returns a Value
+func ParseUUID(s string) (Value, error) {
+	parsed, err := uuid.Parse(s)
+	if err != nil {
+		return NewNullValue(), err
+	}
+	return NewUUIDValue(parsed), nil
+}
+
+// UUIDFromBytes creates a UUID Value from byte slice
+func UUIDFromBytes(b []byte) (Value, error) {
+	if len(b) != 16 {
+		return NewNullValue(), fmt.Errorf("invalid UUID byte length: expected 16, got %d", len(b))
+	}
+	var u uuid.UUID
+	copy(u[:], b)
+	return NewUUIDValue(u), nil
+}
+
 // Now returns current timestamp
 func Now() time.Time {
 	return time.Now()
