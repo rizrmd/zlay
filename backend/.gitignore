@@ -1,67 +1,28 @@
-# Zig build artifacts
-zig-cache/
-zig-out/
-
-# Zig executables
-zlay-backend
-zlay-backend-prod
-webserver
-hotreload
-
-# Dependency cache
-.zig-cache/
-
-# Zig specific
-*.d
-*.o
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
 *.so
 *.dylib
-*.dll
-*.exe
+zlay-backend
+zlay-backend-prod
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Test binary, built with `go test -c`
+*.test
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 
-# Logs
-*.log
-debug.log
-dev.log
-server.log
-*.log.*
+# Dependency directories (remove the comment below to include it)
+# vendor/
 
-# Test files
-debug_registration.zig
-test_auth.zig
-
-# Temporary files
-*.tmp
-*.temp
-cookies.txt
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Go workspace file
+go.work
 
 # Environment files
 .env
 .env.local
-.env.*.local
+.env.production
 
-# Backup files
-old/
-*.bak
-*.backup
+# Log files
+*.log

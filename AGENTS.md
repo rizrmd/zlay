@@ -28,6 +28,14 @@ This is a full-stack project with Zig backend and Vue.js frontend using shadcn-v
 - Naming: camelCase for variables, PascalCase for components
 - **ALWAYS** use shadcn-vue UI components for consistent design
 
+**Backend (Go):**
+- **CRITICAL**: **ALWAYS** use ZDB for any database interactions - never use DB or SQLDB directly
+- ZDB is the single source of truth for database operations across the entire application
+- All HTTP API endpoints, WebSocket authentication, and database queries must use ZDB
+- Follow standard Go formatting with gofmt
+- Use explicit error handling, prefer meaningful error returns
+- Naming: camelCase for variables, PascalCase for types
+
 **Backend (Zig):**
 - Follow Zig style guide (4-space indentation)
 - Use explicit error handling with `try` and `catch`

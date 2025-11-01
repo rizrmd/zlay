@@ -1,3 +1,0 @@
-[submodule "backend/zlay-db"]
-	path = backend/zlay-db
-	url = https://github.com/rizrmd/zlay-db

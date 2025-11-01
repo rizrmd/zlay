@@ -1,0 +1,668 @@
+asyncapi: 2.6.0
+info:
+  title: Zlay WebSocket Chat API
+  version: 1.0.0
+  description: |
+    Real-time chat API for Zlay platform supporting:
+    - Multi-project conversations
+    - Real-time messaging
+    - Project-based isolation
+    - User authentication via WebSocket tokens
+    
+    This API uses WebSockets for bi-directional communication between clients and the server.
+    
+    ## Authentication
+    WebSocket connections require authentication via query parameters:
+    - `token`: Authentication token (session token or JWT)
+    - `project`: Project ID to join
+    
+    Example: `ws://localhost:6070/ws/chat?token=your-token&project=project-123`
+    
+    ## Message Flow
+    1. Client connects with auth token and project ID
+    2. Server authenticates and auto-joins the project room
+    3. Client can send/receive messages in real-time
+    4. All messages are scoped to the specific project
+
+servers:
+  production:
+    url: wss://api.zlay.com
+    protocol: ws
+    description: Production WebSocket server
+  development:
+    url: ws://localhost:6070
+    protocol: ws
+    description: Development WebSocket server
+
+channels:
+  # Connection Management
+  ws/chat:
+    description: Main WebSocket endpoint for chat functionality
+    subscribe:
+      summary: Receive chat messages and system events
+      operationId: receiveMessages
+      message:
+        $ref: '#/components/messages/ChatMessage'
+    publish:
+      summary: Send chat messages and commands
+      operationId: sendMessage
+      message:
+        $ref: '#/components/messages/ChatMessage'
+
+components:
+  messages:
+    # User message sent to server
+    UserMessage:
+      name: user_message
+      title: User Message
+      summary: Message sent by user to be processed
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: user_message
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/UserMessageData'
+            description: Message payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Assistant response from server
+    AssistantResponse:
+      name: assistant_response
+      title: Assistant Response
+      summary: Response message from AI assistant
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: assistant_response
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/AssistantResponseData'
+            description: Response payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Tool execution messages
+    ToolExecutionStarted:
+      name: tool_execution_started
+      title: Tool Execution Started
+      summary: Notification that tool execution has begun
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: tool_execution_started
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ToolExecutionStartedData'
+            description: Tool execution started payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    ToolExecutionCompleted:
+      name: tool_execution_completed
+      title: Tool Execution Completed
+      summary: Notification that tool execution has completed successfully
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: tool_execution_completed
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ToolExecutionCompletedData'
+            description: Tool execution completed payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    ToolExecutionFailed:
+      name: tool_execution_failed
+      title: Tool Execution Failed
+      summary: Notification that tool execution has failed
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: tool_execution_failed
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ToolExecutionFailedData'
+            description: Tool execution failed payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Project join confirmation
+    ProjectJoined:
+      name: project_joined
+      title: Project Joined
+      summary: Confirmation that user successfully joined a project
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: project_joined
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ProjectJoinedData'
+            description: Join confirmation payload
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Conversation management messages
+    ConversationCreated:
+      name: conversation_created
+      title: Conversation Created
+      summary: Response when a new conversation is created
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: conversation_created
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ConversationCreatedData'
+            description: Conversation creation response
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    ConversationsList:
+      name: conversations_list
+      title: Conversations List
+      summary: List of conversations for the current project
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: conversations_list
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ConversationsListData'
+            description: List of conversations
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    ConversationDetails:
+      name: conversation_details
+      title: Conversation Details
+      summary: Detailed conversation with messages
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: conversation_details
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ConversationDetailsData'
+            description: Conversation with messages
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Error messages
+    Error:
+      name: error
+      title: Error Message
+      summary: Error response from server
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: error
+            description: Message type identifier
+          data:
+            $ref: '#/components/schemas/ErrorData'
+            description: Error details
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Pong response
+    Pong:
+      name: pong
+      title: Pong Response
+      summary: Response to ping message for connection health check
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          type:
+            type: string
+            const: pong
+            description: Message type identifier
+          data:
+            type: object
+            properties:
+              timestamp:
+                type: integer
+                format: int64
+                description: Server timestamp in milliseconds
+            description: Pong response data
+          timestamp:
+            type: integer
+            format: int64
+            description: Unix timestamp in milliseconds
+
+    # Generic chat message (base schema)
+    ChatMessage:
+      name: chat_message
+      title: Chat Message
+      summary: Generic chat message schema
+      contentType: application/json
+      payload:
+        oneOf:
+          - $ref: '#/components/messages/UserMessage/payload'
+          - $ref: '#/components/messages/AssistantResponse/payload'
+          - $ref: '#/components/messages/ToolExecutionStarted/payload'
+          - $ref: '#/components/messages/ToolExecutionCompleted/payload'
+          - $ref: '#/components/messages/ToolExecutionFailed/payload'
+          - $ref: '#/components/messages/ProjectJoined/payload'
+          - $ref: '#/components/messages/ConversationCreated/payload'
+          - $ref: '#/components/messages/ConversationsList/payload'
+          - $ref: '#/components/messages/ConversationDetails/payload'
+          - $ref: '#/components/messages/Error/payload'
+          - $ref: '#/components/messages/Pong/payload'
+
+  schemas:
+    # User message payload
+    UserMessageData:
+      type: object
+      required:
+        - conversation_id
+        - content
+      properties:
+        conversation_id:
+          type: string
+          description: ID of the conversation
+          example: "conv-123456"
+        content:
+          type: string
+          description: Message content from user
+          example: "Hello, how can you help me today?"
+        connection_id:
+          type: string
+          readOnly: true
+          description: Auto-populated connection ID
+        user_id:
+          type: string
+          readOnly: true
+          description: Auto-populated user ID
+        project_id:
+          type: string
+          readOnly: true
+          description: Auto-populated project ID
+        client_id:
+          type: string
+          readOnly: true
+          description: Auto-populated client ID
+
+    # Assistant response payload
+    AssistantResponseData:
+      type: object
+      required:
+        - conversation_id
+        - content
+        - message_id
+        - done
+      properties:
+        conversation_id:
+          type: string
+          description: ID of the conversation
+          example: "conv-123456"
+        content:
+          type: string
+          description: Response content from AI assistant
+          example: "I can help you with various tasks including..."
+        message_id:
+          type: string
+          description: Unique ID for this response message
+          example: "msg-789012"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the message was created
+          example: "2024-01-15T10:30:00Z"
+        done:
+          type: boolean
+          description: Whether this is the final message in a streaming response
+          example: true
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+          description: Tool calls made by the assistant
+
+    # Project joined payload
+    ProjectJoinedData:
+      type: object
+      required:
+        - project_id
+        - success
+      properties:
+        project_id:
+          type: string
+          description: ID of the project that was joined
+          example: "proj-456789"
+        success:
+          type: boolean
+          description: Whether the join was successful
+          example: true
+
+    # Conversation creation payload
+    ConversationCreatedData:
+      type: object
+      required:
+        - conversation
+        - success
+      properties:
+        conversation:
+          $ref: '#/components/schemas/Conversation'
+        success:
+          type: boolean
+          description: Whether creation was successful
+          example: true
+
+    # Conversations list payload
+    ConversationsListData:
+      type: object
+      required:
+        - conversations
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conversation'
+
+    # Conversation details payload
+    ConversationDetailsData:
+      type: object
+      required:
+        - conversation
+      properties:
+        conversation:
+          allOf:
+            - $ref: '#/components/schemas/Conversation'
+            - type: object
+              properties:
+                messages:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Message'
+
+    # Error payload
+    ErrorData:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid authentication token"
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: "AUTH_INVALID"
+        details:
+          type: object
+          description: Additional error details
+
+    # Base conversation schema
+    Conversation:
+      type: object
+      required:
+        - id
+        - title
+        - user_id
+        - project_id
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique conversation identifier
+          example: "conv-123456"
+        title:
+          type: string
+          description: Conversation title
+          example: "Project Discussion"
+        user_id:
+          type: string
+          description: ID of the user who created the conversation
+          example: "user-789012"
+        project_id:
+          type: string
+          description: ID of the project this conversation belongs to
+          example: "proj-456789"
+        created_at:
+          type: string
+          format: date-time
+          description: When the conversation was created
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the conversation was last updated
+          example: "2024-01-15T11:45:00Z"
+
+    # Message schema
+    Message:
+      type: object
+      required:
+        - id
+        - role
+        - content
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Unique message identifier
+          example: "msg-123456"
+        role:
+          type: string
+          enum: [user, assistant, system]
+          description: Message role
+          example: "user"
+        content:
+          type: string
+          description: Message content
+          example: "Hello, how are you?"
+        created_at:
+          type: string
+          format: date-time
+          description: When the message was created
+          example: "2024-01-15T10:30:00Z"
+        metadata:
+          type: object
+          description: Additional message metadata
+        tool_calls:
+          type: array
+          items:
+            type: object
+            description: Tool calls made by the assistant
+
+    # Tool execution data schemas
+    ToolExecutionStartedData:
+      type: object
+      required:
+        - tool_name
+        - tool_call_id
+        - conversation_id
+      properties:
+        tool_name:
+          type: string
+          description: Name of the tool being executed
+          example: "database_query"
+        tool_call_id:
+          type: string
+          description: Unique identifier for this tool call
+          example: "call_123456"
+        conversation_id:
+          type: string
+          description: ID of the conversation
+          example: "conv_789012"
+        message_id:
+          type: string
+          description: ID of the message triggering the tool call
+          example: "msg_456789"
+
+    ToolExecutionCompletedData:
+      type: object
+      required:
+        - tool_name
+        - tool_call_id
+        - conversation_id
+        - success
+        - result
+      properties:
+        tool_name:
+          type: string
+          description: Name of the tool that was executed
+          example: "database_query"
+        tool_call_id:
+          type: string
+          description: Unique identifier for this tool call
+          example: "call_123456"
+        conversation_id:
+          type: string
+          description: ID of the conversation
+          example: "conv_789012"
+        success:
+          type: boolean
+          description: Whether the tool execution was successful
+          example: true
+        result:
+          type: object
+          description: Result returned by the tool
+          example: {"rows": [{"id": 1, "name": "John"}], "count": 1}
+        execution_time_ms:
+          type: integer
+          description: Time taken to execute the tool in milliseconds
+          example: 250
+
+    ToolExecutionFailedData:
+      type: object
+      required:
+        - tool_name
+        - tool_call_id
+        - conversation_id
+        - error
+      properties:
+        tool_name:
+          type: string
+          description: Name of the tool that failed to execute
+          example: "database_query"
+        tool_call_id:
+          type: string
+          description: Unique identifier for this tool call
+          example: "call_123456"
+        conversation_id:
+          type: string
+          description: ID of the conversation
+          example: "conv_789012"
+        error:
+          type: string
+          description: Error message from tool execution
+          example: "Database connection failed"
+        error_code:
+          type: string
+          description: Error code for programmatic handling
+          example: "DB_CONNECTION_ERROR"
+
+    # Tool call schema
+    ToolCall:
+      type: object
+      required:
+        - id
+        - type
+        - function
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this tool call
+          example: "call_123456"
+        type:
+          type: string
+          enum: [function]
+          description: Type of tool call
+          example: "function"
+        function:
+          type: object
+          required:
+            - name
+            - arguments
+          properties:
+            name:
+              type: string
+              description: Name of the function to call
+              example: "database_query"
+            arguments:
+              type: object
+              description: Arguments to pass to the function
+              example: {"query": "SELECT * FROM users"}
+        status:
+          type: string
+          enum: [pending, executing, completed, failed]
+          description: Current status of the tool call
+          example: "pending"
+        result:
+          type: object
+          description: Result returned by the tool (if completed)
+          example: {"rows": [{"id": 1, "name": "John"}]}
+        error:
+          type: string
+          description: Error message (if failed)
+          example: "Database connection failed"
+
+tags:
+  - name: Connection Management
+    description: WebSocket connection lifecycle and health
+  - name: Messaging
+    description: Real-time chat messages between users and AI
+  - name: Conversations
+    description: Conversation management operations
+  - name: Projects
+    description: Project-based room management
+  - name: System
+    description: System events and error handling
+  - name: Tools
+    description: Tool execution and management operations

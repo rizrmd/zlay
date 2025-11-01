@@ -223,55 +223,29 @@ import { useAuthStore } from '@/stores/auth'
 const chatStore = useChatStore()
 const authStore = useAuthStore()
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-}
-
-interface Chat {
-  id: string
-  title: string
-  lastMessage: string
-  timestamp: Date
-}
-
 const route = useRoute()
 const router = useRouter()
 
-const openSection = ref('chats')
+// Local state
 const sidebarOpen = ref(true)
 const isMobile = ref(false)
-const isLoading = ref(false)
 const currentMessage = ref('')
-const messages = ref<Message[]>([])
-const chats = ref<Chat[]>([
-  {
-    id: '1',
-    title: 'Chat about project requirements',
-    lastMessage: 'Let me help you understand the requirements...',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
-  },
-  {
-    id: '2',
-    title: 'Database schema discussion',
-    lastMessage: 'The schema looks good for now...',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000) // Yesterday
-  },
-  {
-    id: '3',
-    title: 'API design review',
-    lastMessage: 'Consider adding pagination to the endpoints...',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
-  }
-])
 
+// Refs
 const sidebar = ref<HTMLElement | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
 const messageInput = ref<HTMLTextAreaElement | null>(null)
-const showSettingsMenu = ref(false)
 
+// Computed properties from store
+const conversations = computed(() => Array.from(chatStore.conversations.values()))
+const isLoading = computed(() => chatStore.isLoading)
+const isConnected = computed(() => chatStore.isConnected)
+const messages = computed(() => chatStore.messages)
+const hasMessages = computed(() => chatStore.hasMessages)
+const currentConversationId = computed(() => chatStore.currentConversationId)
+const currentConversation = computed(() => chatStore.currentConversation)
+
+// Helper functions
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
@@ -287,74 +261,10 @@ const checkMobile = () => {
   }
 }
 
-const toggleSection = (section: string) => {
-  // Only change if clicking a different section
-  if (openSection.value !== section) {
-    openSection.value = section
-  }
-  // If clicking the same active section, do nothing (keep it open)
-}
-
-const toggleSettingsMenu = () => {
-  showSettingsMenu.value = !showSettingsMenu.value
-}
-
-const refreshDatasources = () => {
-  console.log('Refreshing datasources...')
-  // TODO: Implement actual datasource refresh
-}
-
-const formatTime = (date: Date) => {
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const days = Math.floor(hours / 24)
-  
-  if (hours < 1) return 'Just now'
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7) return `${days}d ago`
-  return date.toLocaleDateString()
-}
-
-const sendMessage = async () => {
-  if (!currentMessage.value.trim() || isLoading.value) return
-  
-  const userMessage: Message = {
-    id: Date.now().toString(),
-    role: 'user',
-    content: currentMessage.value.trim(),
-    timestamp: new Date()
-  }
-  
-  messages.value.push(userMessage)
-  const messageContent = currentMessage.value.trim()
-  currentMessage.value = ''
-  isLoading.value = true
-  
-  // Scroll to bottom
-  await nextTick()
-  scrollToBottom()
-  
-  // Simulate API call
-  setTimeout(() => {
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: `I understand you said: "${messageContent}". This is a simulated response since we haven't connected to the backend yet. The actual chat functionality will be implemented once we add the API endpoints.`,
-      timestamp: new Date()
-    }
-    
-    messages.value.push(assistantMessage)
-    isLoading.value = false
-    
-    // Scroll to bottom again
-    nextTick(() => scrollToBottom())
-  }, 1500)
-}
-
-const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault()
+    sendMessage()
   }
 }
 
@@ -365,22 +275,49 @@ const autoResize = () => {
   }
 }
 
-const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault()
-    sendMessage()
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    nextTick(() => {
+      messagesContainer.value!.scrollTop = messagesContainer.value!.scrollHeight
+    })
   }
 }
 
-const selectChat = (chatId: string) => {
-  // TODO: Load chat messages
-  console.log('Selected chat:', chatId)
+const sendMessage = async () => {
+  if (!currentMessage.value.trim() || isLoading.value) return
+  
+  await chatStore.sendMessage(currentMessage.value.trim())
+  currentMessage.value = ''
+  scrollToBottom()
 }
 
-const createNewChat = () => {
-  // TODO: Create new chat
-  console.log('Creating new chat...')
-  messages.value = []
+const createNewConversation = async () => {
+  await chatStore.createConversation()
+}
+
+const selectConversation = (conversationId: string) => {
+  chatStore.selectConversation(conversationId)
+}
+
+const deleteConversation = (conversationId: string) => {
+  if (confirm('Are you sure you want to delete this conversation?')) {
+    chatStore.deleteConversation(conversationId)
+  }
+}
+
+const getToolStatusColor = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'bg-yellow-500'
+    case 'executing':
+      return 'bg-blue-500 animate-pulse'
+    case 'completed':
+      return 'bg-green-500'
+    case 'failed':
+      return 'bg-red-500'
+    default:
+      return 'bg-gray-500'
+  }
 }
 
 const navigateToDashboard = () => {
@@ -393,29 +330,48 @@ const handleClickOutside = (event: MouseEvent) => {
       sidebarOpen.value && 
       sidebar.value && 
       !sidebar.value.contains(target) &&
-      !target.closest('.mobile-menu-toggle') &&
-      !target.closest('.settings-dropdown')) {
+      !target.closest('.mobile-menu-toggle')) {
     sidebarOpen.value = false
-  }
-  
-  if (showSettingsMenu.value && !target.closest('.settings-dropdown')) {
-    showSettingsMenu.value = false
   }
 }
 
-onMounted(() => {
+// Watch for connection status changes
+watch(isConnected, (connected) => {
+  if (connected) {
+    // Load conversations when connected
+    chatStore.loadConversations()
+  }
+})
+
+// Initialize
+onMounted(async () => {
+  // Set up mobile detection
   checkMobile()
   window.addEventListener('resize', checkMobile)
   document.addEventListener('click', handleClickOutside)
   
-  // Initialize project from route params
+  // Get project ID from route
   const projectId = route.params.id as string
-  console.log('Current project ID:', projectId)
+  if (projectId) {
+    // Initialize WebSocket connection
+    const token = authStore.token || ''
+    if (token) {
+      try {
+        await chatStore.initWebSocket(projectId, token)
+      } catch (error) {
+        console.error('Failed to initialize WebSocket:', error)
+      }
+    } else {
+      console.warn('No auth token available')
+    }
+  }
 })
 
 onUnmounted(() => {
+  // Clean up
   window.removeEventListener('resize', checkMobile)
   document.removeEventListener('click', handleClickOutside)
+  chatStore.disconnectWebSocket()
 })
 </script>
 
@@ -432,37 +388,6 @@ onUnmounted(() => {
 
 .mobile-menu-toggle {
   pointer-events: auto;
-}
-
-/* Accordion animations */
-.accordion-enter-active,
-.accordion-leave-active {
-  transition: all 0.3s ease-out;
-  overflow: hidden;
-}
-
-.accordion-enter-from {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.accordion-leave-to {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.accordion-enter-active .accordion-enter-from {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.accordion-leave-active .accordion-leave-to {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Loading dots animation */
@@ -499,5 +424,15 @@ onUnmounted(() => {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* Custom styles for chat messages */
+:deep(.ring-2) {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(var(--primary));
+}
+
+:deep(.ring-2.ring-primary) {
+  --tw-ring-color: rgb(var(--primary));
 }
 </style>

@@ -1,0 +1,1233 @@
+openapi: 3.1.0
+info:
+  title: Zlay REST API
+  version: 1.0.0
+  description: |
+    REST API for the Zlay platform providing:
+    - User authentication and session management
+    - Multi-tenant client and domain management
+    - Project management with AI configuration
+    - Datasource management for tool integration
+    - Admin-only endpoints for client/domain management
+    
+    ## Architecture
+    - Multi-tenant architecture with client-based isolation
+    - Cookie-based session authentication
+    - Project-scoped resources
+    - Admin-only operations for client management
+    
+    ## Authentication
+    All protected endpoints require authentication via session cookie:
+    - Cookie name: `session_token`
+    - Duration: 24 hours
+    - Secure cookie in production
+    
+    ## Client Identification
+    API requests can identify the client in multiple ways:
+    1. `X-Client-ID` header (preferred)
+    2. `X-Original-Origin` header for domain-based routing
+    3. `Origin` header as fallback
+    
+    ## Multi-tenancy
+    - Each client can have multiple users
+    - Each user can have multiple projects
+    - Resources are isolated by client and user
+
+servers:
+  production:
+    url: https://api.zlay.com
+    description: Production API server
+  development:
+    url: http://localhost:8080
+    description: Development API server
+
+paths:
+  # Health Check
+  /api/health:
+    get:
+      tags:
+        - System
+      summary: Health check endpoint
+      description: Returns API health status and version information
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # Authentication Endpoints
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account for a specific client
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      
+    options:
+      tags:
+        - Authentication
+      summary: CORS preflight for register
+      operationId: registerOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates user and creates session
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security: []
+      
+    options:
+      tags:
+        - Authentication
+      summary: CORS preflight for login
+      operationId: loginOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidates user session
+      operationId: logoutUser
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Authentication
+      summary: CORS preflight for logout
+      operationId: logoutOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get user profile
+      description: Returns current authenticated user information
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Authentication
+      summary: CORS preflight for profile
+      operationId: profileOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  # Project Management
+  /api/projects:
+    get:
+      tags:
+        - Projects
+      summary: Get user projects
+      description: Retrieves all projects for the authenticated user
+      operationId: getUserProjects
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    post:
+      tags:
+        - Projects
+      summary: Create new project
+      description: Creates a new project for the authenticated user
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Projects
+      summary: CORS preflight for projects
+      operationId: projectsOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/projects/{id}:
+    get:
+      tags:
+        - Projects
+      summary: Get project by ID
+      description: Retrieves a specific project for the authenticated user
+      operationId: getProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project ID
+      responses:
+        '200':
+          description: Project retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    put:
+      tags:
+        - Projects
+      summary: Update project
+      description: Updates an existing project
+      operationId: updateProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    delete:
+      tags:
+        - Projects
+      summary: Delete project
+      description: Soft deletes a project (sets is_active to false)
+      operationId: deleteProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project ID
+      responses:
+        '200':
+          description: Project deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Projects
+      summary: CORS preflight for project operations
+      operationId: projectOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  # Datasource Management
+  /api/datasources:
+    get:
+      tags:
+        - Datasources
+      summary: Get datasources
+      description: Retrieves datasources for user's projects or specific project
+      operationId: getDatasources
+      parameters:
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by project ID (optional)
+      responses:
+        '200':
+          description: Datasources retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Datasource'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    post:
+      tags:
+        - Datasources
+      summary: Create datasource
+      description: Creates a new datasource for a project
+      operationId: createDatasource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDatasourceRequest'
+      responses:
+        '201':
+          description: Datasource created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Datasource'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Datasources
+      summary: CORS preflight for datasources
+      operationId: datasourcesOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/datasources/{id}:
+    get:
+      tags:
+        - Datasources
+      summary: Get datasource by ID
+      description: Retrieves a specific datasource
+      operationId: getDatasource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Datasource ID
+      responses:
+        '200':
+          description: Datasource retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Datasource'
+        '404':
+          description: Datasource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    put:
+      tags:
+        - Datasources
+      summary: Update datasource
+      description: Updates an existing datasource
+      operationId: updateDatasource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Datasource ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDatasourceRequest'
+      responses:
+        '200':
+          description: Datasource updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Datasource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    delete:
+      tags:
+        - Datasources
+      summary: Delete datasource
+      description: Soft deletes a datasource (sets is_active to false)
+      operationId: deleteDatasource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Datasource ID
+      responses:
+        '200':
+          description: Datasource deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Datasource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Datasources
+      summary: CORS preflight for datasource operations
+      operationId: datasourceOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  # Admin Endpoints
+  /api/admin/clients:
+    get:
+      tags:
+        - Admin
+      summary: Get all clients (Admin only)
+      description: Retrieves all clients in the system
+      operationId: adminGetClients
+      responses:
+        '200':
+          description: Clients retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    post:
+      tags:
+        - Admin
+      summary: Create client (Admin only)
+      description: Creates a new client
+      operationId: adminCreateClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequest'
+      responses:
+        '201':
+          description: Client created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Admin
+      summary: CORS preflight for clients
+      operationId: adminClientsOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+  /api/admin/clients/{id}:
+    put:
+      tags:
+        - Admin
+      summary: Update client (Admin only)
+      description: Updates an existing client
+      operationId: adminUpdateClient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Client ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientRequest'
+      responses:
+        '200':
+          description: Client updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    delete:
+      tags:
+        - Admin
+      summary: Delete client (Admin only)
+      description: Soft deletes a client (sets is_active to false)
+      operationId: adminDeleteClient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Client ID
+      responses:
+        '200':
+          description: Client deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - SessionAuth: []
+        
+    options:
+      tags:
+        - Admin
+      summary: CORS preflight for client operations
+      operationId: adminClientOptions
+      responses:
+        '200':
+          description: CORS preflight successful
+      security: []
+
+components:
+  securitySchemes:
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+      description: Session token cookie for authentication
+
+  schemas:
+    # Authentication Schemas
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        client_id:
+          type: string
+          description: Client ID (optional, auto-detected from headers if not provided)
+          example: "client-123456"
+        username:
+          type: string
+          description: Username for the new account
+          example: "john.doe"
+          minLength: 3
+          maxLength: 50
+        password:
+          type: string
+          description: Password for the new account
+          example: "securePassword123"
+          minLength: 6
+          format: password
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        client_id:
+          type: string
+          description: Client ID (optional, auto-detected if not provided)
+          example: "client-123456"
+        username:
+          type: string
+          description: Username for login
+          example: "john.doe"
+        password:
+          type: string
+          description: Password for login
+          example: "securePassword123"
+          format: password
+
+    LoginResponse:
+      type: object
+      required:
+        - user
+        - token
+        - session_id
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: Session token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        session_id:
+          type: string
+          description: Session ID
+          example: "session-789012"
+
+    User:
+      type: object
+      required:
+        - id
+        - client_id
+        - username
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          description: User ID
+          example: "user-123456"
+        client_id:
+          type: string
+          description: Client ID this user belongs to
+          example: "client-789012"
+        username:
+          type: string
+          description: Username
+          example: "john.doe"
+        is_active:
+          type: boolean
+          description: Whether user account is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the user was created
+          example: "2024-01-15T10:30:00Z"
+
+    # Project Schemas
+    Project:
+      type: object
+      required:
+        - id
+        - user_id
+        - name
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Project ID
+          example: "proj-123456"
+        user_id:
+          type: string
+          description: User ID who owns this project
+          example: "user-789012"
+        name:
+          type: string
+          description: Project name
+          example: "AI Assistant Project"
+          maxLength: 255
+        description:
+          type: string
+          description: Project description
+          example: "AI-powered chat assistant for customer support"
+          maxLength: 1000
+        is_active:
+          type: boolean
+          description: Whether project is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the project was created
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the project was last updated
+          example: "2024-01-15T11:45:00Z"
+
+    CreateProjectRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Project name
+          example: "AI Assistant Project"
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          description: Project description
+          example: "AI-powered chat assistant for customer support"
+          maxLength: 1000
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated project name
+          example: "Updated AI Project"
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          description: Updated project description
+          example: "Updated project description"
+          maxLength: 1000
+        is_active:
+          type: boolean
+          description: Whether project should be active
+          example: true
+
+    # Datasource Schemas
+    Datasource:
+      type: object
+      required:
+        - id
+        - project_id
+        - name
+        - type
+        - config
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Datasource ID
+          example: "ds-123456"
+        project_id:
+          type: string
+          description: Project ID this datasource belongs to
+          example: "proj-789012"
+        name:
+          type: string
+          description: Datasource name
+          example: "Production Database"
+          maxLength: 255
+        type:
+          type: string
+          description: Datasource type (e.g., postgresql, mysql, mongodb, api)
+          example: "postgresql"
+          enum: [postgresql, mysql, mongodb, redis, api, file, other]
+        config:
+          type: object
+          description: Datasource configuration (JSON object)
+          example:
+            host: "localhost"
+            port: 5432
+            database: "production"
+            username: "app_user"
+          additionalProperties: true
+        is_active:
+          type: boolean
+          description: Whether datasource is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the datasource was created
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the datasource was last updated
+          example: "2024-01-15T11:45:00Z"
+
+    CreateDatasourceRequest:
+      type: object
+      required:
+        - project_id
+        - name
+        - type
+        - config
+      properties:
+        project_id:
+          type: string
+          description: Project ID to create datasource for
+          example: "proj-123456"
+        name:
+          type: string
+          description: Datasource name
+          example: "Production Database"
+          minLength: 1
+          maxLength: 255
+        type:
+          type: string
+          description: Datasource type
+          example: "postgresql"
+          enum: [postgresql, mysql, mongodb, redis, api, file, other]
+        config:
+          type: object
+          description: Datasource configuration
+          example:
+            host: "localhost"
+            port: 5432
+            database: "production"
+            username: "app_user"
+          additionalProperties: true
+
+    UpdateDatasourceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated datasource name
+          example: "Updated Database"
+          minLength: 1
+          maxLength: 255
+        type:
+          type: string
+          description: Updated datasource type
+          example: "postgresql"
+          enum: [postgresql, mysql, mongodb, redis, api, file, other]
+        config:
+          type: object
+          description: Updated datasource configuration
+          example:
+            host: "new-host"
+            port: 5432
+            database: "production"
+            username: "new_user"
+          additionalProperties: true
+        is_active:
+          type: boolean
+          description: Whether datasource should be active
+          example: true
+
+    # Admin Schemas
+    Client:
+      type: object
+      required:
+        - id
+        - name
+        - is_active
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Client ID
+          example: "client-123456"
+        name:
+          type: string
+          description: Client name
+          example: "Acme Corporation"
+          maxLength: 255
+        is_active:
+          type: boolean
+          description: Whether client is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the client was created
+          example: "2024-01-15T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the client was last updated
+          example: "2024-01-15T11:45:00Z"
+
+    CreateClientRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Client name
+          example: "New Client Inc."
+          minLength: 1
+          maxLength: 255
+
+    UpdateClientRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated client name
+          example: "Updated Client Name"
+          minLength: 1
+          maxLength: 255
+        is_active:
+          type: boolean
+          description: Whether client should be active
+          example: true
+
+    # Common Schemas
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - version
+      properties:
+        status:
+          type: string
+          description: Health status
+          example: "healthy"
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp
+          example: 1642248600
+        version:
+          type: string
+          description: API version
+          example: "1.0.0"
+
+    SuccessMessage:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Operation completed successfully"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request format"
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: "INVALID_FORMAT"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Authentication
+    description: User authentication and session management
+  - name: Projects
+    description: Project management operations
+  - name: Datasources
+    description: Datasource management for tool integration
+  - name: Admin
+    description: Admin-only client and domain management

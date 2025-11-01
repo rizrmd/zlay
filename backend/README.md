@@ -1,161 +1,112 @@
-# Zlay Backend
+# Zlay Backend (Go)
 
-A high-performance web server built with Zig, featuring multi-tenant authentication and WebSocket support.
-
-## Project Structure
-
-```
-backend/
-├── src/
-│   ├── auth/              # Authentication modules
-│   │   ├── types.zig     # Core types and error definitions
-│   │   ├── password.zig  # Password hashing/verification
-│   │   ├── token.zig     # Token generation/hashing
-│   │   ├── database.zig  # Database operations
-│   │   └── auth.zig     # High-level auth functions
-│   ├── auth.zig          # Main auth module (re-exports)
-│   ├── main.zig          # Main server application
-│   ├── hotreload.zig     # Hot reload functionality
-│   └── openai.zig        # OpenAI integration
-├── test/                 # Test files
-├── old/                  # Backup of old files
-├── schema.sql            # Database schema
-├── migration.sql         # Database migrations
-├── build.zig             # Build configuration
-├── build.zig.zon         # Dependencies
-├── openapi.yaml          # API documentation
-└── .gitignore            # Git ignore patterns
-```
+A high-performance REST API backend built with Go and Gin framework, replacing the previous Zig implementation.
 
 ## Features
 
-- **Multi-tenant Authentication**: Client-isolated user management
-- **Secure**: SHA-256 salted password hashing, secure random tokens
-- **Modular Architecture**: Clean separation of concerns
-- **WebSocket Support**: Real-time communication
-- **Hot Reload**: Development-friendly auto-restart
-- **OpenAPI Documentation**: Complete API specification
+- **Authentication & Authorization**: JWT-based sessions with bcrypt password hashing
+- **Multi-tenant Architecture**: Client and domain-based isolation
+- **RESTful API**: Full CRUD operations for clients, domains, users, projects, and datasources
+- **PostgreSQL**: High-performance database with connection pooling
+- **Security**: CORS, secure cookies, SQL injection prevention
+- **Performance**: Optimized queries with single-round-trip operations
 
 ## Quick Start
 
 ### Prerequisites
 
-- Zig 0.15.1+
-- PostgreSQL 12+
-- libpq (PostgreSQL client library)
+- Go 1.21 or later
+- PostgreSQL 12 or later
+- Bun (for frontend)
 
 ### Installation
 
-1. Clone the repository:
-
+1. Install dependencies:
 ```bash
-git clone <repository-url>
 cd backend
+go mod download
 ```
 
-2. Install dependencies:
-
+2. Set up environment:
 ```bash
-zig fetch --save https://github.com/karlseguin/pg.zig
+cp .env.example .env
+# Edit .env with your database configuration
 ```
 
-3. Setup database:
-
+3. Initialize database:
 ```bash
-createdb zlay
-psql -d zlay -f schema.sql
+psql $DATABASE_URL -f schema.sql
 ```
 
-4. Build and run:
-
+4. Run the server:
 ```bash
-# Development mode with hot reload
-zig build dev
+# Development
+go run .
 
-# Production mode
-zig build run
-
-# Or build executable
-zig build
-./zig-out/bin/zlay-backend
+# Production
+go build -o zlay-backend .
+./zlay-backend
 ```
 
 ## API Endpoints
 
 ### Authentication
-
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
+- `GET /api/auth/profile` - Get user profile (authenticated)
 
-### Headers
+### Projects
+- `GET /api/projects` - List user projects
+- `POST /api/projects` - Create project
+- `GET /api/projects/:id` - Get project
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
 
-- `X-Client-ID` - Required for multi-tenant requests
+### Datasources
+- `GET /api/datasources` - List datasources
+- `POST /api/datasources` - Create datasource
+- `GET /api/datasources/:id` - Get datasource
+- `PUT /api/datasources/:id` - Update datasource
+- `DELETE /api/datasources/:id` - Delete datasource
+
+### Admin (root user only)
+- `GET /api/admin/clients` - List clients
+- `POST /api/admin/clients` - Create client
+- `PUT /api/admin/clients/:id` - Update client
+- `DELETE /api/admin/clients/:id` - Delete client
+- `GET /api/admin/domains` - List domains
+- `POST /api/admin/domains` - Create domain
+- `PUT /api/admin/domains/:id` - Update domain
+- `DELETE /api/admin/domains/:id` - Delete domain
+
+### Health
+- `GET /api/health` - Health check
+
+## Default Credentials
+
+- **Root User**: username: `root`, password: `12345678`
+
+## Performance Features
+
+- Single database round-trips for operations using RETURNING clause
+- Connection pooling with pgxpool
+- Efficient CORS handling
+- Memory-efficient JSON handling
+- Prepared statement caching
 
 ## Development
 
-### Build Commands
+The development server automatically serves the frontend from `../frontend/dist`. Run the full development stack with:
 
 ```bash
-# Development build
-zig build
-
-# Production build
-zig build prod
-
-# Run with hot reload
-zig build dev
-
-# Clean build artifacts
-zig build clean
+cd .. && bun run dev.ts
 ```
 
-### Testing
+## Security
 
-```bash
-# Run tests
-zig test src/
-
-# Run specific test
-zig test src/auth.zig
-```
-
-## Configuration
-
-The server uses environment variables for configuration:
-
-- `DATABASE_URL` - PostgreSQL connection string
-- `HOST` - Server host (default: 127.0.0.1)
-- `PORT` - Server port (default: 8080)
-
-## Architecture
-
-### Authentication System
-
-The authentication system is modularized into several components:
-
-1. **Types** (`src/auth/types.zig`): Core data structures and error types
-2. **Password** (`src/auth/password.zig`): SHA-256 salted password hashing
-3. **Token** (`src/auth/token.zig`): Secure token generation and validation
-4. **Database** (`src/auth/database.zig`): Database operations for users/sessions
-5. **Auth** (`src/auth/auth.zig`): High-level authentication functions
-
-### Multi-Tenancy
-
-Each client has isolated user management:
-
-- Users are scoped to specific clients
-- Client ID is required for all auth operations
-- Database constraints prevent cross-client data access
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-[Your License Here]
+- Passwords hashed with bcrypt
+- Session tokens stored as SHA-256 hashes
+- SQL injection prevention with parameterized queries
+- CORS configuration for cross-origin requests
+- Secure cookie configuration

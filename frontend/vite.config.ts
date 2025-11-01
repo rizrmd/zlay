@@ -15,9 +15,10 @@ export default defineConfig({
     },
   },
   server: {
+    port: 6060,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:6070',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -28,7 +29,7 @@ export default defineConfig({
         },
       },
       '/ws': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:6070',
         changeOrigin: true,
         ws: true,
       },
