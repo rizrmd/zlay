@@ -106,7 +106,9 @@ const handleClickOutside = (event: MouseEvent) => {
 
 // Watch for connection changes to load conversations
 watch(isConnected, (connected) => {
+  console.log('DEBUG: isConnected changed to:', connected)
   if (connected) {
+    console.log('DEBUG: WebSocket connected, loading conversations...')
     chatStore.loadConversations()
   }
 })

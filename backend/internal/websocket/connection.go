@@ -96,7 +96,9 @@ func (c *Connection) ReadPump() {
 	// Route message based on type
 		switch message.Type {
 		case "user_message":
-			c.handleUserMessage(message)
+			if c.handler != nil {
+				c.handler.handleUserMessage(c, &message)
+			}
 		case "join_project":
 			c.handleProjectJoin(message)
 		case "leave_project":
@@ -212,28 +214,6 @@ func (c *Connection) LeaveProject() {
 
 		c.ProjectID = ""
 	}
-}
-
-// handleUserMessage processes user messages
-func (c *Connection) handleUserMessage(message WebSocketMessage) {
-	// Validate message data
-	data, ok := message.Data.(map[string]interface{})
-	if !ok {
-		log.Printf("Invalid user_message data format")
-		return
-	}
-
-	// Add connection metadata
-	data["connection_id"] = c.ID
-	data["user_id"] = c.UserID
-	data["project_id"] = c.ProjectID
-	data["client_id"] = c.ClientID
-
-	// Broadcast to project room (will be processed by chat service)
-	c.hub.BroadcastToProject(c.ProjectID, WebSocketMessage{
-		Type: message.Type,
-		Data: data,
-	})
 }
 
 // handleProjectJoin processes project join requests

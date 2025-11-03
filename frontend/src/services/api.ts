@@ -31,6 +31,37 @@ export interface Project {
   created_at: string
 }
 
+export interface Conversation {
+  id: string
+  title: string
+  user_id: string
+  project_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ApiMessage {
+  id: string
+  conversation_id: string
+  role: string
+  content: string
+  metadata?: Record<string, any>
+  tool_calls?: ApiToolCall[]
+  created_at: string
+}
+
+export interface ApiToolCall {
+  id: string
+  type: string
+  function: {
+    name: string
+    arguments: any
+  }
+  status?: string
+  result?: any
+  error?: string
+}
+
 class ApiClient {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`
@@ -132,6 +163,26 @@ class ApiClient {
 
   async getProjects(): Promise<Project[]> {
     return this.request<Project[]>('/api/projects')
+  }
+
+  async getConversations(): Promise<{ success: boolean; conversations?: Conversation[] }> {
+    return this.request<{ success: boolean; conversations?: Conversation[] }>('/api/conversations')
+  }
+
+  async getConversationMessages(conversationId: string): Promise<{ 
+    success: boolean; 
+    conversation?: { 
+      conversation: Conversation; 
+      messages: ApiMessage[] 
+    } 
+  }> {
+    return this.request<{ 
+      success: boolean; 
+      conversation?: { 
+        conversation: Conversation; 
+        messages: ApiMessage[] 
+      } 
+    }>(`/api/conversations/${conversationId}/messages`)
   }
 
   async createProject(

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -533,4 +534,203 @@ func (app *App) adminMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// Conversation structs for API
+type Conversation struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	UserID    string `json:"user_id"`
+	ProjectID string `json:"project_id"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+func (app *App) getConversationsHandler(c *gin.Context) {
+	ctx := c.Request.Context()
+	
+	// Get user ID from auth middleware
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+	
+	// Get project ID from current session (this is a simplification - 
+	// in production you might want to filter by project_id from query params)
+	projectID := "d3eb9ece-48e7-45d0-a281-6b780351dedd" // Default project for now
+	
+	// Query conversations using ZDB
+	resultSet, err := app.ZDB.Query(ctx, `
+		SELECT id, title, user_id, project_id, created_at, updated_at 
+		FROM conversations 
+		WHERE user_id = $1 AND project_id = $2 
+		ORDER BY updated_at DESC
+	`, userID, projectID)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to query conversations",
+			"details": err.Error(),
+		})
+		return
+	}
+	
+	conversations := []Conversation{}
+	for _, row := range resultSet.Rows {
+		conv := Conversation{}
+		// Map row values to struct
+		if len(row.Values) >= 6 {
+			conv.ID, _ = row.Values[0].AsString()
+			conv.Title, _ = row.Values[1].AsString()
+			conv.UserID, _ = row.Values[2].AsString()
+			conv.ProjectID, _ = row.Values[3].AsString()
+			conv.CreatedAt, _ = row.Values[4].AsString()
+			conv.UpdatedAt, _ = row.Values[5].AsString()
+		}
+		conversations = append(conversations, conv)
+	}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"conversations": conversations,
+	})
+}
+
+// Message struct for API
+type Message struct {
+	ID        string                 `json:"id"`
+	ConversationID string              `json:"conversation_id"`
+	Role      string                 `json:"role"`
+	Content   string                 `json:"content"`
+	Metadata  map[string]interface{}  `json:"metadata,omitempty"`
+	ToolCalls []ToolCall             `json:"tool_calls,omitempty"`
+	CreatedAt string                 `json:"created_at"`
+}
+
+type ToolCall struct {
+	ID       string                 `json:"id"`
+	Type     string                 `json:"type"`
+	Function ToolCallFunction      `json:"function"`
+	Status   string                 `json:"status,omitempty"`
+	Result   interface{}            `json:"result,omitempty"`
+	Error    string                 `json:"error,omitempty"`
+}
+
+type ToolCallFunction struct {
+	Name      string      `json:"name"`
+	Arguments interface{} `json:"arguments"`
+}
+
+func (app *App) getConversationMessagesHandler(c *gin.Context) {
+	ctx := c.Request.Context()
+	conversationID := c.Param("id")
+	
+	// Get user ID from auth middleware
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+	
+	// Validate conversation belongs to user
+	convResult, err := app.ZDB.QueryRow(ctx, `
+		SELECT id FROM conversations 
+		WHERE id = $1 AND user_id = $2
+	`, conversationID, userID)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to validate conversation",
+			"details": err.Error(),
+		})
+		return
+	}
+	
+	if convResult.Values == nil || len(convResult.Values) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Conversation not found"})
+		return
+	}
+	
+	// Query messages for this conversation
+	resultSet, err := app.ZDB.Query(ctx, `
+		SELECT id, conversation_id, role, content, metadata, tool_calls, created_at 
+		FROM messages 
+		WHERE conversation_id = $1 
+		ORDER BY created_at ASC
+	`, conversationID)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to query messages",
+			"details": err.Error(),
+		})
+		return
+	}
+	
+	messages := []Message{}
+	for _, row := range resultSet.Rows {
+		msg := Message{}
+		if len(row.Values) >= 6 {
+			msg.ID, _ = row.Values[0].AsString()
+			msg.ConversationID, _ = row.Values[1].AsString()
+			msg.Role, _ = row.Values[2].AsString()
+			msg.Content, _ = row.Values[3].AsString()
+			
+			// Parse metadata JSON
+			metadataStr, _ := row.Values[4].AsString()
+			if metadataStr != "" {
+				if err := json.Unmarshal([]byte(metadataStr), &msg.Metadata); err != nil {
+					msg.Metadata = make(map[string]interface{})
+				}
+			}
+			
+			// Parse tool_calls JSON
+			toolCallsStr, _ := row.Values[5].AsString()
+			if toolCallsStr != "" {
+				if err := json.Unmarshal([]byte(toolCallsStr), &msg.ToolCalls); err != nil {
+					msg.ToolCalls = []ToolCall{}
+				}
+			}
+			
+			msg.CreatedAt, _ = row.Values[6].AsString()
+		}
+		messages = append(messages, msg)
+	}
+	
+	// Also get conversation details
+	convResultSet, err := app.ZDB.Query(ctx, `
+		SELECT id, title, user_id, project_id, created_at, updated_at 
+		FROM conversations 
+		WHERE id = $1
+	`, conversationID)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get conversation details",
+			"details": err.Error(),
+		})
+		return
+	}
+	
+	var conversation Conversation
+	if len(convResultSet.Rows) > 0 {
+		convRow := convResultSet.Rows[0]
+		if len(convRow.Values) >= 6 {
+			conversation.ID, _ = convRow.Values[0].AsString()
+			conversation.Title, _ = convRow.Values[1].AsString()
+			conversation.UserID, _ = convRow.Values[2].AsString()
+			conversation.ProjectID, _ = convRow.Values[3].AsString()
+			conversation.CreatedAt, _ = convRow.Values[4].AsString()
+			conversation.UpdatedAt, _ = convRow.Values[5].AsString()
+		}
+	}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"conversation": map[string]interface{}{
+			"conversation": conversation,
+			"messages": messages,
+		},
+	})
 }

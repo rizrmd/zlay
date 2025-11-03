@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -150,6 +151,29 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 	conn.JoinProject(projectID)
 
 	log.Printf("WebSocket connection established for user %s, client %s, project %s", userID, clientID, projectID)
+	
+	// DEBUG: Test LLM config loading on connection
+	log.Printf("DEBUG: Testing LLM config loading on connection for client %s", clientID)
+	testConfig, err := h.clientConfigCache.GetClientConfig(context.Background(), clientID)
+	if err != nil {
+		log.Printf("DEBUG: Failed to load LLM config on connection test: %v", err)
+	} else {
+		// Simple key masking for debug
+		maskedKey := "EMPTY"
+		if testConfig.APIKey != "" {
+			if len(testConfig.APIKey) <= 8 {
+				maskedKey = strings.Repeat("*", len(testConfig.APIKey))
+			} else if len(testConfig.APIKey) <= 16 {
+				maskedKey = testConfig.APIKey[:4] + strings.Repeat("*", len(testConfig.APIKey)-4)
+			} else {
+				maskedKey = testConfig.APIKey[:8] + strings.Repeat("*", len(testConfig.APIKey)-8)
+			}
+		}
+		log.Printf("DEBUG: Successfully loaded LLM config on connection test - Model: %s, BaseURL: %s, API Key: %s", testConfig.Model, testConfig.BaseURL, maskedKey)
+		
+		// DEBUG: Log LLM connection details
+		log.Printf("DEBUG: LLM client successfully connected and ready for client %s", clientID)
+	}
 }
 
 // authenticateToken validates the authentication token and returns user and client IDs
@@ -282,6 +306,8 @@ func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage)
 		log.Printf("Missing content in user_message")
 		return
 	}
+
+	log.Printf("DEBUG: User chat: \"%s\"", content)
 
 	// Add connection metadata per AsyncAPI spec
 	data["connection_id"] = conn.ID

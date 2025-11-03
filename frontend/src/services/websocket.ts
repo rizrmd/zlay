@@ -14,6 +14,7 @@ export interface ChatMessage {
   created_at: string
   user_id?: string
   project_id?: string
+  conversation_id?: string
 }
 
 export interface ToolCall {
@@ -77,6 +78,7 @@ class WebSocketService {
 
         this.ws.onopen = () => {
           console.log('WebSocket connected successfully')
+          console.log('DEBUG: WebSocket readyState:', this.ws?.readyState)
           this.projectID = projectID
           this.connected = true
           this.reconnectAttempts = 0
@@ -144,23 +146,13 @@ class WebSocketService {
       timestamp: Date.now(),
     }
 
-    this.ws.send(JSON.stringify(message))
-
-    // Simulate a simple assistant response for user messages to enable token tracking in tests
-    if (type === 'user_message') {
-      const response: WebSocketMessage = {
-        type: 'assistant_response',
-        data: {
-          // Echo back the original data for potential downstream handling
-          ...data,
-          // Provide a deterministic token usage value for testing
-          tokens_used: 10,
-        },
-        timestamp: Date.now(),
-      }
-      // Directly handle the simulated response
-      this.handleMessage(response)
+    // Debug: Log when sending user message
+    if (type === 'user_message' && data.content) {
+      console.log(`DEBUG: Sending user message via WebSocket: "${data.content}"`)
+      console.log('DEBUG: Full message payload:', message)
     }
+
+    this.ws.send(JSON.stringify(message))
   }
 
   onMessage(type: string, handler: Function): void {

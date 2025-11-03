@@ -194,6 +194,10 @@ func (app *App) InitRouter() {
 	// Health check
 	app.Router.GET("/api/health", app.healthHandler)
 
+	// Conversations API
+	app.Router.GET("/api/conversations", app.authMiddleware(), app.getConversationsHandler)
+	app.Router.GET("/api/conversations/:id/messages", app.authMiddleware(), app.getConversationMessagesHandler)
+
 	// Static routes for development
 	app.Router.Static("/assets", "../frontend/dist/assets")
 	app.Router.StaticFile("/", "../frontend/dist/index.html")

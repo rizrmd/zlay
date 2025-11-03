@@ -273,27 +273,14 @@ func (h *Hub) BroadcastToProject(projectID string, message interface{}) {
 		return
 	}
 
-	// Check if message should be compressed
-	var sendData []byte
-	if shouldCompressMessage(data) {
-		compressed, err := compressMessage(message)
-		if err != nil {
-			log.Printf("Error compressing message: %v", err)
-			sendData = data // Fallback to uncompressed
-		} else {
-			sendData = compressed
-		}
-	} else {
-		sendData = data
-	}
-
+	// Send uncompressed data - WebSocket compression is handled by upgrader
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 
 	if conns, exists := h.projects[projectID]; exists {
 		for conn := range conns {
 			select {
-			case conn.send <- sendData:
+			case conn.send <- data:
 			default:
 				// Connection send buffer is full
 				conn.closeSendChannel()
@@ -312,22 +299,9 @@ func (h *Hub) SendToConnection(conn *Connection, message interface{}) {
 		return
 	}
 
-	// Check if message should be compressed
-	var sendData []byte
-	if shouldCompressMessage(data) {
-		compressed, err := compressMessage(message)
-		if err != nil {
-			log.Printf("Error compressing message: %v", err)
-			sendData = data // Fallback to uncompressed
-		} else {
-			sendData = compressed
-		}
-	} else {
-		sendData = data
-	}
-
+	// Send uncompressed data - WebSocket compression is handled by the upgrader
 	select {
-	case conn.send <- sendData:
+	case conn.send <- data:
 	default:
 		// Connection send buffer is full
 		conn.closeSendChannel()

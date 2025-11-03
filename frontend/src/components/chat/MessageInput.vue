@@ -74,7 +74,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
 }
 
 const autoResize = () => {
-  if (messageInputRef.value) {
+  if (messageInputRef.value && messageInputRef.value.style) {
     messageInputRef.value.style.height = 'auto'
     messageInputRef.value.style.height = Math.min(messageInputRef.value.scrollHeight, 120) + 'px'
   }

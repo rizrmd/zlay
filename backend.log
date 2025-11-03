@@ -1,42 +1,611 @@
   [92m[FRONTEND][0m $ vite
-  [92m[FRONTEND][0m 
-  VITE v7.1.12  ready in 507 ms
+  [94m[BACKEND][0m  [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
 
-  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
-  ➜  Network: use --host to expose
-  [94m[BACKEND][0m  2025/11/02 21:36:47 Registered tool: database_query
-  [94m[BACKEND][0m  2025/11/02 21:36:47 Started client config cache cleanup routine
-  [94m[BACKEND][0m  2025/11/02 21:36:47 Loaded 1 domain entries into cache
-  [94m[BACKEND][0m  2025/11/02 21:36:47 HTTP server starting on port 6090
-2025/11/02 21:36:47 Starting WebSocket server on port 6070
-2025/11/02 21:36:47 WebSocket server starting on port 6070
-2025/11/02 21:36:47 WebSocket router listening on :6070
-2025/11/02 21:36:47 WebSocket server attempting to bind to address: :6070
-  [92m[FRONTEND][0m error: script "dev" exited with code 143
-  [92m[FRONTEND][0m $ vite
-  [92m[FRONTEND][0m 
-  VITE v7.1.12  ready in 616 ms
+  [94m[BACKEND][0m  2025/11/03 14:26:49 Registered tool: database_query
+2025/11/03 14:26:49 Started client config cache cleanup routine
+  [94m[BACKEND][0m  2025/11/03 14:26:50 Loaded 1 domain entries into cache
+  [94m[BACKEND][0m  [GIN-debug] GET    /api/health               --> main.(*App).healthHandler-fm (4 handlers)
+[GIN-debug] GET    /api/conversations        --> main.(*App).getConversationsHandler-fm (5 handlers)
+[GIN-debug] GET    /api/conversations/:id/messages --> main.(*App).getConversationMessagesHandler-fm (5 handlers)
+[GIN-debug] GET    /assets/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] HEAD   /assets/*filepath         --> github.com/gin-gonic/gin.(*RouterGroup).createStaticHandler.func1 (4 handlers)
+[GIN-debug] GET    /                         --> main.(*App).InitRouter.(*RouterGroup).StaticFile.func4 (4 handlers)
+[GIN-debug] HEAD   /                         --> main.(*App).InitRouter.(*RouterGroup).StaticFile.func4 (4 handlers)
+[GIN-debug] GET    /api/hello                --> main.(*App).helloHandler-fm (4 handlers)
+[GIN-debug] POST   /api/auth/register        --> main.(*App).registerHandler-fm (4 handlers)
+[GIN-debug] POST   /api/auth/login           --> main.(*App).loginHandler-fm (4 handlers)
+[GIN-debug] POST   /api/auth/logout          --> main.(*App).logoutHandler-fm (4 handlers)
+[GIN-debug] GET    /api/auth/profile         --> main.(*App).profileHandler-fm (5 handlers)
+[GIN-debug] OPTIONS /api/auth/register        --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/auth/login           --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/auth/logout          --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/auth/profile         --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] GET    /api/projects             --> main.(*App).getProjectsHandler-fm (4 handlers)
+[GIN-debug] POST   /api/projects             --> main.(*App).createProjectHandler-fm (4 handlers)
+[GIN-debug] GET    /api/projects/:id         --> main.(*App).getProjectHandler-fm (4 handlers)
+[GIN-debug] PUT    /api/projects/:id         --> main.(*App).updateProjectHandler-fm (4 handlers)
+[GIN-debug] DELETE /api/projects/:id         --> main.(*App).deleteProjectHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/projects             --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/projects/:id         --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] GET    /api/datasources          --> main.(*App).getDatasourcesHandler-fm (4 handlers)
+[GIN-debug] POST   /api/datasources          --> main.(*App).createDatasourceHandler-fm (4 handlers)
+[GIN-debug] GET    /api/datasources/:id      --> main.(*App).getDatasourceHandler-fm (4 handlers)
+[GIN-debug] PUT    /api/datasources/:id      --> main.(*App).updateDatasourceHandler-fm (4 handlers)
+[GIN-debug] DELETE /api/datasources/:id      --> main.(*App).deleteDatasourceHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/datasources          --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/datasources/:id      --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] GET    /api/admin/clients        --> main.(*App).getClientsHandler-fm (5 handlers)
+[GIN-debug] POST   /api/admin/clients        --> main.(*App).createClientHandler-fm (5 handlers)
+[GIN-debug] PUT    /api/admin/clients/:id    --> main.(*App).updateClientHandler-fm (5 handlers)
+[GIN-debug] DELETE /api/admin/clients/:id    --> main.(*App).deleteClientHandler-fm (5 handlers)
+[GIN-debug] GET    /api/admin/domains        --> main.(*App).getDomainsHandler-fm (5 handlers)
+[GIN-debug] POST   /api/admin/domains        --> main.(*App).createDomainHandler-fm (5 handlers)
+[GIN-debug] PUT    /api/admin/domains/:id    --> main.(*App).updateDomainHandler-fm (5 handlers)
+[GIN-debug] DELETE /api/admin/domains/:id    --> main.(*App).deleteDomainHandler-fm (5 handlers)
+[GIN-debug] OPTIONS /api/admin/clients        --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/admin/clients/:id    --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/admin/domains        --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] OPTIONS /api/admin/domains/:id    --> main.(*App).corsHandler-fm (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+  [94m[BACKEND][0m  2025/11/03 14:26:50 HTTP server starting on port 8080
+2025/11/03 14:26:50 Starting WebSocket server on port 6070
+2025/11/03 14:26:50 WebSocket server starting on port 6070
+2025/11/03 14:26:50 WebSocket router listening on :6070
+2025/11/03 14:26:50 WebSocket server attempting to bind to address: :6070
+  [94m[BACKEND][0m  [GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
 
-  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
-  ➜  Network: use --host to expose
-  [92m[FRONTEND][0m error: script "dev" exited with code 143
-  [92m[FRONTEND][0m $ vite
-  [92m[FRONTEND][0m 
-  VITE v7.1.12  ready in 516 ms
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
 
-  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
-  ➜  Network: use --host to expose
-  [92m[FRONTEND][0m error: script "dev" exited with code 143
-  [92m[FRONTEND][0m $ vite
+[GIN-debug] GET    /ws/chat                  --> zlay-backend/internal/websocket.(*Handler).HandleWebSocket-fm (4 handlers)
+[GIN-debug] GET    /ws/health                --> zlay-backend/internal/websocket.(*Server).setupRoutes.func2 (4 handlers)
+[GIN-debug] GET    /ws/stats                 --> zlay-backend/internal/websocket.(*Server).setupRoutes.func3 (4 handlers)
+[GIN-debug] POST   /ws/invalidate-client/:client_id --> zlay-backend/internal/websocket.(*Server).setupRoutes.func4 (4 handlers)
+[GIN-debug] GET    /ws/admin/connections/:connection_id/tokens --> zlay-backend/internal/websocket.(*Server).setupRoutes.func5 (4 handlers)
+[GIN-debug] PUT    /ws/admin/connections/:connection_id/tokens/limit --> zlay-backend/internal/websocket.(*Server).setupRoutes.func6 (4 handlers)
+[GIN-debug] POST   /ws/admin/connections/:connection_id/tokens/reset --> zlay-backend/internal/websocket.(*Server).setupRoutes.func7 (4 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :6070
   [92m[FRONTEND][0m 
-  VITE v7.1.12  ready in 468 ms
+  VITE v7.1.12  ready in 345 ms
 
-  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
+  ➜  Local:   http://localhost:6060/
   ➜  Network: use --host to expose
-  [92m[FRONTEND][0m error: script "dev" exited with code 143
-  [92m[FRONTEND][0m $ vite
-  [92m[FRONTEND][0m 
-  VITE v7.1.12  ready in 548 ms
-
-  [92m[FRONTEND][0m   ➜  Local:   http://localhost:6060/
-  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:26:53 | 200 |   91.568172ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:26:53 WebSocket connection attempt from: [::1]:58776
+2025/11/03 14:26:53 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[SywecrokzJOF/CFCvhXgZA==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:26:53 Found and decoded session_token in cookie
+2025/11/03 14:26:53 Final token status: PRESENT
+2025/11/03 14:26:53 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:26:53 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:26:53 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:26:53 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:26:53 expires_at type: db.Value
+2025/11/03 14:26:53 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:26:53 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:26:53 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:26:53 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:26:53 WebSocket upgrade successful for [::1]:58776
+2025/11/03 14:26:53 Connection registered: 1e58dee4-ce37-41cb-b946-1f9223ac3f91
+2025/11/03 14:26:53 Connection 1e58dee4-ce37-41cb-b946-1f9223ac3f91 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:26:53 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:26:53 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:26:54 | 200 |  345.625801ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:26:54 | 200 |       117.1µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:26:54 Warning: LLM connection validation failed for client 56c28eb6-8ea3-40f7-bdff-dbf089069138: OpenAI connection test: invalid response
+2025/11/03 14:26:54 Loaded LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138: model=openai/gpt-oss-120b, baseURL=https://std-promote-casino-usc.trycloudflare.com/v1
+2025/11/03 14:26:54 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:26:54 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:26:54 | 200 |  1.078201418s |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:27:07 | 200 |  201.255141ms |             ::1 | GET      "/api/conversations/110d7601-b064-4dc8-8d3c-a7be03ae6943/messages"
+  [94m[BACKEND][0m  2025/11/03 14:28:30 Connection unregistered: 1e58dee4-ce37-41cb-b946-1f9223ac3f91
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:28:30 | 200 |    52.17052ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:28:30 WebSocket connection attempt from: [::1]:55598
+2025/11/03 14:28:30 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[wE9D4sXHSS56ZWJCvz1m9A==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:28:30 Found and decoded session_token in cookie
+2025/11/03 14:28:30 Final token status: PRESENT
+2025/11/03 14:28:30 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+  [94m[BACKEND][0m  2025/11/03 14:28:30 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:28:30 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:28:30 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:28:30 expires_at type: db.Value
+2025/11/03 14:28:30 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:28:30 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:28:30 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:28:30 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:28:30 WebSocket upgrade successful for [::1]:55598
+2025/11/03 14:28:30 Connection registered: db0eae41-a370-4764-99d8-3878abf78116
+2025/11/03 14:28:30 Connection db0eae41-a370-4764-99d8-3878abf78116 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:28:30 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:28:30 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:28:30 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:28:30 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:28:30 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:28:30 | 200 |   58.666996ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:28:30 | 200 |   48.177706ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:28:31 | 200 |      23.708µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:29:06 Connection unregistered: db0eae41-a370-4764-99d8-3878abf78116
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:06 | 200 |   47.984455ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:29:06 WebSocket connection attempt from: [::1]:51916
+2025/11/03 14:29:06 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[hI3dqUyW76jLgRYJT6EqRQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:29:06 Found and decoded session_token in cookie
+2025/11/03 14:29:06 Final token status: PRESENT
+2025/11/03 14:29:06 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:29:06 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:29:06 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:29:06 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:29:06 expires_at type: db.Value
+2025/11/03 14:29:06 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:29:06 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:29:06 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/03 14:29:06 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:06 WebSocket upgrade successful for [::1]:51916
+2025/11/03 14:29:06 Connection registered: 391cff7e-f2ce-4c15-8ad8-2c0c2c1ded91
+2025/11/03 14:29:06 Connection 391cff7e-f2ce-4c15-8ad8-2c0c2c1ded91 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:06 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:06 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:29:06 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:29:06 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:29:06 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:06 | 200 |   24.081482ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:06 | 200 |   47.054394ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:07 | 200 |        29.9µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:29:48 Connection unregistered: 391cff7e-f2ce-4c15-8ad8-2c0c2c1ded91
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:49 | 200 |   49.058682ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:29:49 WebSocket connection attempt from: [::1]:46896
+2025/11/03 14:29:49 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[i1IJd6pDrjuiRSsxgGt4XA==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:29:49 Found and decoded session_token in cookie
+2025/11/03 14:29:49 Final token status: PRESENT
+2025/11/03 14:29:49 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:29:49 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:49 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:29:49 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:29:49 expires_at type: db.Value
+2025/11/03 14:29:49 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:29:49 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:29:49 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:29:49 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:29:49 WebSocket upgrade successful for [::1]:46896
+2025/11/03 14:29:49 Connection registered: 1b3544ad-04ba-4cf3-a05b-deff24d6ee12
+2025/11/03 14:29:49 Connection 1b3544ad-04ba-4cf3-a05b-deff24d6ee12 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:49 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:29:49 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:29:49 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:29:49 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:29:49 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:49 | 200 |   24.458289ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:49 | 200 |   48.285387ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:50 | 200 |       90.03µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:51 | 200 |  117.821285ms |             ::1 | GET      "/api/conversations/110d7601-b064-4dc8-8d3c-a7be03ae6943/messages"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:29:51 | 200 |   98.388467ms |             ::1 | GET      "/api/conversations/848d602b-9401-4041-983d-c02b84873b37/messages"
+  [92m[FRONTEND][0m 2:30:25 PM [vite] (client) hmr update /src/assets/main.css, /src/components/chat/ChatLayout.vue, /src/components/chat/MessageList.vue, /src/components/chat/ConversationList.vue
+  [94m[BACKEND][0m  2025/11/03 14:30:25 WebSocket error: websocket: close 1005 (no status)
+2025/11/03 14:30:25 Connection unregistered: 1b3544ad-04ba-4cf3-a05b-deff24d6ee12
+  [94m[BACKEND][0m  2025/11/03 14:30:25 WebSocket connection attempt from: [::1]:33122
+  [94m[BACKEND][0m  2025/11/03 14:30:25 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[/dfC+Gy3OJY27qbka7o7Kg==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:30:25 Found and decoded session_token in cookie
+2025/11/03 14:30:25 Final token status: PRESENT
+2025/11/03 14:30:25 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:30:25 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:25 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:30:25 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:30:25 expires_at type: db.Value
+2025/11/03 14:30:25 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:30:25 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:30:25 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:25 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:30:25 WebSocket upgrade successful for [::1]:33122
+2025/11/03 14:30:25 Connection registered: b477131c-968e-4d19-88f2-9e3c4507a306
+2025/11/03 14:30:25 Connection b477131c-968e-4d19-88f2-9e3c4507a306 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:25 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:25 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:25 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:25 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:30:25 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:30:25 | 200 |   50.947995ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:30:25 | 200 |   46.513056ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:30:26 | 200 |      26.923µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:30:26 WebSocket connection attempt from: [::1]:33132
+  [94m[BACKEND][0m  2025/11/03 14:30:26 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[YsdnbNvsxdcs9QhKov8pEQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:30:26 Found and decoded session_token in cookie
+2025/11/03 14:30:26 Final token status: PRESENT
+2025/11/03 14:30:26 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:30:26 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:26 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:30:26 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:30:26 expires_at type: db.Value
+2025/11/03 14:30:26 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:30:26 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:30:26 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:26 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:30:26 WebSocket upgrade successful for [::1]:33132
+2025/11/03 14:30:26 Connection registered: 88fbbd2c-ff2a-4281-b693-fb4739fd43b9
+2025/11/03 14:30:26 Connection 88fbbd2c-ff2a-4281-b693-fb4739fd43b9 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:26 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:30:26 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:26 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:30:26 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:30:26 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:30:26 | 200 |     27.4243ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:30:27 | 200 |     108.412µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:31:29 Connection unregistered: 88fbbd2c-ff2a-4281-b693-fb4739fd43b9
+2025/11/03 14:31:29 Connection unregistered: b477131c-968e-4d19-88f2-9e3c4507a306
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:29 | 200 |   51.584301ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:31:29 WebSocket connection attempt from: [::1]:45882
+2025/11/03 14:31:29 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[QmLexgl3UiB9HDC5SwrZ7Q==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:31:29 Found and decoded session_token in cookie
+2025/11/03 14:31:29 Final token status: PRESENT
+2025/11/03 14:31:29 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+  [94m[BACKEND][0m  2025/11/03 14:31:29 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:29 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:31:29 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:31:29 expires_at type: db.Value
+2025/11/03 14:31:29 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:31:29 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+  [94m[BACKEND][0m  2025/11/03 14:31:29 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:29 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:29 WebSocket upgrade successful for [::1]:45882
+2025/11/03 14:31:29 Connection registered: 19cbe7a9-fedf-4007-8fb7-3336e9efa688
+2025/11/03 14:31:29 Connection 19cbe7a9-fedf-4007-8fb7-3336e9efa688 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:29 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:29 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:29 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:29 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:31:29 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:29 | 200 |   23.487115ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:29 | 200 |   47.905023ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:30 | 200 |      37.984µs |             ::1 | GET      "/ws/health"
+  [92m[FRONTEND][0m 2:31:30 PM [vite] (client) hmr update /src/assets/main.css, /src/components/chat/ChatLayout.vue, /src/components/chat/MessageList.vue, /src/components/chat/ConversationList.vue
+  [94m[BACKEND][0m  2025/11/03 14:31:31 WebSocket error: websocket: close 1005 (no status)
+  [94m[BACKEND][0m  2025/11/03 14:31:31 Connection unregistered: 19cbe7a9-fedf-4007-8fb7-3336e9efa688
+  [94m[BACKEND][0m  2025/11/03 14:31:31 WebSocket connection attempt from: [::1]:45892
+2025/11/03 14:31:31 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[mgaU0VBSadam0avcSHlw7Q==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:31:31 Found and decoded session_token in cookie
+2025/11/03 14:31:31 Final token status: PRESENT
+2025/11/03 14:31:31 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:31:31 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:31 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:31:31 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:31:31 expires_at type: db.Value
+2025/11/03 14:31:31 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:31:31 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:31:31 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:31 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:31:31 WebSocket upgrade successful for [::1]:45892
+2025/11/03 14:31:31 Connection registered: 0dca5583-3bfa-4a36-9849-f0ace59a4839
+2025/11/03 14:31:31 Connection 0dca5583-3bfa-4a36-9849-f0ace59a4839 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:31 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:31 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:31 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:31 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:31:31 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:31 | 200 |  405.232819ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:31 | 200 |  427.386588ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:32 | 200 |      22.692µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:31:32 WebSocket connection attempt from: [::1]:45914
+  [94m[BACKEND][0m  2025/11/03 14:31:32 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[ZsYKiWf2pon2gj6bajAhNg==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:31:32 Found and decoded session_token in cookie
+2025/11/03 14:31:32 Final token status: PRESENT
+2025/11/03 14:31:32 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:31:32 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:32 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:31:32 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:31:32 expires_at type: db.Value
+2025/11/03 14:31:32 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:31:32 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:31:32 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/03 14:31:32 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:32 WebSocket upgrade successful for [::1]:45914
+  [94m[BACKEND][0m  2025/11/03 14:31:32 Connection registered: fd3dba01-14a4-474e-8096-7c54d24be63e
+2025/11/03 14:31:32 Connection fd3dba01-14a4-474e-8096-7c54d24be63e joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:31:32 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:32 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:32 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:32 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:31:32 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:32 | 200 |    23.57058ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:33 | 200 |      82.204µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:31:38 Connection unregistered: 0dca5583-3bfa-4a36-9849-f0ace59a4839
+2025/11/03 14:31:38 Connection unregistered: fd3dba01-14a4-474e-8096-7c54d24be63e
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:38 | 200 |   62.297848ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:31:38 WebSocket connection attempt from: [::1]:48528
+  [94m[BACKEND][0m  2025/11/03 14:31:38 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[nlo37azUmh3PALq3jUO5gg==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:31:38 Found and decoded session_token in cookie
+2025/11/03 14:31:38 Final token status: PRESENT
+2025/11/03 14:31:38 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:31:38 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:38 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:31:38 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:31:38 expires_at type: db.Value
+2025/11/03 14:31:38 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:31:38 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:31:38 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:38 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:38 WebSocket upgrade successful for [::1]:48528
+  [94m[BACKEND][0m  2025/11/03 14:31:38 Connection registered: 70b8e031-61b2-4e43-9c40-784b142e90f9
+2025/11/03 14:31:38 Connection 70b8e031-61b2-4e43-9c40-784b142e90f9 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:38 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:31:38 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:38 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:31:38 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:31:38 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:38 | 200 |   29.528694ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:38 | 200 |   58.281292ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:31:39 | 200 |      33.054µs |             ::1 | GET      "/ws/health"
+  [92m[FRONTEND][0m 2:31:59 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 2:32:50 PM [vite] (client) hmr update /src/assets/main.css, /src/components/chat/ChatLayout.vue, /src/components/chat/MessageList.vue, /src/components/chat/ConversationList.vue
+  [94m[BACKEND][0m  2025/11/03 14:32:50 WebSocket error: websocket: close 1005 (no status)
+2025/11/03 14:32:50 Connection unregistered: 70b8e031-61b2-4e43-9c40-784b142e90f9
+  [94m[BACKEND][0m  2025/11/03 14:32:50 WebSocket connection attempt from: [::1]:34596
+  [94m[BACKEND][0m  2025/11/03 14:32:50 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[QQw7Mjwe1E+uMzpR88fILQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:32:50 Found and decoded session_token in cookie
+2025/11/03 14:32:50 Final token status: PRESENT
+2025/11/03 14:32:50 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:32:50 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:50 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:32:50 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:32:50 expires_at type: db.Value
+2025/11/03 14:32:50 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:32:50 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+  [94m[BACKEND][0m  2025/11/03 14:32:50 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:32:50 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:50 WebSocket upgrade successful for [::1]:34596
+  [94m[BACKEND][0m  2025/11/03 14:32:50 Connection registered: aa60fe42-3ec0-4350-aa21-65f49f23972e
+2025/11/03 14:32:50 Connection aa60fe42-3ec0-4350-aa21-65f49f23972e joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:50 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:50 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:32:50 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:32:50 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:32:50 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:32:50 | 200 |  193.617519ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:32:50 | 200 |  149.007822ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:32:51 | 200 |      77.594µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:32:51 WebSocket connection attempt from: [::1]:34624
+  [94m[BACKEND][0m  2025/11/03 14:32:51 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[A0AEXmmSzGwmtm1jXcev7w==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:32:51 Found and decoded session_token in cookie
+2025/11/03 14:32:51 Final token status: PRESENT
+2025/11/03 14:32:51 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:32:51 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:51 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:32:51 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:32:51 expires_at type: db.Value
+2025/11/03 14:32:51 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:32:51 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:32:51 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/03 14:32:51 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:51 WebSocket upgrade successful for [::1]:34624
+2025/11/03 14:32:51 Connection registered: 8b49b848-8a7d-428c-a5d1-36bbd901a1ef
+2025/11/03 14:32:51 Connection 8b49b848-8a7d-428c-a5d1-36bbd901a1ef joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:51 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:32:51 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:32:51 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:32:51 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+  [94m[BACKEND][0m  2025/11/03 14:32:51 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:32:51 | 200 |   28.354402ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:32:52 | 200 |      77.233µs |             ::1 | GET      "/ws/health"
+  [92m[FRONTEND][0m 2:34:50 PM [vite] (client) hmr update /src/assets/main.css, /src/components/chat/ChatLayout.vue, /src/components/chat/MessageList.vue, /src/components/chat/ConversationList.vue
+  [94m[BACKEND][0m  2025/11/03 14:34:50 WebSocket error: websocket: close 1005 (no status)
+2025/11/03 14:34:50 Connection unregistered: 8b49b848-8a7d-428c-a5d1-36bbd901a1ef
+  [94m[BACKEND][0m  2025/11/03 14:34:50 WebSocket connection attempt from: [::1]:49568
+2025/11/03 14:34:50 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[wcU9gM0FIWQchX1Sa6V2ZQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:34:50 Found and decoded session_token in cookie
+2025/11/03 14:34:50 Final token status: PRESENT
+2025/11/03 14:34:50 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:34:50 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:50 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:34:50 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:34:51 expires_at type: db.Value
+2025/11/03 14:34:51 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:34:51 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:34:51 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:51 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:34:51 WebSocket upgrade successful for [::1]:49568
+2025/11/03 14:34:51 Connection registered: faabd41c-1a81-4bb9-961d-706fe7c82553
+2025/11/03 14:34:51 Connection faabd41c-1a81-4bb9-961d-706fe7c82553 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:51 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:51 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:51 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:51 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:34:51 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:34:51 | 200 |   51.015828ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:34:51 | 200 |   48.029377ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:34:52 | 200 |       70.29µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:34:52 WebSocket connection attempt from: [::1]:49600
+  [94m[BACKEND][0m  2025/11/03 14:34:52 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[jjsBCccrkFSCjL5+dEdWPw==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:34:52 Found and decoded session_token in cookie
+2025/11/03 14:34:52 Final token status: PRESENT
+2025/11/03 14:34:52 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:34:52 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:52 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:34:52 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:34:52 expires_at type: db.Value
+2025/11/03 14:34:52 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:34:52 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:34:52 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:52 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:34:52 WebSocket upgrade successful for [::1]:49600
+2025/11/03 14:34:52 Connection registered: 8b457ba7-3470-46cb-ad1f-5c1fd644cb97
+2025/11/03 14:34:52 Connection 8b457ba7-3470-46cb-ad1f-5c1fd644cb97 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:52 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:34:52 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:52 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:34:52 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:34:52 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:34:52 | 200 |    47.08904ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:34:53 | 200 |      97.419µs |             ::1 | GET      "/ws/health"
+  [92m[FRONTEND][0m 2:35:44 PM [vite] (client) hmr update /src/assets/main.css, /src/components/chat/ChatLayout.vue, /src/components/chat/MessageList.vue, /src/components/chat/ConversationList.vue
+  [94m[BACKEND][0m  2025/11/03 14:35:44 WebSocket error: websocket: close 1005 (no status)
+  [94m[BACKEND][0m  2025/11/03 14:35:44 Connection unregistered: 8b457ba7-3470-46cb-ad1f-5c1fd644cb97
+  [94m[BACKEND][0m  2025/11/03 14:35:44 WebSocket connection attempt from: [::1]:37128
+2025/11/03 14:35:44 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[E7aLdm81lDiAOQehe+bqSQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:35:44 Found and decoded session_token in cookie
+2025/11/03 14:35:44 Final token status: PRESENT
+2025/11/03 14:35:44 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:35:44 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:44 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:35:44 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:35:44 expires_at type: db.Value
+2025/11/03 14:35:44 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:35:44 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:35:44 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:44 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:35:44 WebSocket upgrade successful for [::1]:37128
+2025/11/03 14:35:44 Connection registered: 57f63f3b-3655-4b80-94d8-483519cb8613
+2025/11/03 14:35:44 Connection 57f63f3b-3655-4b80-94d8-483519cb8613 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:44 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:44 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:44 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:44 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:35:44 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:35:44 | 200 |   63.294887ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:35:44 | 200 |   48.223314ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:35:45 | 200 |     107.787µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:35:45 WebSocket connection attempt from: [::1]:37146
+  [94m[BACKEND][0m  2025/11/03 14:35:45 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[EFUKqsJmjBV9nb/nmXsuZA==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:35:45 Found and decoded session_token in cookie
+2025/11/03 14:35:45 Final token status: PRESENT
+2025/11/03 14:35:45 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:35:45 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:45 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:35:45 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:35:45 expires_at type: db.Value
+2025/11/03 14:35:45 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+2025/11/03 14:35:45 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:35:45 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:45 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/03 14:35:45 WebSocket upgrade successful for [::1]:37146
+2025/11/03 14:35:45 Connection registered: ffacf43d-a57c-441f-92cd-e9e0d9f01a22
+2025/11/03 14:35:45 Connection ffacf43d-a57c-441f-92cd-e9e0d9f01a22 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:45 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:35:45 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:45 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:35:45 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:35:45 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:35:45 | 200 |   25.888855ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:35:46 | 200 |     183.794µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/03 14:36:29 Connection unregistered: faabd41c-1a81-4bb9-961d-706fe7c82553
+2025/11/03 14:36:29 Connection unregistered: aa60fe42-3ec0-4350-aa21-65f49f23972e
+  [94m[BACKEND][0m  2025/11/03 14:36:29 Connection unregistered: 57f63f3b-3655-4b80-94d8-483519cb8613
+2025/11/03 14:36:29 Connection unregistered: ffacf43d-a57c-441f-92cd-e9e0d9f01a22
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:30 | 200 |   51.643746ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/03 14:36:30 WebSocket connection attempt from: [::1]:42918
+  [94m[BACKEND][0m  2025/11/03 14:36:30 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[0RCp7AYlC1VvO3mAQsa2gQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/03 14:36:30 Found and decoded session_token in cookie
+2025/11/03 14:36:30 Final token status: PRESENT
+2025/11/03 14:36:30 All request cookies: session_token=C1xXXqUvL_A6MOpV0BvXsvo3xizZJ9NrvzOPs8dTBcw%3D
+2025/11/03 14:36:30 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:36:30 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/03 14:36:30 Token hash: AoWffykDJESF02pPUR+nd3wunV1wtuivyepKeAo6qaU=
+  [94m[BACKEND][0m  2025/11/03 14:36:30 expires_at type: db.Value
+2025/11/03 14:36:30 expires_at value: {timestamp 2025-11-04 10:09:46.45754 +0000 UTC true}
+  [94m[BACKEND][0m  2025/11/03 14:36:30 Parsed expires_at time: 2025-11-04 10:09:46.45754 +0000 UTC
+2025/11/03 14:36:30 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:36:30 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:36:30 WebSocket upgrade successful for [::1]:42918
+2025/11/03 14:36:30 Connection registered: a1896601-4b0e-4f86-8917-dd7aa9b20b3e
+2025/11/03 14:36:30 Connection a1896601-4b0e-4f86-8917-dd7aa9b20b3e joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:36:30 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/03 14:36:30 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:36:30 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/03 14:36:30 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://std-promote-casino-usc.trycloudflare.com/v1, API Key: *****
+2025/11/03 14:36:30 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:30 | 200 |   23.334695ms |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:30 | 200 |   50.420511ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:31 | 200 |      31.975µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:37 | 200 |  409.836547ms |             ::1 | GET      "/api/conversations/110d7601-b064-4dc8-8d3c-a7be03ae6943/messages"
+  [94m[BACKEND][0m  [GIN] 2025/11/03 - 14:36:39 | 200 |  166.217187ms |             ::1 | GET      "/api/conversations/848d602b-9401-4041-983d-c02b84873b37/messages"
+  [94m[BACKEND][0m  2025/11/03 14:36:44 DEBUG: User chat: "who is current president in indonesia"
+2025/11/03 14:36:44 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/03 14:36:52 websocket: discarding reader close error: io: read/write on closed pipe

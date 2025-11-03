@@ -330,14 +330,10 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 			TokensRemaining: tokensRemaining,
 		}
 
+		// For the first chunk, include the message structure
 		if !streamStarted && chunk.Content != "" {
-			// First chunk, include message metadata
-			response.Data = gin.H{
-				"conversation_id": req.ConversationID,
-				"message":         assistantMsg,
-				"timestamp":       time.Now().UnixMilli(),
-				"done":            false,
-			}
+			response.Data.(gin.H)["message"] = assistantMsg
+			response.Data.(gin.H)["done"] = false
 			streamStarted = true
 		}
 
@@ -384,7 +380,6 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 		Timestamp: time.Now().UnixMilli(),
 		Data: gin.H{
 			"conversation_id": req.ConversationID,
-			"content":         assistantMsg.Content,
 			"message_id":      assistantMsg.ID,
 			"timestamp":       time.Now().Format(time.RFC3339),
 			"done":            true,
