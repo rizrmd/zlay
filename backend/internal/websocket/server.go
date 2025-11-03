@@ -70,6 +70,7 @@ func NewServer(zdb *db.Database, port string) *Server {
 
 // Start starts the WebSocket server
 func (s *Server) Start() error {
+	log.Printf("WebSocket server starting on port %s", s.port)
 
 	// Start hub in separate goroutine
 	go s.hub.Run()
@@ -78,7 +79,14 @@ func (s *Server) Start() error {
 	s.setupRoutes()
 
 	// Start server
-	return s.router.Run(":" + s.port)
+	addr := ":" + s.port
+	log.Printf("WebSocket router listening on %s", addr)
+	log.Printf("WebSocket server attempting to bind to address: %s", addr)
+	err := s.router.Run(addr)
+	if err != nil {
+		log.Printf("WebSocket server failed to start: %v", err)
+	}
+	return err
 }
 
 // Stop gracefully stops the WebSocket server
@@ -128,6 +136,7 @@ func (s *Server) setupRoutes() {
 			"status":      "healthy",
 			"timestamp":   time.Now().Unix(),
 			"connections": s.hub.GetConnectionCount(),
+			"port":        s.port,
 		})
 	})
 

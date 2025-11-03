@@ -1,13 +1,13 @@
 package websocket
 
 import (
-	"compress/flate"
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,6 @@ var upgrader = websocket.Upgrader{
 	},
 	// Enable WebSocket compression
 	EnableCompression: true,
-	CompressionLevel: flate.BestCompression,
 }
 
 // Handler manages WebSocket connections
@@ -54,38 +53,91 @@ func (h *Handler) SetChatService(chatService chat.ChatService) {
 
 // HandleWebSocket handles WebSocket upgrade and connection management
 func (h *Handler) HandleWebSocket(c *gin.Context) {
-	// Get authentication token from query or header
-	token := c.Query("token")
+	log.Printf("WebSocket connection attempt from: %s", c.Request.RemoteAddr)
+	log.Printf("Request headers: %+v", c.Request.Header)
+	
+	// Get authentication token from cookie first (preferred)
+	token := ""
+	
+	// Try multiple cookie names
+	authCookie, err := c.Cookie("auth_token")
+	if err == nil && authCookie != "" {
+		token = authCookie
+		log.Printf("Found auth_token in cookie")
+	}
+	
+	// Try session_token if auth_token not found
+	if token == "" {
+		sessionCookie, err := c.Cookie("session_token")
+		if err == nil && sessionCookie != "" {
+			// URL decode the session token
+			decodedToken, decodeErr := url.QueryUnescape(sessionCookie)
+			if decodeErr != nil {
+				log.Printf("Failed to decode session token: %v", decodeErr)
+			} else {
+				token = decodedToken
+				log.Printf("Found and decoded session_token in cookie")
+			}
+		}
+	}
+	
+	// Fallback to query parameter
+	if token == "" {
+		token = c.Query("token")
+		log.Printf("Trying auth token from query parameter")
+	}
+	
+	// Fallback to Authorization header
 	if token == "" {
 		token = c.GetHeader("Authorization")
 		if len(token) > 7 && token[:7] == "Bearer " {
 			token = token[7:]
 		}
+		log.Printf("Trying auth token from Authorization header")
 	}
+	
+	var tokenStatus string
+	if token != "" {
+		tokenStatus = "PRESENT"
+	} else {
+		tokenStatus = "MISSING"
+	}
+	log.Printf("Final token status: %s", tokenStatus)
+	log.Printf("All request cookies: %s", c.Request.Header.Get("Cookie"))
 
 	// Get project ID from query
 	projectID := c.Query("project")
 	if projectID == "" {
+		log.Printf("Missing project ID")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "project_id is required"})
 		return
 	}
+	
+	log.Printf("Project ID: %s", projectID)
 
 	// Authenticate user and get session data
 	userID, clientID, err := h.authenticateToken(token)
 	if err != nil {
+		log.Printf("Authentication failed: %v", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authentication token"})
 		return
 	}
+	
+	log.Printf("Authentication successful: userID=%s, clientID=%s", userID, clientID)
 
 	// Upgrade HTTP connection to WebSocket
+	log.Printf("Attempting WebSocket upgrade for %s", c.Request.URL.String())
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Printf("WebSocket upgrade failed: %v", err)
 		return
 	}
+	log.Printf("WebSocket upgrade successful for %s", c.Request.RemoteAddr)
 
 	// Create new connection
 	conn := NewConnection(ws, userID, clientID, h.hub)
+	// Attach the handler so the connection can route chat‑related messages
+	conn.handler = h
 
 	// Register connection with hub
 	h.hub.register <- conn
@@ -110,15 +162,19 @@ func (h *Handler) authenticateToken(token string) (string, string, error) {
 	tokenHash := sha256.Sum256([]byte(token))
 	tokenHashStr := base64.StdEncoding.EncodeToString(tokenHash[:])
 
-	// Query session and user data
-	row, err := h.db.QueryRow(context.Background(),
-		`SELECT u.id, u.client_id, s.expires_at
+	// Query session and user data using ZDB
+	query := `
+		SELECT u.id, u.client_id, s.expires_at
 		FROM sessions s
 		JOIN users u ON s.user_id = u.id
-		WHERE s.token_hash = $1 AND u.is_active = true`,
-		tokenHashStr)
-
+		WHERE s.token_hash = $1 AND u.is_active = true
+	`
+	log.Printf("Authentication query: %s", query)
+	log.Printf("Token hash: %s", tokenHashStr)
+	
+	row, err := h.db.QueryRow(context.Background(), query, tokenHashStr)
 	if err != nil {
+		log.Printf("Database query error: %v", err)
 		return "", "", fmt.Errorf("database error: %w", err)
 	}
 
@@ -138,10 +194,45 @@ func (h *Handler) authenticateToken(token string) (string, string, error) {
 	if !ok {
 		return "", "", fmt.Errorf("invalid expires at")
 	}
-
+	
+	// Check if expires_at is already a time.Time from database
+	log.Printf("expires_at type: %T", row.Values[2])
+	log.Printf("expires_at value: %v", row.Values[2])
+	
+	// Try direct time conversion first
+	if expiresAtTime, ok := row.Values[2].AsTimestamp(); ok {
+		// Check if session has expired using the parsed time
+		log.Printf("Parsed expires_at time: %v", expiresAtTime.Time)
+		if time.Now().After(expiresAtTime.Time) {
+			return "", "", fmt.Errorf("token expired")
+		}
+		return userID, clientID, nil
+	}
+	// New handling: if the value is a timestamp Value, extract the time directly
+	if row.Values[2].Type == db.ValueTypeTimestamp {
+		if ts, ok := row.Values[2].Data.(db.Timestamp); ok {
+			t := ts.Time
+			log.Printf("Extracted time.Time from db.Value Timestamp: %v", t)
+			if time.Now().After(t) {
+				return "", "", fmt.Errorf("token expired")
+			}
+			return userID, clientID, nil
+		}
+	}
+	
+	// Fallback to string parsing
 	expiresAt, err := time.Parse(time.RFC3339, expiresAtStr)
 	if err != nil {
-		return "", "", fmt.Errorf("invalid expires at format")
+		// Try parsing as PostgreSQL timestamp format
+		expiresAt, err = time.Parse("2006-01-02 15:04:05 -0700", expiresAtStr)
+		if err != nil {
+			// Try parsing without timezone
+			expiresAt, err = time.Parse("2006-01-02 15:04:05", expiresAtStr)
+			if err != nil {
+				log.Printf("Failed to parse expires_at '%s': %v", expiresAtStr, err)
+				return "", "", fmt.Errorf("invalid expires at format")
+			}
+		}
 	}
 
 	// Check if session has expired
@@ -154,6 +245,8 @@ func (h *Handler) authenticateToken(token string) (string, string, error) {
 
 // HandleMessage processes incoming WebSocket messages
 func (h *Handler) HandleMessage(conn *Connection, message *WebSocketMessage) {
+	log.Printf("Received WebSocket message: type='%s', data=%+v", message.Type, message.Data)
+	
 	switch message.Type {
 	case "user_message":
 		h.handleUserMessage(conn, message)
@@ -269,6 +362,9 @@ func (h *Handler) handleCreateConversation(conn *Connection, message *WebSocketM
 		title = "New Conversation" // Default title
 	}
 
+	// Check if an initial message is included
+	initialMessage, hasInitialMessage := data["initial_message"].(string)
+
 	if h.chatService != nil {
 		// Use actual chat service
 		conversation, err := h.chatService.CreateConversation(conn.UserID, conn.ProjectID, title)
@@ -295,6 +391,37 @@ func (h *Handler) handleCreateConversation(conn *Connection, message *WebSocketM
 			},
 			Timestamp: time.Now().UnixMilli(),
 		})
+
+		// If there's an initial message, process it
+		if hasInitialMessage && initialMessage != "" {
+			// Get client-specific LLM configuration
+			clientConfig, err := h.clientConfigCache.GetClientConfig(context.Background(), conn.ClientID)
+			if err != nil {
+				log.Printf("Failed to get client LLM config: %v", err)
+				h.sendErrorResponse(conn, conversation.ID, "Failed to load LLM configuration", err.Error())
+				return
+			}
+
+			// Create chat request for the initial message
+			chatReq := &chat.ChatRequest{
+				ConversationID: conversation.ID,
+				UserID:         conn.UserID,
+				ProjectID:      conn.ProjectID,
+				Content:        initialMessage,
+				ConnectionID:   conn.ID,
+				AddTokensFunc:  conn.AddTokens, // Token tracking function
+				Connection:     conn,           // Connection reference for token info
+			}
+
+			// Process through ChatService with client-specific LLM
+			chatServiceWithClientLLM := h.chatService.WithLLMClient(clientConfig.LLMClient)
+			
+			err = chatServiceWithClientLLM.ProcessUserMessage(chatReq)
+			if err != nil {
+				log.Printf("Error processing initial message: %v", err)
+				h.sendErrorResponse(conn, conversation.ID, "Failed to process initial message", err.Error())
+			}
+		}
 	} else {
 		// Fallback for when chat service is not initialized
 		conversation := Conversation{
@@ -315,6 +442,22 @@ func (h *Handler) handleCreateConversation(conn *Connection, message *WebSocketM
 			},
 			Timestamp: time.Now().UnixMilli(),
 		})
+
+		// If there's an initial message, send a simple response
+		if hasInitialMessage && initialMessage != "" {
+			response := messages.WebSocketMessage{
+				Type: "assistant_response",
+				Data: AssistantResponseData{
+					ConversationID: conversation.ID,
+					Content:        fmt.Sprintf("I received your initial message: %s. Chat service not available.", initialMessage),
+					MessageID:      "msg-" + uuid.New().String(),
+					Timestamp:      time.Now().Format(time.RFC3339),
+					Done:           true,
+				},
+				Timestamp: time.Now().UnixMilli(),
+			}
+			h.hub.SendToConnection(conn, response)
+		}
 	}
 }
 

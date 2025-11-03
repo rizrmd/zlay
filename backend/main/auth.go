@@ -321,9 +321,23 @@ func (app *App) logoutHandler(c *gin.Context) {
 }
 
 func (app *App) profileHandler(c *gin.Context) {
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found in context"})
+		return
+	}
+
+	u := user.(User)
+	
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Profile endpoint available without authentication",
+		"user": gin.H{
+			"id":         u.ID,
+			"client_id":  u.ClientID,
+			"username":   u.Username,
+			"is_active":  u.IsActive,
+			"created_at": u.CreatedAt,
+		},
 	})
 }
 

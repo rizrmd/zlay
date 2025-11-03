@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/openai/openai-go"
+	msglib "zlay-backend/internal/messages"
 	"zlay-backend/internal/llm"
-	"zlay-backend/internal/messages"
 	"zlay-backend/internal/tools"
 )
 
@@ -27,13 +27,13 @@ type ChatService interface {
 // chatService implements ChatService interface
 type chatService struct {
 	db           tools.DBConnection
-	hub          messages.Hub
+	hub          msglib.Hub
 	llmClient    llm.LLMClient
 	toolRegistry tools.ToolRegistry
 }
 
 // NewChatService creates a new chat service
-func NewChatService(db tools.DBConnection, hub messages.Hub, llmClient llm.LLMClient, toolRegistry tools.ToolRegistry) *chatService {
+func NewChatService(db tools.DBConnection, hub msglib.Hub, llmClient llm.LLMClient, toolRegistry tools.ToolRegistry) *chatService {
 	return &chatService{
 		db:           db,
 		hub:          hub,
@@ -286,7 +286,7 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 			if chunkTokens > 0 {
 				if !req.AddTokensFunc(chunkTokens) {
 					// Send token limit exceeded message
-					errorResponse := messages.NewWebSocketMessage(
+					errorResponse := msglib.NewWebSocketMessage(
 						"error",
 						gin.H{
 							"error": "Token limit exceeded",
@@ -314,7 +314,7 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 		}
 
 		// Send streaming chunk to client with token info
-		response := messages.WebSocketMessage{
+		response := &msglib.WebSocketMessage{
 			Type: "assistant_response",
 			Data: gin.H{
 				"conversation_id": req.ConversationID,
@@ -491,13 +491,13 @@ func (s *chatService) saveMessage(ctx context.Context, msg *Message) error {
 	metadataJSON, _ := json.Marshal(msg.Metadata)
 
 	query := `
-		INSERT INTO messages (id, conversation_id, role, content, metadata, tool_calls, created_at, user_id, project_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO messages (id, conversation_id, role, content, metadata, tool_calls, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
 	_, err := s.db.Exec(ctx, query,
 		msg.ID, msg.ConversationID, msg.Role, msg.Content,
-		metadataJSON, toolCallsJSON, msg.CreatedAt, msg.UserID, msg.ProjectID,
+		metadataJSON, toolCallsJSON, msg.CreatedAt,
 	)
 
 	return err

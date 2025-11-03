@@ -20,10 +20,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
+const route = useRoute()
 const { login, isLoading } = useAuth()
 
 const username = ref('')
@@ -61,8 +62,16 @@ const handleLogin = async () => {
   const result = await login(username.value, password.value)
 
   if (result.success) {
-    console.log('Login successful, navigating to dashboard')
-    await router.push('/dashboard')
+    console.log('Login successful, checking for redirect')
+    // Check if there's a redirect parameter
+    const redirectPath = route.query.redirect as string
+    if (redirectPath) {
+      console.log('Redirecting to:', redirectPath)
+      await router.push(redirectPath)
+    } else {
+      console.log('No redirect, navigating to dashboard')
+      await router.push('/dashboard')
+    }
   } else {
     error.value = result.message || 'Login failed'
     showErrorDialog.value = true
@@ -87,23 +96,11 @@ const goToRegister = () => {
         <form @submit="handleSubmit" class="space-y-4">
           <div class="space-y-2">
             <Label for="username">Username</Label>
-            <Input
-              id="username"
-              v-model="username"
-              type="text"
-              placeholder="Enter your username"
-              required
-            />
+            <Input id="username" v-model="username" type="text" placeholder="Enter your username" required />
           </div>
           <div class="space-y-2">
             <Label for="password">Password</Label>
-            <Input
-              id="password"
-              v-model="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-            />
+            <Input id="password" v-model="password" type="password" placeholder="Enter your password" required />
           </div>
 
           <Button type="submit" class="w-full" :disabled="isLoading">

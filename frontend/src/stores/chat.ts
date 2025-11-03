@@ -23,15 +23,18 @@ export const useChatStore = defineStore('chat', () => {
   const hasMessages = computed(() => messageCount.value > 0)
 
   // Actions
-  const initWebSocket = async (projectId: string, token: string) => {
+  const initWebSocket = async (projectId: string) => {
+    console.log('initWebSocket called with:', { projectId })
+
     try {
-      await webSocketService.connect(projectId, token)
+      await webSocketService.connect(projectId)
       isConnected.value = true
       connectionStatus.value = 'connected'
-      
+
       // Set up message handlers
       setupMessageHandlers()
-      
+
+      console.log('WebSocket initialization successful')
     } catch (error) {
       console.error('Failed to initialize WebSocket:', error)
       isConnected.value = false
@@ -48,12 +51,15 @@ export const useChatStore = defineStore('chat', () => {
   const setupMessageHandlers = () => {
     // Assistant response
     webSocketService.onMessage('assistant_response', (data: any) => {
-      if (data.content && data.content.trim()) {
+      // Handle streaming response
+      if (data.content && typeof data.content === 'string' && data.content.trim()) {
         messages.value.push({
           id: data.message_id || `msg-${Date.now()}`,
           role: 'assistant',
           content: data.content,
-          created_at: new Date(data.timestamp).toISOString(),
+          created_at: data.timestamp ? 
+            (typeof data.timestamp === 'number' ? new Date(data.timestamp).toISOString() : data.timestamp) :
+            new Date().toISOString(),
           metadata: data.metadata || {},
           tool_calls: data.tool_calls || [],
         })
@@ -81,13 +87,24 @@ export const useChatStore = defineStore('chat', () => {
     // Conversation details
     webSocketService.onMessage('conversation_details', (data: any) => {
       if (data.conversation) {
-        const { conversation, messages: convMessages } = data.conversation as ConversationDetails
+        // data.conversation contains both the conversation details and messages
+        const conversationWithMessages = data.conversation
+        const conversation = conversationWithMessages.conversation
+        const convMessages = conversationWithMessages.messages
+        
         conversations.value.set(conversation.id, conversation)
-        
+
         if (convMessages && Array.isArray(convMessages)) {
-          messages.value = convMessages
+          // Ensure each message has a unique id
+          const safeMessages = convMessages.map((msg: any) => {
+            if (!msg.id) {
+              msg.id = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
+            }
+            return msg
+          })
+          messages.value = safeMessages
         }
-        
+
         currentConversationId.value = conversation.id
       }
     })
@@ -96,7 +113,7 @@ export const useChatStore = defineStore('chat', () => {
     webSocketService.onMessage('conversation_deleted', (data: any) => {
       if (data.conversation_id) {
         conversations.value.delete(data.conversation_id)
-        
+
         if (currentConversationId.value === data.conversation_id) {
           currentConversationId.value = null
           messages.value = []
@@ -107,34 +124,42 @@ export const useChatStore = defineStore('chat', () => {
     // User message sent confirmation
     webSocketService.onMessage('user_message_sent', (data: any) => {
       if (data.message) {
-        messages.value.push(data.message)
-      }
-    })
-
-    // Tool execution
-    webSocketService.onMessage('tool_execution', (data: any) => {
-      // Update tool call status in existing messages
-      if (data.message_id && data.tool_index !== undefined) {
-        const messageIndex = messages.value.findIndex(msg => msg.id === data.message_id)
-        if (messageIndex !== -1 && messages.value[messageIndex].tool_calls) {
-          messages.value[messageIndex].tool_calls![data.tool_index] = data.tool_call
+        const msg = data.message
+        // Ensure the message has a unique id
+        if (!msg.id) {
+          msg.id = `msg-${Date.now()}`
         }
+        messages.value.push(msg)
       }
     })
 
     // Tool execution started
     webSocketService.onMessage('tool_execution_started', (data: any) => {
-      console.log('Tool execution started:', data)
+      // Update tool call status to "executing" in existing messages
+      updateToolCallStatus(data.tool_call_id, data.message_id, 'executing')
     })
 
     // Tool execution completed
     webSocketService.onMessage('tool_execution_completed', (data: any) => {
-      console.log('Tool execution completed:', data)
+      // Update tool call status to "completed" and store result
+      updateToolCallStatus(data.tool_call_id, data.conversation_id, 'completed', data.result)
     })
 
     // Tool execution failed
     webSocketService.onMessage('tool_execution_failed', (data: any) => {
-      console.log('Tool execution failed:', data)
+      // Update tool call status to "failed" and store error
+      updateToolCallStatus(data.tool_call_id, data.conversation_id, 'failed', data.error)
+    })
+
+    // Tool execution (legacy - used for broadcast tool status updates)
+    webSocketService.onMessage('tool_execution', (data: any) => {
+      // Update tool call status in existing messages
+      if (data.message_id && data.tool_index !== undefined) {
+        const messageIndex = messages.value.findIndex((msg) => msg.id === data.message_id)
+        if (messageIndex !== -1 && messages.value[messageIndex]?.tool_calls) {
+          messages.value[messageIndex].tool_calls![data.tool_index] = data.tool_call
+        }
+      }
     })
 
     // Project joined
@@ -172,10 +197,11 @@ export const useChatStore = defineStore('chat', () => {
     webSocketService.sendMessageToAssistant(currentConversationId.value, content)
   }
 
-  const createConversation = async (title?: string) => {
+  const createConversation = async (title?: string, initialMessage?: string) => {
     isLoading.value = true
-    webSocketService.createConversation(title)
+    webSocketService.createConversation(title, initialMessage)
     // Response will be handled by message handlers
+    // Note: User message will be handled by user_message_sent event from backend
   }
 
   const loadConversations = () => {
@@ -213,6 +239,28 @@ export const useChatStore = defineStore('chat', () => {
 
   const getToolStatus = (toolCall: ToolCall) => {
     return toolCall.status || 'pending'
+  }
+
+  const updateToolCallStatus = (toolCallId: string, messageIdOrConvId: string, status: string, result?: any) => {
+    // Find the message containing this tool call
+    // Note: For execution events, backend might send conversation_id instead of message_id
+    const messageIndex = messages.value.findIndex((msg) => 
+      msg.id === messageIdOrConvId || // Try matching by message ID first
+      (msg.tool_calls && msg.tool_calls.some(tc => tc.id === toolCallId)) // Or find message containing the tool call
+    )
+
+    if (messageIndex !== -1 && messages.value[messageIndex]?.tool_calls) {
+      const toolCalls = messages.value[messageIndex].tool_calls!
+      const toolCallIndex = toolCalls.findIndex(tc => tc.id === toolCallId)
+      if (toolCallIndex !== -1) {
+        toolCalls[toolCallIndex].status = status
+        if (status === 'completed' && result) {
+          toolCalls[toolCallIndex].result = result
+        } else if (status === 'failed' && result) {
+          toolCalls[toolCallIndex].error = result
+        }
+      }
+    }
   }
 
   return {

@@ -55,10 +55,21 @@ router.beforeEach(async (to, from, next) => {
   const { isAuthenticated, checkAuth, user } = useAuth()
 
   // Check authentication status
-  await checkAuth()
+  try {
+    await checkAuth()
+  } catch (error) {
+    console.error('Authentication check failed:', error)
+    // If auth check fails, redirect to login for protected routes
+    if (to.meta.requiresAuth) {
+      next('/login')
+      return
+    }
+  }
 
   if (to.meta.requiresAuth && !isAuthenticated.value) {
-    next('/login')
+    // Store the intended destination for redirect after login
+    const redirectPath = to.fullPath
+    next(`/login?redirect=${encodeURIComponent(redirectPath)}`)
   } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated.value) {
     // Redirect root user to admin dashboard
     if (user.value?.username === 'root') {

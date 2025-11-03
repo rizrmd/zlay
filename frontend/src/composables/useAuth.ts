@@ -25,7 +25,8 @@ export const useAuth = () => {
       if (error instanceof Error) {
         switch (error.message) {
           case 'CLIENT_INVALID':
-            errorMessage = 'This application is not properly configured for your domain. Please contact your administrator.'
+            errorMessage =
+              'This application is not properly configured for your domain. Please contact your administrator.'
             break
           case 'AUTH_INVALID':
             errorMessage = 'Invalid username or password'
@@ -73,29 +74,56 @@ export const useAuth = () => {
     if (checkAuthPromise) {
       return checkAuthPromise
     }
-    
+
     checkAuthPromise = (async () => {
-      try {
-        // Try to validate with server (will check cookies)
-        const response = await apiClient.getProfile()
-        console.log('Check auth response:', response)
-        if (response.success && response.user) {
-          user.value = response.user
-          return true
+      let retryCount = 0
+      const maxRetries = 2
+
+      while (retryCount <= maxRetries) {
+        try {
+          // Try to validate with server (will check cookies)
+          const response = await apiClient.getProfile()
+          console.log('Check auth response:', response)
+          if (response.success && response.user) {
+            user.value = response.user
+            return true
+          }
+          return false
+        } catch (error) {
+          // Only log unexpected errors, not authentication failures
+          if (!(error instanceof Error) || error.message !== 'Authentication required') {
+            console.error(`Check auth error (attempt ${retryCount + 1}):`, error)
+
+            // For 500 errors, retry a few times before giving up
+            if (error instanceof Error && error.message.includes('HTTP error! status: 500')) {
+              if (retryCount < maxRetries) {
+                retryCount++
+                console.warn(
+                  `Server error during auth check, retrying... (${retryCount}/${maxRetries})`,
+                )
+                // Exponential backoff: 500ms, 1000ms
+                await new Promise((resolve) => setTimeout(resolve, 500 * retryCount))
+                continue
+              } else {
+                console.warn(
+                  'Max retries reached for auth check, continuing with current session if available',
+                )
+                // If we already have a user, assume they're still authenticated
+                if (user.value) {
+                  return true
+                }
+              }
+            }
+          }
+          user.value = null
+          return false
         }
-        return false
-      } catch (error) {
-        // Only log unexpected errors, not authentication failures
-        if (!(error instanceof Error) || error.message !== 'Authentication required') {
-          console.error('Check auth error:', error)
-        }
-        user.value = null
-        return false
-      } finally {
-        checkAuthPromise = null
       }
+
+      checkAuthPromise = null
+      return false
     })()
-    
+
     return checkAuthPromise
   }
 

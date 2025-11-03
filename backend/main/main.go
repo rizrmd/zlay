@@ -65,6 +65,12 @@ func main() {
 
 	// Start WebSocket server in separate goroutine
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("WebSocket server panic recovered: %v", r)
+			}
+		}()
+		log.Printf("Starting WebSocket server on port %s", config.WSPort)
 		if err := app.WSServer.Start(); err != nil {
 			log.Printf("WebSocket server error: %v", err)
 		}
@@ -162,6 +168,8 @@ func (app *App) loadDomainCache() {
 func (app *App) InitRouter() {
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
 	}
 
 	app.Router = gin.New()
@@ -196,13 +204,14 @@ func (app *App) InitRouter() {
 	// API routes
 	api := app.Router.Group("/api")
 	{
+	api.GET("/hello", app.helloHandler)
 		// Auth routes
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", app.registerHandler)
 			auth.POST("/login", app.loginHandler)
 			auth.POST("/logout", app.logoutHandler)
-			auth.GET("/profile", app.profileHandler)
+			auth.GET("/profile", app.authMiddleware(), app.profileHandler)
 			auth.OPTIONS("/register", app.corsHandler)
 			auth.OPTIONS("/login", app.corsHandler)
 			auth.OPTIONS("/logout", app.corsHandler)
@@ -266,6 +275,11 @@ func (app *App) healthHandler(c *gin.Context) {
 		"timestamp": time.Now().Unix(),
 		"version":   "1.0.0",
 	})
+}
+
+// Hello World endpoint
+func (app *App) helloHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "Hello World"})
 }
 
 // Helper function to extract client ID from request using ZDB
