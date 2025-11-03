@@ -46,6 +46,24 @@ func NewServer(zdb *db.Database, port string) *Server {
 	// Initialize tool registry with built-in tools
 	toolRegistry := tools.NewDefaultToolRegistry()
 
+	// Register database tool (requires ZDB instance)
+	dbTool := tools.NewDatabaseQueryTool(zdb)
+	if err := toolRegistry.RegisterTool(dbTool); err != nil {
+		log.Printf("Failed to register database tool: %v", err)
+	}
+
+	// Register API tool (requires ZDB instance)
+	apiTool := tools.NewAPITool(zdb)
+	if err := toolRegistry.RegisterTool(apiTool); err != nil {
+		log.Printf("Failed to register API tool: %v", err)
+	}
+
+	// Register datasource inspection tool (requires ZDB instance)
+	inspectTool := tools.NewDatasourceInspectTool(zdb)
+	if err := toolRegistry.RegisterTool(inspectTool); err != nil {
+		log.Printf("Failed to register datasource inspection tool: %v", err)
+	}
+
 	// Create chat service with default LLM (will be replaced per-client)
 	chatService := chat.NewChatService(
 		&tools.ZlayDBAdapter{DB: zdb},

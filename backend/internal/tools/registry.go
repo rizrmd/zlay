@@ -121,11 +121,13 @@ func (r *DefaultToolRegistry) ListTools() []Tool {
 
 // RegisterBuiltInTools registers all built-in tools
 func (r *DefaultToolRegistry) RegisterBuiltInTools() {
-	// Register database tools
-	dbTool := NewDatabaseQueryTool()
-	if err := r.RegisterTool(dbTool); err != nil {
-		log.Printf("Failed to register DatabaseQueryTool: %v", err)
+	// Register system info tool
+	systemTool := NewSystemInfoTool()
+	if err := r.RegisterTool(systemTool); err != nil {
+		log.Printf("Failed to register system tool: %v", err)
 	}
+
+	// Note: Database tool requires ZDB instance, registered in server.go
 }
 
 // EmptyToolRegistry implements ToolRegistry with no tools
