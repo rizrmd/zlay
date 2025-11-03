@@ -58,9 +58,10 @@ func NewClientConfigCache(zdb *db.Database) *ClientConfigCache {
 
 // GetClientConfig retrieves or creates LLM configuration for a client
 func (c *ClientConfigCache) GetClientConfig(ctx context.Context, clientID string) (*ClientConfig, error) {
-	// Check cache first
+	// Check cache first with proper lock management
 	c.mutex.RLock()
-	if config, exists := c.cache[clientID]; exists {
+	config, exists := c.cache[clientID]
+	if exists {
 		// Check if cache is still valid (5 minutes)
 		if time.Since(config.LastUsed) < 5*time.Minute {
 			config.LastUsed = time.Now()
@@ -68,7 +69,6 @@ func (c *ClientConfigCache) GetClientConfig(ctx context.Context, clientID string
 			log.Printf("Using cached LLM config for client %s", clientID)
 			return config, nil
 		}
-		// Cache expired, will refresh
 	}
 	c.mutex.RUnlock()
 
@@ -78,7 +78,7 @@ func (c *ClientConfigCache) GetClientConfig(ctx context.Context, clientID string
 		return nil, fmt.Errorf("failed to fetch client config: %w", err)
 	}
 
-	// Cache the configuration
+	// Cache the configuration with proper lock management
 	c.mutex.Lock()
 	c.cache[clientID] = config
 	c.mutex.Unlock()
@@ -128,8 +128,11 @@ func (c *ClientConfigCache) fetchClientConfig(ctx context.Context, clientID stri
 	// Create LLM client with client-specific configuration
 	llmClient := llm.NewOpenAIClient(apiKey, baseURL, model)
 
-	// Validate the connection if possible
-	if err := llmClient.ValidateConnection(context.Background()); err != nil {
+	// Validate the connection if possible (with timeout)
+	validateCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	
+	if err := llmClient.ValidateConnection(validateCtx); err != nil {
 		log.Printf("Warning: LLM connection validation failed for client %s: %v", clientID, err)
 		// Don't return error, just log it - the config might work for some requests
 	}

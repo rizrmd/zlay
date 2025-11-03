@@ -13,7 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"github.com/openai/openai-go"
 	"zlay-backend/internal/db"
+	"zlay-backend/internal/llm"
 	"zlay-backend/internal/websocket"
 )
 
@@ -24,11 +26,12 @@ type Config struct {
 }
 
 type App struct {
-	Config      *Config
-	ZDB         *db.Database // Zlay-db abstraction - SINGLE source of truth for database operations
-	Router      *gin.Engine
-	WSServer    *websocket.Server
-	DomainCache map[string]uuid.UUID // Cache for domain -> client_id mapping
+	Config             *Config
+	ZDB                *db.Database // Zlay-db abstraction - SINGLE source of truth for database operations
+	Router             *gin.Engine
+	WSServer           *websocket.Server
+	DomainCache        map[string]uuid.UUID // Cache for domain -> client_id mapping
+	ClientConfigCache  *websocket.ClientConfigCache
 }
 
 type RequestUser struct {
@@ -62,6 +65,9 @@ func main() {
 
 	// Initialize router
 	app.InitRouter()
+
+	// Initialize client config cache
+	app.ClientConfigCache = websocket.NewClientConfigCache(app.ZDB)
 
 	// Start WebSocket server in separate goroutine
 	go func() {
@@ -209,6 +215,7 @@ func (app *App) InitRouter() {
 	api := app.Router.Group("/api")
 	{
 	api.GET("/hello", app.helloHandler)
+		api.POST("/chat", app.authMiddleware(), app.chatHandler)
 		// Auth routes
 		auth := api.Group("/auth")
 		{
@@ -284,6 +291,76 @@ func (app *App) healthHandler(c *gin.Context) {
 // Hello World endpoint
 func (app *App) helloHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Hello World"})
+}
+
+// Chat endpoint - one-shot LLM chat without persistence
+func (app *App) chatHandler(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	// Parse request
+	var req struct {
+		Message string `json:"message" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: " + err.Error()})
+		return
+	}
+
+	// Get client ID for LLM configuration
+	clientID, err := app.getClientID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine client: " + err.Error()})
+		return
+	}
+
+	// Get client-specific LLM configuration with timeout protection
+	configCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	
+	clientConfig, err := app.ClientConfigCache.GetClientConfig(configCtx, clientID.String())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load client configuration: " + err.Error()})
+		return
+	}
+
+	// Create LLM request with single message
+	llmReq := &llm.LLMRequest{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.UserMessage(req.Message),
+		},
+	}
+
+	// Make LLM call with timeout protection
+	llmCtx, llmCancel := context.WithTimeout(ctx, 30*time.Second)
+	defer llmCancel()
+	
+	response, err := clientConfig.LLMClient.Chat(llmCtx, llmReq)
+	if err != nil {
+		// Check if this is a context cancellation error
+		if ctx.Err() == context.Canceled {
+			c.JSON(499, gin.H{"error": "Request was cancelled by client"})
+			return
+		}
+		
+		// Check if this looks like a connection error and invalidate cache
+		if strings.Contains(err.Error(), "connection") || 
+		   strings.Contains(err.Error(), "timeout") ||
+		   strings.Contains(err.Error(), "network") {
+			log.Printf("Connection error detected for client %s, invalidating cache: %v", clientID.String(), err)
+			app.ClientConfigCache.InvalidateClientConfig(clientID.String())
+		}
+		
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "LLM call failed: " + err.Error()})
+		return
+	}
+
+	// Return response
+	c.JSON(http.StatusOK, gin.H{
+		"response":    response.Content,
+		"tokens_used": response.TokensUsed,
+		"model":       response.Model,
+	})
 }
 
 // Helper function to extract client ID from request using ZDB
