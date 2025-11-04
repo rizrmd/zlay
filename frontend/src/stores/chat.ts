@@ -18,7 +18,11 @@ export const useChatStore = defineStore('chat', () => {
   const streamingState = ref<Map<string, any>>(new Map())
   const toolStatuses = ref<Map<string, string>>(new Map())
   
-  // Loading states specific to chat operations
+  // ✅ NEW: Per-conversation sending states (NOT global)
+  const sendingMessageConversations = ref<Set<string>>(new Set())
+  const creatingConversations = ref<Set<string>>(new Set())
+  
+  // Legacy global states (for compatibility)
   const isSendingMessage = ref(false)
   const isCreatingConversation = ref(false)
   
@@ -38,23 +42,38 @@ export const useChatStore = defineStore('chat', () => {
   const isProcessing = computed(() => conversationStore.isProcessing)
   
   // ✅ NEW: Current conversation processing state (per-conversation loading)
-  const isCurrentConversationProcessing = computed(() => conversationStore.isCurrentConversationProcessing)
+  const isCurrentConversationProcessing = computed(() => {
+    if (!currentConversationId.value) return false
+    
+    const isStatusProcessing = conversationStore.conversations.value.get(currentConversationId.value)?.status === 'processing'
+    const isInProcessingSet = conversationStore.processingConversations.value.has(currentConversationId.value)
+    const isCurrentlySending = sendingMessageConversations.value.has(currentConversationId.value)
+    const isCurrentlyCreating = creatingConversations.value.has(currentConversationId.value)
+    
+    console.log('💬 PROCESSING CHECK:', {
+      conversationId: currentConversationId.value,
+      conversationStatus: conversationStore.conversations.value.get(currentConversationId.value)?.status,
+      isStatusProcessing,
+      isInProcessingSet,
+      isCurrentlySending,
+      isCurrentlyCreating,
+      finalResult: isStatusProcessing || isInProcessingSet || isCurrentlySending || isCurrentlyCreating
+    })
+    
+    return isStatusProcessing || isInProcessingSet || isCurrentlySending || isCurrentlyCreating
+  })
   
   const canChat = computed(() => {
-    // Can chat if NOT: sending message, creating conversation, current conversation processing
+    // Can chat if current conversation is NOT processing AND connected
     const isProcessingCurrent = isCurrentConversationProcessing.value
-    const isGlobalProcessing = isSendingMessage.value || isCreatingConversation.value
     
     console.log('💬 CHAT STORE: canChat check:', {
       isConnected: isConnected.value,
       isCurrentConversationProcessing: isProcessingCurrent,
-      isSendingMessage: isSendingMessage.value,
-      isCreatingConversation: isCreatingConversation.value,
-      globalProcessing: isGlobalProcessing,
-      finalResult: !isGlobalProcessing && !isProcessingCurrent && isConnected.value
+      finalResult: !isProcessingCurrent && isConnected.value
     })
     
-    return !isGlobalProcessing && !isProcessingCurrent && isConnected.value
+    return !isProcessingCurrent && isConnected.value
   })
   const anyConversationProcessing = computed(() => conversationStore.anyConversationProcessing)
   
@@ -125,6 +144,10 @@ export const useChatStore = defineStore('chat', () => {
         if (conversationId === currentConversationId.value) {
           isSendingMessage.value = false
         }
+        
+        // ✅ Remove per-conversation sending state
+        sendingMessageConversations.value.delete(conversationId)
+        console.log('💬 SENDING STATE: Removed from processing set:', conversationId)
       }
     })
     
@@ -138,6 +161,9 @@ export const useChatStore = defineStore('chat', () => {
         // Reset loading states
         isCreatingConversation.value = false
         isSendingMessage.value = false
+        
+        // ✅ Clear per-conversation creating states (all of them)
+        creatingConversations.value.clear()
         
         // Auto-navigate to conversation URL
         const projectId = projectStore.currentProjectId
@@ -293,7 +319,12 @@ export const useChatStore = defineStore('chat', () => {
   
   // Chat actions
   const sendMessage = async (content: string) => {
-    if (!content.trim() || !currentConversationId.value || isSendingMessage.value) return
+    if (!content.trim() || !currentConversationId.value) return
+    
+    // ✅ Track per-conversation sending state
+    sendingMessageConversations.value.add(currentConversationId.value)
+    // Legacy global state (for compatibility)
+    isSendingMessage.value = true
     
     // Add conversation to processing set
     conversationStore.addToProcessing(currentConversationId.value)
@@ -308,14 +339,18 @@ export const useChatStore = defineStore('chat', () => {
     }
     
     conversationStore.addOrUpdateMessage(currentConversationId.value, userMessage)
-    isSendingMessage.value = true
     
     // Send to WebSocket
     webSocketService.sendMessageToAssistant(currentConversationId.value, content)
   }
   
   const createConversation = async (title?: string, initialMessage?: string) => {
+    // ✅ Track per-conversation creating state (temporarily)
+    const tempId = `creating-${Date.now()}`
+    creatingConversations.value.add(tempId)
+    // Legacy global state (for compatibility)
     isCreatingConversation.value = true
+    
     webSocketService.createConversation(title, initialMessage)
   }
   
@@ -413,6 +448,10 @@ export const useChatStore = defineStore('chat', () => {
     isLoadingHistory,
     isSendingMessage,
     isCreatingConversation,
+    
+    // ✅ NEW: Per-conversation state tracking
+    sendingMessageConversations,
+    creatingConversations,
     
     // Computed
     messageCount,

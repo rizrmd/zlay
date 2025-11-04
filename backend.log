@@ -55497,3 +55497,2728 @@ Kapal itu selamat dan berlabuh di pelabuhan, membawa serta muatan berharga berup
   [92m[FRONTEND][0m 2:09:40 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
   [92m[FRONTEND][0m 2:10:52 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
   [92m[FRONTEND][0m 2:11:41 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [94m[BACKEND][0m  2025/11/04 14:13:34 🔌 Connection interrupted for user 3404250f-c8a7-4b30-b555-2589b518fbaf in project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:34 Connection unregistered: 36ee85c2-7fc2-4eaa-9a11-c13525d3636d
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:35 | 200 |  352.372387ms |             ::1 | GET      "/api/auth/profile"
+  [94m[BACKEND][0m  2025/11/04 14:13:35 WebSocket connection attempt from: [::1]:54338
+  [94m[BACKEND][0m  2025/11/04 14:13:35 Request headers: map[Accept:[*/*] Accept-Encoding:[gzip, deflate, br, zstd] Accept-Language:[en-US,en;q=0.5] Cache-Control:[no-cache] Connection:[keep-alive, Upgrade] Cookie:[_pk_id.1.1fff=6b1a4f62422f7c46.1762174950.; session_token=gLwGyS4eqowzZ75HP6bqBA1Wd9DeC2ckT_ZXwxhijFY%3D] Origin:[http://localhost:6060] Pragma:[no-cache] Sec-Fetch-Dest:[empty] Sec-Fetch-Mode:[websocket] Sec-Fetch-Site:[same-origin] Sec-Websocket-Extensions:[permessage-deflate] Sec-Websocket-Key:[f0urP+rAh+WVKaLaaUqbOQ==] Sec-Websocket-Version:[13] Upgrade:[websocket] User-Agent:[Mozilla/5.0 (X11; Linux x86_64; rv:144.0) Gecko/20100101 Firefox/144.0]]
+2025/11/04 14:13:35 Found and decoded session_token in cookie
+2025/11/04 14:13:35 Final token status: PRESENT
+2025/11/04 14:13:35 All request cookies: _pk_id.1.1fff=6b1a4f62422f7c46.1762174950.; session_token=gLwGyS4eqowzZ75HP6bqBA1Wd9DeC2ckT_ZXwxhijFY%3D
+2025/11/04 14:13:35 Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:35 Authentication query: 
+		SELECT u.id, u.client_id, s.expires_at
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id
+		WHERE s.token_hash = $1 AND u.is_active = true
+	
+2025/11/04 14:13:35 Token hash: QLINtltt7cOD++LzRwvrhbERyuMmofzGHcyfgxLP8MU=
+  [94m[BACKEND][0m  2025/11/04 14:13:35 expires_at type: db.Value
+2025/11/04 14:13:35 expires_at value: {timestamp 2025-11-05 09:56:45.159752 +0000 UTC true}
+2025/11/04 14:13:35 Parsed expires_at time: 2025-11-05 09:56:45.159752 +0000 UTC
+  [94m[BACKEND][0m  2025/11/04 14:13:35 Authentication successful: userID=3404250f-c8a7-4b30-b555-2589b518fbaf, clientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/04 14:13:35 Attempting WebSocket upgrade for /ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:35 WebSocket upgrade successful for [::1]:54338
+2025/11/04 14:13:35 Connection registered: ab06cdda-2b98-40bc-a74d-50e9c5af40a3
+2025/11/04 14:13:35 Connection ab06cdda-2b98-40bc-a74d-50e9c5af40a3 joined project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:35 WebSocket connection established for user 3404250f-c8a7-4b30-b555-2589b518fbaf, client 56c28eb6-8ea3-40f7-bdff-dbf089069138, project d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:35 DEBUG: Testing LLM config loading on connection for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/04 14:13:35 Received message type: connection_established (no handler yet)
+2025/11/04 14:13:35 websocket: discarding reader close error: io: read/write on closed pipe
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:35 | 200 |   73.754363ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:35 | 200 |  284.116104ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:35 | 200 |  299.003665ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:35 | 200 |   169.66417ms |             ::1 | GET      "/api/conversations/de34bd6d-f924-4f82-bc1f-800e4708682a/messages"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:36 | 200 |      82.714µs |             ::1 | GET      "/ws/health"
+  [94m[BACKEND][0m  2025/11/04 14:13:37 Warning: LLM connection validation failed for client 56c28eb6-8ea3-40f7-bdff-dbf089069138: OpenAI connection test: invalid response
+2025/11/04 14:13:37 Loaded LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138: model=openai/gpt-oss-120b, baseURL=https://ensure-granny-filename-expenses.trycloudflare.com/v1
+2025/11/04 14:13:37 DEBUG: Successfully loaded LLM config on connection test - Model: openai/gpt-oss-120b, BaseURL: https://ensure-granny-filename-expenses.trycloudflare.com/v1, API Key: *****
+2025/11/04 14:13:37 DEBUG: LLM client successfully connected and ready for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:37 | 200 |  1.587997109s |             ::1 | GET      "/ws/chat?project=d3eb9ece-48e7-45d0-a281-6b780351dedd"
+  [94m[BACKEND][0m  2025/11/04 14:13:40 🔥 INCOMING USER MESSAGE: &{Type:user_message Data:map[content:halo conversation_id:de34bd6d-f924-4f82-bc1f-800e4708682a] Timestamp:1762240420336 ID: TokensUsed:0 TokensLimit:0 TokensRemaining:0}
+2025/11/04 14:13:40 🔥 MESSAGE TYPE: user_message
+2025/11/04 14:13:40 🔥 MESSAGE TIMESTAMP: 1762240420336
+2025/11/04 14:13:40 🔥 CONNECTION INFO: ID=ab06cdda-2b98-40bc-a74d-50e9c5af40a3, UserID=3404250f-c8a7-4b30-b555-2589b518fbaf, ProjectID=d3eb9ece-48e7-45d0-a281-6b780351dedd, ClientID=56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/04 14:13:40 🔥 PARSED MESSAGE DATA: map[content:halo conversation_id:de34bd6d-f924-4f82-bc1f-800e4708682a]
+2025/11/04 14:13:40 👤 USER MESSAGE RECEIVED:
+2025/11/04 14:13:40    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40    • Content: "halo"
+2025/11/04 14:13:40    • Content Length: 4 characters
+2025/11/04 14:13:40    • Connection ID: ab06cdda-2b98-40bc-a74d-50e9c5af40a3
+2025/11/04 14:13:40    • User ID: 3404250f-c8a7-4b30-b555-2589b518fbaf
+2025/11/04 14:13:40    • Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:40    • Client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138
+  [94m[BACKEND][0m  2025/11/04 14:13:40    • Message Timestamp: 1762240420336
+2025/11/04 14:13:40 🔧 FETCHING LLM CONFIG FOR CLIENT: 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/04 14:13:40 Using cached LLM config for client 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/04 14:13:40 ✅ LLM CONFIG LOADED SUCCESSFULLY:
+2025/11/04 14:13:40    • Model: openai/gpt-oss-120b
+2025/11/04 14:13:40    • Client ID: 56c28eb6-8ea3-40f7-bdff-dbf089069138
+2025/11/04 14:13:40 📝 CREATED CHAT REQUEST:
+2025/11/04 14:13:40    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40    • User ID: 3404250f-c8a7-4b30-b555-2589b518fbaf
+2025/11/04 14:13:40    • Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:40    • Content Length: 4
+2025/11/04 14:13:40    • Connection ID: ab06cdda-2b98-40bc-a74d-50e9c5af40a3
+2025/11/04 14:13:40 🤖 CALLING CHAT SERVICE TO PROCESS MESSAGE...
+2025/11/04 14:13:40 🚀 STARTING MESSAGE PROCESSING WITH CLIENT-SPECIFIC LLM...
+2025/11/04 14:13:40 🚀 ProcessUserMessage CALLED:
+2025/11/04 14:13:40    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40    • User ID: 3404250f-c8a7-4b30-b555-2589b518fbaf
+2025/11/04 14:13:40    • Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:40    • Content: "halo"
+2025/11/04 14:13:40    • Connection ID: ab06cdda-2b98-40bc-a74d-50e9c5af40a3
+2025/11/04 14:13:40    • Content Length: 4 chars
+2025/11/04 14:13:40 💾 CREATING AND SAVING USER MESSAGE...
+2025/11/04 14:13:40    • Message ID: a5d91a07-6cb7-4e95-90ea-f74449ff9077
+2025/11/04 14:13:40    • Role: user
+2025/11/04 14:13:40    • Created At: 2025-11-04T14:13:40+07:00
+  [94m[BACKEND][0m  2025/11/04 14:13:40 ✅ USER MESSAGE SAVED SUCCESSFULLY
+2025/11/04 14:13:40 📡 BROADCASTING USER MESSAGE TO PROJECT d3eb9ece-48e7-45d0-a281-6b780351dedd
+  [94m[BACKEND][0m  2025/11/04 14:13:40 ✅ USER MESSAGE BROADCASTED
+2025/11/04 14:13:40 📚 FETCHING CONVERSATION HISTORY FOR CONTEXT...
+  [94m[BACKEND][0m  2025/11/04 14:13:40 ✅ CONVERSATION HISTORY LOADED: 11 messages
+2025/11/04 14:13:40 🔧 FETCHING AVAILABLE TOOLS FOR PROJECT d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:40 ✅ TOOLS LOADED: 4 tools available
+2025/11/04 14:13:40    • Tool 1: %!s(func() string=0xa9f360) - %!s(func() string=0xa9f3c0)
+2025/11/04 14:13:40    • Tool 2: %!s(func() string=0xa9f360) - %!s(func() string=0xa9f3c0)
+2025/11/04 14:13:40    • Tool 3: %!s(func() string=0xa9f360) - %!s(func() string=0xa9f3c0)
+2025/11/04 14:13:40    • Tool 4: %!s(func() string=0xa9f360) - %!s(func() string=0xa9f3c0)
+2025/11/04 14:13:40 🔄 CONVERTING 11 MESSAGES TO OPENAI FORMAT
+2025/11/04 14:13:40 ✅ MESSAGES CONVERTED TO OPENAI FORMAT
+2025/11/04 14:13:40 🌊 STARTING LLM STREAMING RESPONSE...
+2025/11/04 14:13:40 🌊 streamLLMResponse CALLED:
+2025/11/04 14:13:40    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40    • User ID: 3404250f-c8a7-4b30-b555-2589b518fbaf
+2025/11/04 14:13:40    • Project ID: d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:40    • Messages Count: 11
+2025/11/04 14:13:40    • Tools Count: 4
+2025/11/04 14:13:40    • Connection ID: ab06cdda-2b98-40bc-a74d-50e9c5af40a3
+2025/11/04 14:13:40 📊 SETTING CONVERSATION STATUS TO 'processing'...
+  [94m[BACKEND][0m  2025/11/04 14:13:40 ✅ CONVERSATION STATUS UPDATED TO processing
+2025/11/04 14:13:40 🔄 Added connection ab06cdda-2b98-40bc-a74d-50e9c5af40a3 to stream de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40 🔄 Started tracking streaming state for conversation: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:40 🤖 EXECUTING LLM STREAMING CALL...
+2025/11/04 14:13:40    • LLM Request:
+2025/11/04 14:13:40      - Messages Count: 11
+2025/11/04 14:13:40      - Max Tokens: 4000
+2025/11/04 14:13:40      - Temperature: 0.700000
+  [94m[BACKEND][0m  2025/11/04 14:13:40      - Tools Count: 4
+2025/11/04 14:13:40 🚀 StreamChat CALLED:
+2025/11/04 14:13:40    • Model: openai/gpt-oss-120b
+2025/11/04 14:13:40    • Messages Count: 11
+2025/11/04 14:13:40    • Max Tokens: 4000
+2025/11/04 14:13:40    • Temperature: 0.700000
+2025/11/04 14:13:40    • Tools Count: 4
+2025/11/04 14:13:40    • Base URL: https://ensure-granny-filename-expenses.trycloudflare.com/v1
+2025/11/04 14:13:40    • Message 1: Role=%!s(*string=0xc00024e758), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024e700)}
+2025/11/04 14:13:40    • Message 2: Role=%!s(*string=0xc0002d43d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0002d4350)}
+2025/11/04 14:13:40    • Message 3: Role=%!s(*string=0xc00024e858), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024e800)}
+2025/11/04 14:13:40    • Message 4: Role=%!s(*string=0xc0002d45d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0002d4550)}
+2025/11/04 14:13:40    • Message 5: Role=%!s(*string=0xc00024e8d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024e880)}
+2025/11/04 14:13:40    • Message 6: Role=%!s(*string=0xc0002d46d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0002d4650)}
+2025/11/04 14:13:40    • Message 7: Role=%!s(*string=0xc00024e958), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024e900)}
+2025/11/04 14:13:40    • Message 8: Role=%!s(*string=0xc0002d47d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0002d4750)}
+2025/11/04 14:13:40    • Message 9: Role=%!s(*string=0xc00024e9d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024e980)}
+2025/11/04 14:13:40    • Message 10: Role=%!s(*string=0xc0002d48d8), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0002d4850)}
+2025/11/04 14:13:40    • Message 11: Role=%!s(*string=0xc00024ea58), Content={%!s(*string=0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00024ea00)}
+2025/11/04 14:13:40 📡 Creating OpenAI streaming request...
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📡 OpenAI streaming request created, waiting for first chunk...
+2025/11/04 14:13:41 📡 STARTING OPENAI STREAMING PROCESSING...
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #1:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📥 First chunk received from OpenAI: content='', finish_reason=''
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421128
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #2:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421128
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #3:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421129
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #4:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421130
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #5:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421131
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #6:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421132
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #7:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421133
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #8:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421159
+2025/11/04 14:13:41    • Data Keys: [message_id timestamp done tool_calls conversation_id content]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #9:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421160
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #10:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📦 Chunk #10 received: content='', total_length=0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421174
+2025/11/04 14:13:41    • Data Keys: [message_id timestamp done tool_calls conversation_id content]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #11:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421182
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #12:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421185
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #13:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421186
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #14:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421195
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #15:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421206
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #16:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421208
+2025/11/04 14:13:41    • Data Keys: [content message_id timestamp done tool_calls conversation_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #17:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421216
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #18:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421242
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #19:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421242
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #20:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📦 Chunk #20 received: content='', total_length=0
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421242
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #21:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421242
+2025/11/04 14:13:41    • Data Keys: [content message_id timestamp done tool_calls conversation_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #22:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421261
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #23:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421261
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #24:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421274
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #25:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421285
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #26:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421285
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #27:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421292
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #28:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421293
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #29:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421303
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #30:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📦 Chunk #30 received: content='', total_length=0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421310
+2025/11/04 14:13:41    • Data Keys: [message_id timestamp done tool_calls conversation_id content]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #31:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421318
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #32:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421326
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #33:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421334
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #34:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421341
+2025/11/04 14:13:41    • Data Keys: [content message_id timestamp done tool_calls conversation_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #35:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421372
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #36:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421372
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 📦 OPENAI CHUNK #37:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421372
+2025/11/04 14:13:41    • Data Keys: [message_id timestamp done tool_calls conversation_id content]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #38:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421375
+2025/11/04 14:13:41    • Data Keys: [content message_id timestamp done tool_calls conversation_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #39:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421385
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #40:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 0
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📦 Chunk #40 received: content='', total_length=0
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421432
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #41:
+2025/11/04 14:13:41    • Content: "Halo"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 4
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: "Halo"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: "Halo"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: false
+2025/11/04 14:13:41 🎯 Chat service: Starting to stream chunk to WebSocket for conversation de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 FIRST CHUNK CONTENT: "Halo"
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo' (total length: 4)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: "Halo"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421438
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: 'Halo'
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #42:
+2025/11/04 14:13:41    • Content: "!"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 5
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: "!"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: "!"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo!' (total length: 5)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: "!"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421445
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: '!'
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #43:
+2025/11/04 14:13:41    • Content: " Ada"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 9
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " Ada"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " Ada"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada' (total length: 9)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " Ada"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421453
+2025/11/04 14:13:41    • Data Keys: [timestamp done tool_calls conversation_id content message_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' Ada'
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #44:
+2025/11/04 14:13:41    • Content: " yang"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 14
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " yang"
+2025/11/04 14:13:41    • Content Length: 5
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " yang"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang' (total length: 14)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " yang"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421462
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' yang'
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #45:
+2025/11/04 14:13:41    • Content: " bisa"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 19
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " bisa"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " bisa"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+  [94m[BACKEND][0m  2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa' (total length: 19)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " bisa"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421470
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' bisa'
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #46:
+2025/11/04 14:13:41    • Content: " saya"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 24
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " saya"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " saya"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya' (total length: 24)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " saya"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421478
+2025/11/04 14:13:41    • Data Keys: [done tool_calls conversation_id content message_id timestamp]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' saya'
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #47:
+2025/11/04 14:13:41    • Content: " bantu"
+2025/11/04 14:13:41    • Content Length: 6
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 30
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " bantu"
+2025/11/04 14:13:41    • Content Length: 6
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " bantu"
+2025/11/04 14:13:41    • Content Length: 6
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya bantu' (total length: 30)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " bantu"
+2025/11/04 14:13:41    • Content Length: 6
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421487
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' bantu'
+2025/11/04 14:13:41    • Content Length: 6
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #48:
+2025/11/04 14:13:41    • Content: " hari"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 35
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " hari"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " hari"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya bantu hari' (total length: 35)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " hari"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421498
+2025/11/04 14:13:41    • Data Keys: [content message_id timestamp done tool_calls conversation_id]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' hari'
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #49:
+2025/11/04 14:13:41    • Content: " ini"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 39
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " ini"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: " ini"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya bantu hari ini' (total length: 39)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " ini"
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421503
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' ini'
+2025/11/04 14:13:41    • Content Length: 4
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #50:
+2025/11/04 14:13:41    • Content: "?"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 40
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📦 Chunk #50 received: content='?', total_length=40
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: "?"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: "?"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya bantu hari ini?' (total length: 40)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: "?"
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421511
+2025/11/04 14:13:41    • Data Keys: [message_id timestamp done tool_calls conversation_id content]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: '?'
+2025/11/04 14:13:41    • Content Length: 1
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #51:
+2025/11/04 14:13:41    • Content: " 🙂"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Finish Reason: 
+2025/11/04 14:13:41    • Total Content Length: 45
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: " 🙂"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+  [94m[BACKEND][0m  2025/11/04 14:13:41    • Content: " 🙂"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🔥 DEBUG: Updated streaming content for de34bd6d-f924-4f82-bc1f-800e4708682a: 'Halo! Ada yang bisa saya bantu hari ini? 🙂' (total length: 45)
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: " 🙂"
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421527
+2025/11/04 14:13:41    • Data Keys: [tool_calls conversation_id content message_id timestamp done]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ' 🙂'
+2025/11/04 14:13:41    • Content Length: 5
+2025/11/04 14:13:41    • Done: false
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 📦 OPENAI CHUNK #52:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Finish Reason: stop
+2025/11/04 14:13:41    • Total Content Length: 45
+2025/11/04 14:13:41    • Has Tool Calls: false
+2025/11/04 14:13:41 📤 SENDING CHUNK TO CALLBACK:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: true
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 📦 LLM CHUNK RECEIVED:
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: true
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tool Calls: <nil>
+2025/11/04 14:13:41    • Stream Started: true
+2025/11/04 14:13:41 🎯 Chat service: Final chunk processed, broadcasting to WebSocket for conversation de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 📨 CREATING WEBSOCKET RESPONSE MESSAGE:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Content: ""
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Message ID: b5f2aa59-1e76-4f98-a58b-06fa39709a84
+2025/11/04 14:13:41    • Done: true
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41    • Tokens Remaining: 1000000
+2025/11/04 14:13:41 📨 WEBSOCKET RESPONSE CREATED:
+2025/11/04 14:13:41    • Type: assistant_response
+2025/11/04 14:13:41    • Timestamp: 1762240421529
+2025/11/04 14:13:41    • Data Keys: [conversation_id content message_id timestamp done tool_calls]
+2025/11/04 14:13:41 📡 BROADCASTING CHUNK TO WEBSOCKET:
+2025/11/04 14:13:41    • Content: ''
+2025/11/04 14:13:41    • Content Length: 0
+2025/11/04 14:13:41    • Done: true
+2025/11/04 14:13:41    • Tokens Used: 0
+2025/11/04 14:13:41 🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 🎯 SendStreamToActiveConnections CALLED:
+2025/11/04 14:13:41    • Conversation ID: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41    • Message Type: **messages.WebSocketMessage
+2025/11/04 14:13:41 ✅ ACTIVE STREAM FOUND:
+2025/11/04 14:13:41    • Stream Exists: true
+2025/11/04 14:13:41    • Active Connections Count: 1
+2025/11/04 14:13:41    • All Connections Count: 1
+2025/11/04 14:13:41 🎯 SENDING TO 1 ACTIVE CONNECTIONS: [ab06cdda-2b98-40bc-a74d-50e9c5af40a3]
+2025/11/04 14:13:41 🔄 FALLING BACK TO PROJECT BROADCAST
+2025/11/04 14:13:41 ✅ PROJECT BROADCAST COMPLETED
+2025/11/04 14:13:41 ✅ SendStreamToActiveConnections COMPLETED
+2025/11/04 14:13:41 ✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY
+2025/11/04 14:13:41 ✅ CHUNK SENT TO CALLBACK SUCCESSFULLY
+2025/11/04 14:13:41 🏁 OPENAI STREAMING COMPLETED SUCCESSFULLY:
+2025/11/04 14:13:41    • Total Chunks: 52
+2025/11/04 14:13:41    • Final Content Length: 45
+2025/11/04 14:13:41    • Final Content: "Halo! Ada yang bisa saya bantu hari ini? 🙂"
+2025/11/04 14:13:41    • Stream Finished Without Errors
+2025/11/04 14:13:41 ✅ LLM STREAMING COMPLETED SUCCESSFULLY
+2025/11/04 14:13:41    • Final Message Content Length: 45
+2025/11/04 14:13:41    • Tool Calls Count: 0
+2025/11/04 14:13:41 💾 SAVING COMPLETE ASSISTANT MESSAGE...
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ ASSISTANT MESSAGE SAVED SUCCESSFULLY
+2025/11/04 14:13:41 🔄 CLEARED STREAMING STATE FOR COMPLETED CONVERSATION: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 📊 UPDATING CONVERSATION STATUS TO 'completed'...
+  [94m[BACKEND][0m  2025/11/04 14:13:41 ✅ CONVERSATION STATUS UPDATED TO completed
+2025/11/04 14:13:41 📡 SENDING COMPLETION MESSAGE...
+2025/11/04 14:13:41 📡 BROADCASTING COMPLETION MESSAGE TO PROJECT d3eb9ece-48e7-45d0-a281-6b780351dedd
+2025/11/04 14:13:41 ✅ COMPLETION MESSAGE BROADCASTED
+2025/11/04 14:13:41 🎉 STREAMLLMRESPONSE COMPLETED SUCCESSFULLY FOR CONVERSATION: de34bd6d-f924-4f82-bc1f-800e4708682a
+2025/11/04 14:13:41 ✅ MESSAGE PROCESSING COMPLETED SUCCESSFULLY
+  [94m[BACKEND][0m  2025/11/04 14:13:41 websocket: discarding reader close error: io: read/write on closed pipe
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:50 | 200 |  157.666589ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:13:51 | 200 |  781.318164ms |             ::1 | GET      "/api/conversations/7b184edc-603f-4a95-9ad2-c98a39e31767/messages"
+  [92m[FRONTEND][0m 2:15:59 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:16:00 | 200 |  144.234456ms |             ::1 | GET      "/api/conversations"
+  [94m[BACKEND][0m  [GIN] 2025/11/04 - 14:16:01 | 200 |  846.296011ms |             ::1 | GET      "/api/conversations/7b184edc-603f-4a95-9ad2-c98a39e31767/messages"
+  [92m[FRONTEND][0m 2:16:29 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 2:17:28 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 2:18:00 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 2:18:11 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
+  [92m[FRONTEND][0m 2:18:40 PM [vite] (client) hmr update /src/components/chat/ChatLayout.vue, /src/components/chat/ConversationList.vue, /src/components/chat/MessageList.vue, /src/assets/main.css
