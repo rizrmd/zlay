@@ -6,12 +6,30 @@
     ]"
   >
     <!-- Chat Messages -->
-    <div ref="messagesContainer" class="flex-1 overflow-y-auto space-y-4">
+    <div ref="messagesContainer" class="flex-1 overflow-y-auto space-y-4 relative">
       <WelcomeMessage :has-messages="hasMessages" :is-connected="isConnected" />
 
       <MessageList :messages="messages" />
 
       <LoadingIndicator :is-loading="isLoading" />
+
+      <!-- Scroll to bottom button - Fixed positioning for true floating -->
+      <button
+        v-if="showScrollToBottomButton"
+        @click="scrollToBottom(true)"
+        class="fixed z-50 bg-primary text-primary-foreground p-3 rounded-full shadow-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+        title="Scroll to bottom"
+        :style="{ bottom: '80px', right: '20px' }"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          ></path>
+        </svg>
+      </button>
     </div>
 
     <!-- Chat Input -->
@@ -24,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, onMounted } from 'vue'
+import { ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue'
 import WelcomeMessage from './WelcomeMessage.vue'
 import MessageList from './MessageList.vue'
 import LoadingIndicator from './LoadingIndicator.vue'
@@ -49,6 +67,8 @@ const emit = defineEmits<{
 const messagesContainer = ref<HTMLElement | null>(null)
 const previousMessageCount = ref(0)
 const previousLoadingState = ref(false)
+const lastStreamingContent = ref('')
+const showScrollToBottomButton = ref(false)
 
 const handleSendMessage = async (content: string) => {
   emit('send-message', content)
@@ -70,6 +90,10 @@ const scrollToBottom = (smooth = false) => {
     }
 
     messagesContainer.value.scrollTo(scrollOptions)
+    console.log('📜 Scrolled to bottom:', {
+      smooth,
+      scrollHeight: messagesContainer.value.scrollHeight,
+    })
   }
 }
 
@@ -84,7 +108,6 @@ const handleAutoScroll = async () => {
   // 2. Loading state changes (streaming starts/stops)
   // 3. Conversation first loads
 
-  // Check if user is near bottom (within 150px) or if it's first load
   const scrollHeight = messagesContainer.value.scrollHeight
   const scrollTop = messagesContainer.value.scrollTop
   const clientHeight = messagesContainer.value.clientHeight
@@ -93,27 +116,32 @@ const handleAutoScroll = async () => {
   const isFirstLoad = previousMessageCount.value === 0
   const isNearBottom = distanceFromBottom < 150
 
-  // Also always scroll during streaming (loading=true)
-  const shouldAutoScroll = isFirstLoad || isNearBottom || props.isLoading
+  // Also always scroll during streaming (loading=true) or if container is empty
+  const shouldAutoScroll =
+    isFirstLoad || isNearBottom || props.isLoading || scrollHeight <= clientHeight
+
+  // Show/hide scroll to bottom button based on scroll position
+  showScrollToBottomButton.value = !isNearBottom && props.messages.length > 0
 
   if (shouldAutoScroll) {
-    // console.log(
-    //   'DEBUG: Auto-scrolling - isFirstLoad:',
-    //   isFirstLoad,
-    //   'isNearBottom:',
-    //   isNearBottom,
-    //   'isLoading:',
-    //   props.isLoading,
-    //   'distanceFromBottom:',
-    //   distanceFromBottom,
-    // )
+    console.log('📜 Auto-scrolling triggered:', {
+      isFirstLoad,
+      isNearBottom,
+      isLoading: props.isLoading,
+      distanceFromBottom,
+      scrollHeight,
+      clientHeight,
+      messageCount: props.messages.length,
+      showScrollButton: showScrollToBottomButton.value,
+    })
     // Use smooth scrolling for user interactions, instant for streaming
     scrollToBottom(props.isLoading)
   } else {
-    // console.log(
-    //   'DEBUG: Not auto-scrolling - user scrolled up, distanceFromBottom:',
-    //   distanceFromBottom,
-    // )
+    console.log('📜 Skipping auto-scroll - user scrolled up', {
+      distanceFromBottom,
+      messageCount: props.messages.length,
+      showScrollButton: showScrollToBottomButton.value,
+    })
   }
 }
 
@@ -121,12 +149,29 @@ const handleAutoScroll = async () => {
 watch(
   () => props.messages.length,
   async (newCount, oldCount) => {
-    if (newCount !== previousMessageCount.value) {
-      console.log('DEBUG: Message count changed from', oldCount, 'to', newCount, 'auto-scrolling')
-      previousMessageCount.value = newCount
-      await handleAutoScroll()
+    console.log('📝 Message count changed:', { from: oldCount, to: newCount })
+    previousMessageCount.value = newCount
+    await nextTick()
+    handleAutoScroll()
+  },
+)
+
+// Watch for messages array reference changes (conversation load/switch)
+watch(
+  () => props.messages,
+  async (newMessages, oldMessages) => {
+    // Only trigger if it's a completely new array (conversation switch)
+    if (newMessages !== oldMessages) {
+      console.log('🔄 Messages array reference changed (conversation loaded/switched)', {
+        newCount: newMessages?.length || 0,
+        oldCount: oldMessages?.length || 0,
+      })
+      await nextTick()
+      scrollToBottom(true)
+      handleAutoScroll()
     }
   },
+  { flush: 'post' },
 )
 
 // 🔥 REAL-TIME DEBUG: Watch for actual message content changes
@@ -135,14 +180,32 @@ watch(
   async (newMessages, oldMessages) => {
     if (newMessages && newMessages.length > 0) {
       const lastMessage = newMessages[newMessages.length - 1]
-      // console.log('🔍 REAL-TIME MESSAGE UPDATE:', {
-      //   messageCount: newMessages.length,
-      //   lastMessageId: lastMessage?.id,
-      //   lastMessageRole: lastMessage?.role,
-      //   lastMessageContent: lastMessage?.content ? `"${lastMessage.content.substring(0, 50)}..."` : 'empty',
-      //   lastContentLength: lastMessage?.content?.length || 0,
-      //   timestamp: new Date().toISOString()
-      // })
+
+      // Check if this is a streaming assistant message with new content
+      if (lastMessage?.role === 'assistant' && lastMessage?.content) {
+        const currentContent = lastMessage.content
+        const contentChanged = currentContent !== lastStreamingContent.value
+
+        if (contentChanged) {
+          lastStreamingContent.value = currentContent
+          console.log('🌊 Streaming content detected:', {
+            contentLength: currentContent.length,
+            contentPreview:
+              currentContent.substring(0, 50) + (currentContent.length > 50 ? '...' : ''),
+          })
+
+          await nextTick()
+          handleAutoScroll()
+        }
+      }
+
+      console.log('🔍 Real-time message update:', {
+        messageCount: newMessages.length,
+        lastMessageId: lastMessage?.id,
+        lastMessageRole: lastMessage?.role,
+        lastContentLength: lastMessage?.content?.length || 0,
+        timestamp: new Date().toISOString(),
+      })
     }
   },
   { deep: true },
@@ -153,13 +216,7 @@ watch(
   () => props.isLoading,
   async (newLoading, oldLoading) => {
     if (newLoading !== previousLoadingState.value) {
-      // console.log(
-      //   'DEBUG: Loading state changed from',
-      //   oldLoading,
-      //   'to',
-      //   newLoading,
-      //   'auto-scrolling',
-      // )
+      console.log('⏳ Loading state changed:', { from: oldLoading, to: newLoading })
       previousLoadingState.value = newLoading
       await handleAutoScroll()
     }
@@ -168,8 +225,45 @@ watch(
 
 // Auto-scroll when component mounts (conversation opened)
 onMounted(async () => {
-  console.log('DEBUG: ChatMain mounted, auto-scrolling to bottom')
-  await handleAutoScroll()
+  console.log('🚀 ChatMain mounted, initial auto-scroll')
+
+  // Multiple attempts to ensure scroll works
+  const scrollToBottomOnMount = async () => {
+    await nextTick()
+    await handleAutoScroll()
+
+    // Double-check after a small delay for content rendering
+    setTimeout(async () => {
+      await nextTick()
+      await handleAutoScroll()
+    }, 100)
+  }
+
+  await scrollToBottomOnMount()
+
+  // Add scroll listener for showing/hiding scroll-to-bottom button
+  if (messagesContainer.value) {
+    messagesContainer.value.addEventListener('scroll', handleScroll)
+  }
+})
+
+// Handle scroll events to show/hide scroll button
+const handleScroll = () => {
+  if (!messagesContainer.value) return
+
+  const scrollHeight = messagesContainer.value.scrollHeight
+  const scrollTop = messagesContainer.value.scrollTop
+  const clientHeight = messagesContainer.value.clientHeight
+  const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+
+  showScrollToBottomButton.value = distanceFromBottom > 150 && props.messages.length > 0
+}
+
+// Cleanup scroll listener
+onBeforeUnmount(() => {
+  if (messagesContainer.value) {
+    messagesContainer.value.removeEventListener('scroll', handleScroll)
+  }
 })
 
 defineExpose({

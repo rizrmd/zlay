@@ -18,6 +18,7 @@ export const useConversationStore = defineStore('conversation', () => {
   // Loading states
   const isLoading = ref(false)
   const isLoadingHistory = ref(false)
+  const isLoadingConversations = ref(false)
 
   // Computed
   const currentConversation = computed(() => {
@@ -61,11 +62,33 @@ export const useConversationStore = defineStore('conversation', () => {
   // Actions
   const selectConversation = (conversationId: string) => {
     if (conversations.value.has(conversationId)) {
+      console.log('🔄 SELECTING CONVERSATION:', {
+        fromConversationId: currentConversationId.value,
+        toConversationId: conversationId,
+        fromMessageCount: currentConversationId.value
+          ? conversationMessages.value.get(currentConversationId.value)?.length || 0
+          : 0,
+        toMessageCount: conversationMessages.value.get(conversationId)?.length || 0,
+      })
+
       currentConversationId.value = conversationId
 
       // Switch to messages for this conversation
       const convMessages = conversationMessages.value.get(conversationId) || []
       messages.value = [...convMessages]
+
+      console.log('✅ CONVERSATION SWITCHED:', {
+        newConversationId: currentConversationId.value,
+        newMessageCount: messages.value.length,
+        messages: messages.value.map((m) => ({
+          id: m.id,
+          role: m.role,
+          contentPreview: `"${m.content?.substring(0, 30)}${m.content?.length > 30 ? '...' : ''}"`,
+          length: m.content?.length || 0,
+        })),
+      })
+    } else {
+      console.warn('⚠️ Cannot select conversation - not found:', conversationId)
     }
   }
 
@@ -75,8 +98,18 @@ export const useConversationStore = defineStore('conversation', () => {
   }
 
   const loadConversations = async () => {
+    // Prevent duplicate loading
+    if (isLoadingConversations.value) {
+      console.log('🔄 loadConversations: Already loading, skipping...')
+      return
+    }
+
     try {
-      console.log('DEBUG: Loading conversations from API')
+      console.log('🚀 loadConversations: Starting API call...', {
+        currentSize: conversations.value.size,
+        isLoadingConversations: isLoadingConversations.value
+      })
+      isLoadingConversations.value = true
       const response = await apiClient.getConversations()
 
       if (response.success && response.conversations) {
@@ -96,6 +129,8 @@ export const useConversationStore = defineStore('conversation', () => {
       }
     } catch (error) {
       console.error('DEBUG: Error loading conversations:', error)
+    } finally {
+      isLoadingConversations.value = false
     }
   }
 
@@ -111,6 +146,16 @@ export const useConversationStore = defineStore('conversation', () => {
         'FOUND:',
         conversations.value.has(conversationId),
       )
+
+      // ✅ NEW: Check if conversation is currently processing before reloading
+      const existingConversation = conversations.value.get(conversationId)
+      if (existingConversation?.status === 'processing') {
+        console.log(
+          '🔄 SKIPPING LOAD: Conversation is currently processing, preserving streaming state:',
+          conversationId,
+        )
+        return
+      }
 
       isLoadingHistory.value = true
 
@@ -191,7 +236,7 @@ export const useConversationStore = defineStore('conversation', () => {
   const addToProcessing = (conversationId: string) => {
     processingConversations.value.add(conversationId)
     console.log('🎯 ADDED TO PROCESSING:', conversationId)
-    console.log('🎯 PROCESSING CONVERSATIONS NOW:', Array.from(processingConversations))
+    console.log('🎯 PROCESSING CONVERSATIONS NOW:', Array.from(processingConversations.value))
   }
 
   const removeFromProcessing = (conversationId: string) => {
@@ -211,12 +256,32 @@ export const useConversationStore = defineStore('conversation', () => {
       return
     }
 
+    // 🔍 DEBUG: Log incoming message details
+    // console.log('🔍 ADD/UPDATE MESSAGE CALLED:', {
+    //   conversationId,
+    //   messageId: message.id,
+    //   messageContent: message.content,
+    //   contentLength: message.content?.length || 0,
+    //   isCurrentConversation: currentConversationId.value === conversationId,
+    //   existingMessagesCount: conversationMessages.value.get(conversationId)?.length || 0,
+    // })
+
     const convMessages = conversationMessages.value.get(conversationId) || []
     const existingIndex = convMessages.findIndex((msg) => msg.id === message.id)
 
     if (existingIndex !== -1) {
       // Update existing message (for streaming) - ACCUMULATE content!
       const existingMessage = convMessages[existingIndex]
+
+      // console.log('📝 EXISTING MESSAGE FOUND:', {
+      //   messageId: message.id,
+      //   existingContent: `"${existingMessage.content}"`,
+      //   existingLength: existingMessage.content?.length || 0,
+      //   newContent: `"${message.content}"`,
+      //   newLength: message.content?.length || 0,
+      //   willAccumulate: !!message.content,
+      // })
+
       const updatedMessage = {
         ...existingMessage,
         // Only update fields that are provided
@@ -228,35 +293,50 @@ export const useConversationStore = defineStore('conversation', () => {
         ...(message.created_at && { created_at: message.created_at }),
       }
 
-      console.log('💬 CONVERSATION STORE: Streaming update:', {
-        messageId: message.id,
-        oldContent: existingMessage.content,
-        newContent: message.content,
-        combinedContent: updatedMessage.content,
-        contentLength: updatedMessage.content.length,
-      })
+      // console.log('💬 CONVERSATION STORE: Streaming update:', {
+      //   messageId: message.id,
+      //   oldContent: `"${existingMessage.content}"`,
+      //   newContent: `"${message.content}"`,
+      //   combinedContent: `"${updatedMessage.content}"`,
+      //   contentLength: updatedMessage.content.length,
+      // })
 
       const updatedMessages = [...convMessages]
       updatedMessages[existingIndex] = updatedMessage
       conversationMessages.value.set(conversationId, updatedMessages)
     } else {
       // Add new message
-      console.log(
-        '💬 CONVERSATION STORE: Adding new message:',
-        message.id,
-        message.content?.substring(0, 50) + '...',
-      )
+      // console.log(
+      //   '💬 CONVERSATION STORE: Adding new message:',
+      //   message.id,
+      //   `"${message.content?.substring(0, 50)}${message.content?.length > 50 ? '...' : ''}"`,
+      // )
       conversationMessages.value.set(conversationId, [...convMessages, message])
     }
 
     // Update UI if this is current conversation
     if (currentConversationId.value === conversationId) {
       if (conversationMessages.value) {
-        messages.value = conversationMessages.value.get(conversationId) || []
-        console.log('💬 CONVERSATION STORE: UI messages updated, count:', messages.value.length)
+        const finalMessages = conversationMessages.value.get(conversationId) || []
+        messages.value = finalMessages
+        console.log('💬 CONVERSATION STORE: UI messages updated, count:', finalMessages.length)
+        console.log(
+          '💬 FINAL UI MESSAGES:',
+          finalMessages.map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: `"${m.content?.substring(0, 30)}${m.content?.length > 30 ? '...' : ''}"`,
+            length: m.content?.length || 0,
+          })),
+        )
       } else {
         console.error('❌ conversationMessages is undefined when updating UI')
       }
+    } else {
+      console.log('💬 SKIPPING UI UPDATE - not current conversation:', {
+        targetConversationId: conversationId,
+        currentConversationId: currentConversationId.value,
+      })
     }
   }
 
@@ -269,6 +349,7 @@ export const useConversationStore = defineStore('conversation', () => {
     messages,
     isLoading,
     isLoadingHistory,
+    isLoadingConversations, // ✅ NEW: Prevent duplicate conversation loading
     processingConversations,
 
     // Computed

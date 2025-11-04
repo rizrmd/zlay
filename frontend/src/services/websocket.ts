@@ -109,32 +109,32 @@ class WebSocketService {
             const message = JSON.parse(event.data) as WebSocketMessage
 
             // 🔥 DEBUG: Log ALL received messages for debugging
-            // console.log('📥 WEBSOCKET MESSAGE RECEIVED:', {
-            //   type: message.type,
-            //   hasData: !!message.data,
-            //   timestamp: message.timestamp,
-            //   id: message.id,
-            //   tokens_used: message.tokens_used,
-            //   rawData: message,
-            // })
+            console.log('📥 WEBSOCKET MESSAGE RECEIVED:', {
+              type: message.type,
+              hasData: !!message.data,
+              timestamp: message.timestamp,
+              id: message.id,
+              tokens_used: message.tokens_used,
+              rawData: message,
+            })
 
             // Special logging for assistant responses
             if (message.type === 'assistant_response') {
               const content = message.data.content || ''
-              // console.log('🤖 ASSISTANT RESPONSE CHUNK:', {
-              //   content: `"${content}"`,
-              //   contentLength: content.length,
-              //   done: message.data.done,
-              //   conversation_id: message.data.conversation_id,
-              //   message_id: message.data.message_id,
-              //   timestamp: message.timestamp,
-              //   hasData: !!message.data,
-              //   keys: Object.keys(message.data),
-              // })
+              console.log('🤖 ASSISTANT RESPONSE CHUNK:', {
+                content: `"${content}"`,
+                contentLength: content.length,
+                done: message.data.done,
+                conversation_id: message.data.conversation_id,
+                message_id: message.data.message_id,
+                timestamp: message.timestamp,
+                hasData: !!message.data,
+                keys: Object.keys(message.data),
+              })
 
               // 🔥 REAL-TIME DEBUG: Track exact content changes
               if (content.trim() !== '') {
-                // console.log('📝 REAL-TIME CONTENT RECEIVED:', `"${content}"`)
+                console.log('📝 REAL-TIME CONTENT RECEIVED:', `"${content}"`)
               }
             }
 
