@@ -15,11 +15,29 @@
       :key="conversation.id"
       class="cursor-pointer hover:bg-accent transition-colors"
       :class="{ 'ring-2 ring-primary': currentConversationId === conversation.id }"
-      @click="$emit('select-conversation', conversation.id)"
+      @click="navigateToConversation(conversation.id)"
     >
       <CardContent class="flex items-center justify-between p-4">
         <div class="flex-1 min-w-0">
-          <div class="font-medium text-sm truncate">{{ conversation.title }}</div>
+          <div class="font-medium text-sm truncate flex items-center gap-2">
+            {{ conversation.title }}
+            <div 
+              v-if="isConversationProcessing(conversation.id)" 
+              class="flex items-center gap-1"
+              title="Assistant is responding"
+            >
+              <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+              <span class="text-xs text-green-600 font-medium">Live</span>
+            </div>
+            <div 
+              v-else-if="isConversationLoading(conversation.id)" 
+              class="flex items-center gap-1"
+              title="Loading conversation..."
+            >
+              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+              <span class="text-xs text-blue-600 font-medium">Loading</span>
+            </div>
+          </div>
           <div class="text-xs text-muted-foreground mt-1">
             {{ formatMessageTime(conversation) }}
           </div>
@@ -41,6 +59,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import type { Conversation } from '@/services/websocket'
 import { useChatStore } from '@/stores/chat'
+import { useRouter, useRoute } from 'vue-router'
 
 interface Props {
   conversations: Conversation[]
@@ -54,9 +73,29 @@ const emit = defineEmits<{
   'delete-conversation': [id: string]
 }>()
 
+const route = useRoute()
+const router = useRouter()
 const chatStore = useChatStore()
+
+// Check if a specific conversation is currently processing
+const isConversationProcessing = (conversationId: string): boolean => {
+  const conversation = chatStore.conversations.get(conversationId)
+  return conversation?.status === 'processing' || false
+}
+
+// Check if a specific conversation is currently loading
+const isConversationLoading = (conversationId: string): boolean => {
+  const conversation = chatStore.conversations.get(conversationId)
+  return conversation?.isLoading || false
+}
 
 const formatMessageTime = (conversation: Conversation) => {
   return chatStore.formatMessageTime(conversation as any)
+}
+
+const navigateToConversation = (conversationId: string) => {
+  // Navigate to conversation-specific URL for better refresh support
+  const projectId = route.params.id as string
+  router.push(`/p/${projectId}/chat/${conversationId}`)
 }
 </script>

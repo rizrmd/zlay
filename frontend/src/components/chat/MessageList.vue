@@ -20,7 +20,15 @@
     <div class="max-w-2xl flex-1">
       <Card :class="message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'">
         <CardContent class="p-4">
-          <p class="whitespace-pre-wrap">{{ message.content }}</p>
+          <div 
+            v-if="message.role === 'assistant'"
+            class="prose prose-sm dark:prose-invert max-w-none"
+            v-html="renderMarkdown(message.content)"
+          ></div>
+          <p 
+            v-else
+            class="whitespace-pre-wrap"
+          >{{ message.content }}</p>
 
           <!-- Tool calls indicator -->
           <div v-if="isToolMessage(message)" class="mt-2 space-y-2">
@@ -65,7 +73,7 @@
       </Card>
       <div class="text-xs text-muted-foreground mt-1"
         :class="message.role === 'user' ? 'text-right' : 'text-left'">
-        {{ chatStore.formatMessageTime(message) }}
+        {{ chatStore.formatMessageTime(message.created_at) }}
       </div>
     </div>
 
@@ -86,8 +94,37 @@
 <script setup lang="ts">
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import type { ChatMessage, ToolCall } from '@/services/websocket'
+import type { ChatMessage } from '@/services/websocket'
 import { useChatStore } from '@/stores/chat'
+import { marked } from 'marked'
+import hljs from 'highlight.js'
+
+// Configure marked for syntax highlighting
+marked.setOptions({
+  breaks: true,
+  gfm: true
+})
+
+// Custom renderer for syntax highlighting
+const renderer = new marked.Renderer()
+
+renderer.code = function(token: { text: string; lang?: string | undefined; escaped?: boolean }) {
+  const code = token.text
+  const language = token.lang
+  
+  if (language && hljs.getLanguage(language)) {
+    try {
+      const highlighted = hljs.highlight(code, { language: language }).value
+      return `<pre class="hljs"><code class="language-${language}">${highlighted}</code></pre>`
+    } catch (err) {
+      console.error('Highlight.js error:', err)
+    }
+  }
+  const highlighted = hljs.highlightAuto(code).value
+  return `<pre class="hljs"><code>${highlighted}</code></pre>`
+}
+
+marked.use({ renderer })
 
 interface Props {
   messages: ChatMessage[]
@@ -96,6 +133,15 @@ interface Props {
 defineProps<Props>()
 
 const chatStore = useChatStore()
+
+const renderMarkdown = (content: string) => {
+  try {
+    return marked.parse(content)
+  } catch (error) {
+    console.error('Markdown parsing error:', error)
+    return content
+  }
+}
 
 const isToolMessage = (message: ChatMessage) => {
   return message.tool_calls && message.tool_calls.length > 0

@@ -272,6 +272,18 @@ func (h *Handler) HandleMessage(conn *Connection, message *WebSocketMessage) {
 	log.Printf("Received WebSocket message: type='%s', data=%+v", message.Type, message.Data)
 	
 	switch message.Type {
+	case "connection_established":
+		// 🔄 NEW: Send back connection confirmation for streaming state restoration
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "connection_established",
+			Data: gin.H{
+				"connection_id": conn.ID,
+				"user_id": conn.UserID,
+				"project_id": conn.ProjectID,
+				"timestamp": time.Now().UnixMilli(),
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
 	case "user_message":
 		h.handleUserMessage(conn, message)
 	case "create_conversation":
@@ -280,8 +292,16 @@ func (h *Handler) HandleMessage(conn *Connection, message *WebSocketMessage) {
 		h.handleGetConversations(conn, message)
 	case "get_conversation":
 		h.handleGetConversation(conn, message)
+	case "get_conversation_status":
+		h.handleGetConversationStatus(conn, message)
+	case "get_all_conversation_statuses":
+		h.handleGetAllConversationStatuses(conn, message)
+	case "get_streaming_conversation":
+		h.handleGetStreamingConversation(conn, message)
 	case "delete_conversation":
 		h.handleDeleteConversation(conn, message)
+	case "chat_interrupted":
+		h.handleChatInterrupted(conn, message)
 	default:
 		log.Printf("Unknown message type: %s", message.Type)
 	}
@@ -289,25 +309,43 @@ func (h *Handler) HandleMessage(conn *Connection, message *WebSocketMessage) {
 
 // handleUserMessage processes user messages and routes to LLM
 func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage) {
+	// 🔥 DETAILED LOGGING: Log incoming message structure
+	log.Printf("🔥 INCOMING USER MESSAGE: %+v", message)
+	log.Printf("🔥 MESSAGE TYPE: %s", message.Type)
+	log.Printf("🔥 MESSAGE TIMESTAMP: %d", message.Timestamp)
+	log.Printf("🔥 CONNECTION INFO: ID=%s, UserID=%s, ProjectID=%s, ClientID=%s", 
+		conn.ID, conn.UserID, conn.ProjectID, conn.ClientID)
+
 	data, ok := message.Data.(map[string]interface{})
 	if !ok {
-		log.Printf("Invalid user_message data format")
+		log.Printf("❌ Invalid user_message data format: got %T", message.Data)
 		return
 	}
 
+	log.Printf("🔥 PARSED MESSAGE DATA: %+v", data)
+
 	conversationID, ok := data["conversation_id"].(string)
 	if !ok {
-		log.Printf("Missing conversation_id in user_message")
+		log.Printf("❌ Missing conversation_id in user_message. Available keys: %v", data)
 		return
 	}
 
 	content, ok := data["content"].(string)
 	if !ok {
-		log.Printf("Missing content in user_message")
+		log.Printf("❌ Missing content in user_message. Available keys: %v", data)
 		return
 	}
 
-	log.Printf("DEBUG: User chat: \"%s\"", content)
+	// 🔥 DETAILED LOGGING: Log all user message details
+	log.Printf("👤 USER MESSAGE RECEIVED:")
+	log.Printf("   • Conversation ID: %s", conversationID)
+	log.Printf("   • Content: \"%s\"", content)
+	log.Printf("   • Content Length: %d characters", len(content))
+	log.Printf("   • Connection ID: %s", conn.ID)
+	log.Printf("   • User ID: %s", conn.UserID)
+	log.Printf("   • Project ID: %s", conn.ProjectID)
+	log.Printf("   • Client ID: %s", conn.ClientID)
+	log.Printf("   • Message Timestamp: %d", message.Timestamp)
 
 	// Add connection metadata per AsyncAPI spec
 	data["connection_id"] = conn.ID
@@ -316,12 +354,17 @@ func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage)
 	data["client_id"] = conn.ClientID
 
 	// Get client-specific LLM configuration
+	log.Printf("🔧 FETCHING LLM CONFIG FOR CLIENT: %s", conn.ClientID)
 	clientConfig, err := h.clientConfigCache.GetClientConfig(context.Background(), conn.ClientID)
 	if err != nil {
-		log.Printf("Failed to get client LLM config: %v", err)
+		log.Printf("❌ FAILED TO GET CLIENT LLM CONFIG: %v", err)
 		h.sendErrorResponse(conn, conversationID, "Failed to load LLM configuration", err.Error())
 		return
 	}
+
+	log.Printf("✅ LLM CONFIG LOADED SUCCESSFULLY:")
+	log.Printf("   • Model: %s", clientConfig.LLMClient.GetModel())
+	log.Printf("   • Client ID: %s", conn.ClientID)
 
 	// Create chat request
 	chatReq := &chat.ChatRequest{
@@ -334,16 +377,27 @@ func (h *Handler) handleUserMessage(conn *Connection, message *WebSocketMessage)
 		Connection:     conn,           // Connection reference for token info
 	}
 
+	log.Printf("📝 CREATED CHAT REQUEST:")
+	log.Printf("   • Conversation ID: %s", chatReq.ConversationID)
+	log.Printf("   • User ID: %s", chatReq.UserID)
+	log.Printf("   • Project ID: %s", chatReq.ProjectID)
+	log.Printf("   • Content Length: %d", len(chatReq.Content))
+	log.Printf("   • Connection ID: %s", chatReq.ConnectionID)
+
 	// Process through ChatService with client-specific LLM
 	if h.chatService != nil {
+		log.Printf("🤖 CALLING CHAT SERVICE TO PROCESS MESSAGE...")
 		// Temporarily update chat service's LLM client (for now)
 		// TODO: Refactor to have client-specific chat services
 		chatServiceWithClientLLM := h.chatService.WithLLMClient(clientConfig.LLMClient)
 		
+		log.Printf("🚀 STARTING MESSAGE PROCESSING WITH CLIENT-SPECIFIC LLM...")
 		err := chatServiceWithClientLLM.ProcessUserMessage(chatReq)
 		if err != nil {
-			log.Printf("Error processing user message: %v", err)
+			log.Printf("❌ ERROR PROCESSING USER MESSAGE: %v", err)
 			h.sendErrorResponse(conn, conversationID, "Failed to process message", err.Error())
+		} else {
+			log.Printf("✅ MESSAGE PROCESSING COMPLETED SUCCESSFULLY")
 		}
 	} else {
 		// Fallback for when chat service is not initialized
@@ -731,7 +785,204 @@ func (h *Handler) handleDeleteConversation(conn *Connection, message *WebSocketM
 	}
 }
 
+// handleGetConversationStatus handles get_conversation_status messages
+func (h *Handler) handleGetConversationStatus(conn *Connection, message *WebSocketMessage) {
+	conversationID, ok := message.Data.(map[string]interface{})["conversation_id"].(string)
+	if !ok {
+		log.Printf("conversation_id is required for get_conversation_status")
+		return
+	}
+
+	userID := conn.UserID
+	if userID == "" {
+		log.Printf("user_id is required for get_conversation_status")
+		return
+	}
+
+	log.Printf("Getting detailed conversation status: %s for user: %s", conversationID, userID)
+
+	// 🔄 NEW: Get detailed conversation status including streaming state
+	if h.chatService != nil {
+		if status, err := h.chatService.GetConversationStatus(conversationID, userID); err == nil {
+			log.Printf("Retrieved detailed status for conversation %s: exists=%v, processing=%v, content_length=%d", 
+				conversationID, status["exists"], status["is_processing"], 
+				len(status["current_content"].(string)))
+			
+			// Send detailed status response
+			h.hub.SendToConnection(conn, WebSocketMessage{
+				Type: "conversation_status",
+				Data: status,
+				Timestamp: time.Now().UnixMilli(),
+			})
+		} else {
+			log.Printf("Failed to get conversation status: %v", err)
+			h.hub.SendToConnection(conn, WebSocketMessage{
+				Type: "error",
+				Data: gin.H{
+					"error": "Failed to get conversation status: " + err.Error(),
+					"code": "CONVERSATION_STATUS_ERROR",
+				},
+				Timestamp: time.Now().UnixMilli(),
+			})
+		}
+	} else {
+		log.Printf("Chat service not initialized for conversation status check: %s", conversationID)
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "error",
+			Data: gin.H{
+				"error": "Chat service not available",
+				"code": "CHAT_SERVICE_UNAVAILABLE",
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
+	}
+}
+
+// handleGetAllConversationStatuses handles get_all_conversation_statuses messages
+func (h *Handler) handleGetAllConversationStatuses(conn *Connection, message *WebSocketMessage) {
+	userID := conn.UserID
+	if userID == "" {
+		log.Printf("user_id is required for get_all_conversation_statuses")
+		return
+	}
+
+	log.Printf("Getting all conversation statuses for user: %s", userID)
+
+	// 🔄 NEW: Get all active streaming states for user
+	if h.chatService != nil {
+		allStreams := h.chatService.GetAllActiveStreams()
+		
+		// Filter streams for this user only
+		userStreams := make(map[string]*chat.StreamState)
+		for convID, streamState := range allStreams {
+			if streamState.UserID == userID {
+				userStreams[convID] = streamState
+			}
+		}
+		
+		log.Printf("Found %d active streams for user %s", len(userStreams), userID)
+		
+		// Send all streaming statuses response
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "all_conversation_statuses",
+			Data: gin.H{
+				"user_id": userID,
+				"active_streams": userStreams,
+				"total_active_streams": len(userStreams),
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
+	} else {
+		log.Printf("Chat service not initialized for all conversation statuses")
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "error",
+			Data: gin.H{
+				"error": "Chat service not available",
+				"code": "CHAT_SERVICE_UNAVAILABLE",
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
+	}
+}
+
+// handleGetStreamingConversation handles get_streaming_conversation messages
+func (h *Handler) handleGetStreamingConversation(conn *Connection, message *WebSocketMessage) {
+	conversationID, ok := message.Data.(map[string]interface{})["conversation_id"].(string)
+	if !ok {
+		log.Printf("conversation_id is required for get_streaming_conversation")
+		return
+	}
+
+	userID := conn.UserID
+	if userID == "" {
+		log.Printf("user_id is required for get_streaming_conversation")
+		return
+	}
+
+	log.Printf("Getting streaming conversation: %s for user: %s", conversationID, userID)
+
+	// 🔄 NEW: Load conversation with streaming state
+	if h.chatService != nil {
+		if details, err := h.chatService.LoadStreamingConversation(conversationID, userID); err != nil {
+			log.Printf("Failed to load streaming conversation: %v", err)
+			
+			// Send error response
+			h.hub.SendToConnection(conn, WebSocketMessage{
+				Type: "error",
+				Data: gin.H{
+					"error": "Failed to load conversation: " + err.Error(),
+					"code":  "STREAMING_CONVERSATION_ERROR",
+				},
+				Timestamp: time.Now().UnixMilli(),
+			})
+			return
+		} else {
+			// Send streaming conversation response
+			h.hub.SendToConnection(conn, WebSocketMessage{
+				Type: "streaming_conversation_loaded",
+				Data: gin.H{
+					"conversation": details.Conversation,
+					"messages":     details.Messages,
+					"tool_status":   details.ToolStatus,
+				},
+				Timestamp: time.Now().UnixMilli(),
+			})
+			log.Printf("Successfully loaded streaming conversation: %s with %d messages", conversationID, len(details.Messages))
+		}
+	} else {
+		log.Printf("Chat service not initialized for streaming conversation load: %s", conversationID)
+		h.hub.SendToConnection(conn, WebSocketMessage{
+			Type: "error",
+			Data: gin.H{
+				"error": "Chat service not available",
+				"code":  "CHAT_SERVICE_UNAVAILABLE",
+			},
+			Timestamp: time.Now().UnixMilli(),
+		})
+	}
+}
+
 // Helper function to get current timestamp
 func getCurrentTimestamp() int64 {
 	return time.Now().UnixMilli()
+}
+
+// handleChatInterrupted processes chat interruption events
+func (h *Handler) handleChatInterrupted(conn *Connection, message *WebSocketMessage) {
+	data, ok := message.Data.(map[string]interface{})
+	if !ok {
+		log.Printf("Invalid chat_interrupted data format")
+		return
+	}
+
+	userID, _ := data["user_id"].(string)
+	projectID, _ := data["project_id"].(string)
+	reason, _ := data["reason"].(string)
+
+	log.Printf("🔌 Chat interrupted: user=%s, project=%s, reason=%s", userID, projectID, reason)
+
+	// If chat service is available, update conversation status to interrupted
+	if h.chatService != nil {
+		// Get all conversations for this user/project to find active ones
+		conversations, err := h.chatService.GetConversations(userID, projectID)
+		if err == nil {
+			for _, conv := range conversations {
+				if conv.Status == "processing" {
+					log.Printf("🔌 Marking conversation as interrupted: %s", conv.ID)
+					h.chatService.UpdateConversationStatus(conv.ID, userID, "interrupted")
+					
+					// Broadcast status update to all connections
+					h.hub.BroadcastToProject(projectID, WebSocketMessage{
+						Type: "conversation_status_updated",
+						Data: gin.H{
+							"conversation_id": conv.ID,
+							"status": "interrupted",
+							"reason": reason,
+						},
+						Timestamp: getCurrentTimestamp(),
+					})
+				}
+			}
+		}
+	}
 }

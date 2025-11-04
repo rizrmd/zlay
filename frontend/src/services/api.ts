@@ -36,6 +36,7 @@ export interface Conversation {
   title: string
   user_id: string
   project_id: string
+  status: string // processing, completed, interrupted
   created_at: string
   updated_at: string
 }
@@ -76,6 +77,7 @@ class ApiClient {
     }
 
     const response = await fetch(url, config)
+    console.log('respon:', response)
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -169,19 +171,19 @@ class ApiClient {
     return this.request<{ success: boolean; conversations?: Conversation[] }>('/api/conversations')
   }
 
-  async getConversationMessages(conversationId: string): Promise<{ 
-    success: boolean; 
-    conversation?: { 
-      conversation: Conversation; 
-      messages: ApiMessage[] 
-    } 
+  async getConversationMessages(conversationId: string): Promise<{
+    success: boolean
+    conversation?: {
+      conversation: Conversation
+      messages: ApiMessage[]
+    }
   }> {
-    return this.request<{ 
-      success: boolean; 
-      conversation?: { 
-        conversation: Conversation; 
-        messages: ApiMessage[] 
-      } 
+    return this.request<{
+      success: boolean
+      conversation?: {
+        conversation: Conversation
+        messages: ApiMessage[]
+      }
     }>(`/api/conversations/${conversationId}/messages`)
   }
 

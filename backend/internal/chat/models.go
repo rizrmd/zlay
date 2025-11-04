@@ -42,6 +42,7 @@ type Conversation struct {
 	ProjectID string    `json:"project_id" db:"project_id"`
 	UserID   string    `json:"user_id" db:"user_id"`
 	Title    string    `json:"title" db:"title"`
+	Status   string    `json:"status" db:"status"` // processing, completed, interrupted
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
@@ -113,13 +114,17 @@ func NewMessage(conversationID, role, content, userID, projectID string) *Messag
 }
 
 // NewConversation creates a new conversation instance
-func NewConversation(projectID, userID, title string) *Conversation {
+func NewConversation(projectID, userID, title, status string) *Conversation {
 	now := time.Now()
+	if status == "" {
+		status = "completed"
+	}
 	return &Conversation{
 		ID:        uuid.New().String(),
 		ProjectID: projectID,
 		UserID:   userID,
 		Title:     title,
+		Status:    status,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

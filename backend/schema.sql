@@ -72,6 +72,10 @@ CREATE INDEX IF NOT EXISTS idx_datasources_project_id ON datasources(project_id)
 CREATE INDEX IF NOT EXISTS idx_domains_client_id ON domains(client_id);
 CREATE INDEX IF NOT EXISTS idx_domains_domain ON domains(domain);
 
+-- Conversation indexes for performance
+CREATE INDEX IF NOT EXISTS idx_conversations_user_project ON conversations(user_id, project_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_updated_at ON conversations(updated_at DESC);
+
 -- Insert a default client for development
 INSERT INTO clients (name, slug, is_active)
 VALUES ('Development Client', 'dev', true)
@@ -91,6 +95,7 @@ CREATE TABLE IF NOT EXISTS conversations (
     title TEXT NOT NULL,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'completed' NOT NULL, -- processing, completed, interrupted
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

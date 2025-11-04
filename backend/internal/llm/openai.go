@@ -37,64 +37,132 @@ func NewOpenAIClient(apiKey, baseURL, model string) *OpenAIClient {
 	}
 }
 
-// StreamChat implements LLMClient interface with streaming
+// StreamChat implements LLMClient interface with real streaming
 func (c *OpenAIClient) StreamChat(ctx context.Context, req *LLMRequest, callback func(*StreamingChunk) error) error {
-	// For now, use non-streaming API and simulate streaming
-	// TODO: Implement proper streaming with official OpenAI Go SDK when streaming API is available
-	
-	resp, err := c.Chat(ctx, req)
-	if err != nil {
-		return err
+	// Set default model if not specified
+	model := req.Model
+	if model == "" {
+		model = c.model
 	}
 
-	// Simulate streaming by sending chunks of the response
-	content := resp.Content
-	if content == "" {
-		content = " "
+	log.Printf("🚀 StreamChat CALLED:")
+	log.Printf("   • Model: %s", model)
+	log.Printf("   • Messages Count: %d", len(req.Messages))
+	log.Printf("   • Max Tokens: %d", req.MaxTokens)
+	log.Printf("   • Temperature: %f", req.Temperature)
+	log.Printf("   • Tools Count: %d", len(req.Tools))
+	log.Printf("   • Base URL: %s", c.baseURL)
+
+	// Log all messages for debugging
+	for i, msg := range req.Messages {
+		log.Printf("   • Message %d: Role=%s, Content=%.100s", i+1, msg.GetRole(), msg.GetContent())
 	}
 
-	// Split content into words for simulated streaming
-	words := strings.Fields(content)
-	totalWords := len(words)
-	
-	for i, word := range words {
-		// Distribute tokens proportionally across chunks
-		chunkTokens := 0
-		if resp.TokensUsed > 0 {
-			chunkTokens = resp.TokensUsed / totalWords
-			if i == totalWords-1 { // Last chunk gets remaining tokens
-				chunkTokens = resp.TokensUsed - (chunkTokens * (totalWords - 1))
-			}
+	// Create OpenAI streaming request using the correct API
+	log.Printf("📡 Creating OpenAI streaming request...")
+	stream := (*c.client).Chat.Completions.NewStreaming(ctx, 
+		openai.ChatCompletionNewParams{
+			Model:       model,
+			Messages:    req.Messages,
+			MaxTokens:   openai.Int(int64(req.MaxTokens)),
+			Temperature: openai.Float(float64(req.Temperature)),
+			Tools:       req.Tools,
+		},
+	)
+
+	log.Printf("📡 OpenAI streaming request created, waiting for first chunk...")
+	chunkCount := 0
+	totalContent := ""
+
+	// Process streaming response
+	log.Printf("📡 STARTING OPENAI STREAMING PROCESSING...")
+	for stream.Next() {
+		chunk := stream.Current()
+		chunkCount++
+		
+		if len(chunk.Choices) == 0 {
+			log.Printf("⚠️ Chunk #%d: No choices available", chunkCount)
+			continue
+		}
+
+		choice := chunk.Choices[0]
+		content := choice.Delta.Content
+		totalContent += content
+		
+		// 🔥 DETAILED LOGGING: Log every chunk for debugging
+		log.Printf("📦 OPENAI CHUNK #%d:", chunkCount)
+		log.Printf("   • Content: \"%s\"", content)
+		log.Printf("   • Content Length: %d", len(content))
+		log.Printf("   • Finish Reason: %s", choice.FinishReason)
+		log.Printf("   • Total Content Length: %d", len(totalContent))
+		log.Printf("   • Has Tool Calls: %t", len(choice.Delta.ToolCalls) > 0)
+		
+		// Log first chunk and every 10th chunk
+		if chunkCount == 1 {
+			log.Printf("📥 First chunk received from OpenAI: content='%s', finish_reason='%s'", content, choice.FinishReason)
+		} else if chunkCount%10 == 0 {
+			log.Printf("📦 Chunk #%d received: content='%s', total_length=%d", chunkCount, content, len(totalContent))
 		}
 		
-		chunk := &StreamingChunk{
-			Content:    word + " ",
-			Done:       i == totalWords-1,
-			TokensUsed: chunkTokens,
+		// Create streaming chunk
+		streamingChunk := &StreamingChunk{
+			Content:   content,
+			Done:      choice.FinishReason != "",
+			TokensUsed: 0, // Will be calculated from final usage
 		}
-		
-		if err := callback(chunk); err != nil {
+
+		// Handle tool calls in streaming
+		if len(choice.Delta.ToolCalls) > 0 {
+			log.Printf("🔧 Tool calls received in chunk: %+v", choice.Delta.ToolCalls)
+			streamingChunk.ToolCalls = choice.Delta.ToolCalls
+		}
+
+		// 🔥 DETAILED LOGGING: Log chunk being sent to callback
+		log.Printf("📤 SENDING CHUNK TO CALLBACK:")
+		log.Printf("   • Content: \"%s\"", streamingChunk.Content)
+		log.Printf("   • Content Length: %d", len(streamingChunk.Content))
+		log.Printf("   • Done: %t", streamingChunk.Done)
+		log.Printf("   • Tokens Used: %d", streamingChunk.TokensUsed)
+
+		// Send chunk to callback
+		if err := callback(streamingChunk); err != nil {
+			log.Printf("❌ ERROR SENDING CHUNK TO CALLBACK: %v", err)
 			return err
 		}
-	}
+		log.Printf("✅ CHUNK SENT TO CALLBACK SUCCESSFULLY")
 
-	// Send final chunk with tool calls if any
-	if resp.ToolCalls != nil {
-		finalChunk := &StreamingChunk{
-			Content:   "",
-			ToolCalls: resp.ToolCalls,
-			Done:      true,
+		// If this is the final chunk, include usage information
+		if streamingChunk.Done && chunk.Usage.TotalTokens > 0 {
+			log.Printf("✅ Final chunk received! Total chunks: %d, total_content_length: %d, tokens_used: %d", 
+				chunkCount, len(totalContent), chunk.Usage.TotalTokens)
+				
+			finalChunk := &StreamingChunk{
+				Content:    "",
+				Done:       true,
+				TokensUsed: int(chunk.Usage.TotalTokens),
+			}
+			if err := callback(finalChunk); err != nil {
+				log.Printf("❌ Error sending final chunk to callback: %v", err)
+				return err
+			}
 		}
-		return callback(finalChunk)
 	}
 
-	// Send completion chunk
-	completionChunk := &StreamingChunk{
-		Content: "",
-		Done:    true,
+	// Check for streaming errors
+	if err := stream.Err(); err != nil {
+		log.Printf("❌ OPENAI STREAMING ERROR:")
+		log.Printf("   • Total Chunks Processed: %d", chunkCount)
+		log.Printf("   • Total Content Length: %d", len(totalContent))
+		log.Printf("   • Error: %v", err)
+		return fmt.Errorf("OpenAI streaming error: %w", err)
 	}
 
-	return callback(completionChunk)
+	log.Printf("🏁 OPENAI STREAMING COMPLETED SUCCESSFULLY:")
+	log.Printf("   • Total Chunks: %d", chunkCount)
+	log.Printf("   • Final Content Length: %d", len(totalContent))
+	log.Printf("   • Final Content: \"%s\"", totalContent)
+	log.Printf("   • Stream Finished Without Errors")
+	return nil
 }
 
 // Chat implements LLMClient interface for non-streaming
@@ -165,7 +233,7 @@ func (c *OpenAIClient) GetModel() string {
 
 // ValidateConnection tests if the OpenAI connection works
 func (c *OpenAIClient) ValidateConnection(ctx context.Context) error {
-	// Make a simple API call to test connection
+	// Test with a simple non-streaming request to validate basic connectivity
 	testReq := &LLMRequest{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage("Hello"),

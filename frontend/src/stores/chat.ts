@@ -41,7 +41,7 @@ export const useChatStore = defineStore('chat', () => {
 
   // Legacy messages for UI - use ref for simplicity
   const messages = ref<ChatMessage[]>([])
-  
+
   // Debug messages state
   watch(messages, (newMessages) => {
     console.log('DEBUG: Messages ref updated, length:', newMessages?.length)
@@ -59,7 +59,7 @@ export const useChatStore = defineStore('chat', () => {
         messages.value = []
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // Computed for loading state
@@ -100,15 +100,24 @@ export const useChatStore = defineStore('chat', () => {
       const conversationId = data.conversation_id || currentConversationId.value
 
       // Only process messages for conversations that are being processed
+      console.log('🔍 CHECKING PROCESSING STATUS:', {
+        conversationId,
+        isProcessing: processingConversations.value.has(conversationId),
+        allProcessing: Array.from(processingConversations.value),
+        currentConversation: currentConversationId.value,
+      })
+
       if (!processingConversations.value.has(conversationId)) {
         console.log(
-          'DEBUG: Ignoring message for untracked conversation:',
+          '❌ DEBUG: Ignoring message for untracked conversation:',
           conversationId,
           'Processing conversations:',
           Array.from(processingConversations.value),
         )
         return
       }
+
+      console.log('✅ DEBUG: Message will be processed for conversation:', conversationId)
 
       // Always store messages, but only update UI for current conversation
       if (conversationId === currentConversationId.value) {
@@ -118,39 +127,95 @@ export const useChatStore = defineStore('chat', () => {
       }
 
       // Only process content for streaming chunks (not the final completion)
-      if (data.content && typeof data.content === 'string' && data.content.trim()) {
-        // Get or create messages array for this conversation
-        const convMessages = conversationMessages.value.get(conversationId) || []
-        const existingMessageIndex = convMessages.findIndex((msg) => msg.id === messageId)
+      if (data.content && typeof data.content === 'string') {
+        // Only accumulate content if it's not empty
+        if (data.content.trim() !== '') {
+          console.log('📝 DEBUG: Processing non-empty content:', data.content)
+          // Get or create messages array for this conversation
+          const convMessages = conversationMessages.value.get(conversationId) || []
+          const existingMessageIndex = convMessages.findIndex((msg) => msg.id === messageId)
 
-        if (existingMessageIndex !== -1) {
-          // Update existing message (streaming) - create new array for reactivity
-          const msg = convMessages[existingMessageIndex]
-          if (msg) {
-            const updatedMessages = [...convMessages]
-            updatedMessages[existingMessageIndex] = {
-              ...msg,
-              content: msg.content + data.content,
+          if (existingMessageIndex !== -1) {
+            // Update existing message (streaming) - ensure Vue reactivity
+            const msg = convMessages[existingMessageIndex]
+            if (msg) {
+              // 🔥 REAL-TIME FIX: Create new message with appended content
+              const updatedMsg = {
+                ...msg,
+                content: msg.content + data.content,
+              }
+
+              // Create completely new array for max reactivity
+              const updatedMessages = [...convMessages]
+              updatedMessages[existingMessageIndex] = updatedMsg
+
+              // Update conversation store
+              conversationMessages.value.set(conversationId, updatedMessages)
+
+              // 🔥 CRITICAL: Also update UI messages if this is current conversation
+              if (conversationId === currentConversationId.value) {
+                const oldMessages = [...messages.value]
+                messages.value = [...updatedMessages]
+                console.log('🔄 UI SYNC - EXISTING MESSAGE UPDATED:', {
+                  conversationId,
+                  messageId,
+                  oldMessagesCount: oldMessages.length,
+                  newMessagesCount: messages.value.length,
+                  lastMessageContent: messages.value[messages.value.length - 1]?.content,
+                })
+              }
+
+              console.log('📝 REAL-TIME STREAM UPDATE:', {
+                conversationId,
+                messageId,
+                oldContent: msg.content,
+                newContent: data.content,
+                totalContent: updatedMsg.content,
+                totalLength: updatedMsg.content.length,
+              })
             }
+          } else {
+            // Create new assistant message for streaming
+            const newMessage: ChatMessage = {
+              id: messageId,
+              conversation_id: data.conversation_id || currentConversationId.value,
+              role: 'assistant',
+              content: data.content,
+              created_at: data.timestamp
+                ? typeof data.timestamp === 'number'
+                  ? new Date(data.timestamp).toISOString()
+                  : data.timestamp
+                : new Date().toISOString(),
+              metadata: data.metadata || {},
+              tool_calls: data.tool_calls || [],
+            }
+
+            // Create new array with added message
+            const updatedMessages = [...convMessages, newMessage]
             conversationMessages.value.set(conversationId, updatedMessages)
+
+            // 🔥 CRITICAL: Update UI messages if this is current conversation
+            if (conversationId === currentConversationId.value) {
+              const oldMessages = [...messages.value]
+              messages.value = [...updatedMessages]
+              console.log('🔄 UI SYNC - NEW MESSAGE ADDED:', {
+                conversationId,
+                messageId,
+                oldMessagesCount: oldMessages.length,
+                newMessagesCount: messages.value.length,
+                lastMessageContent: messages.value[messages.value.length - 1]?.content,
+              })
+            }
+
+            console.log('📝 REAL-TIME NEW MESSAGE:', {
+              conversationId,
+              messageId,
+              content: data.content,
+              contentLength: data.content.length,
+              totalMessages: updatedMessages.length,
+            })
           }
-        } else {
-          // Create new assistant message for streaming
-          const newMessage: ChatMessage = {
-            id: messageId,
-            conversation_id: data.conversation_id || currentConversationId.value,
-            role: 'assistant',
-            content: data.content,
-            created_at: data.timestamp
-              ? typeof data.timestamp === 'number'
-                ? new Date(data.timestamp).toISOString()
-                : data.timestamp
-              : new Date().toISOString(),
-            metadata: data.metadata || {},
-            tool_calls: data.tool_calls || [],
-          }
-          conversationMessages.value.set(conversationId, [...convMessages, newMessage])
-        }
+        } // 🔥 CLOSING BRACE for empty content check
       }
 
       // Handle streaming completion (when done: true) - don't add content, just mark as complete
@@ -285,6 +350,10 @@ export const useChatStore = defineStore('chat', () => {
       }
     })
 
+    webSocketService.onMessage('chat_interrupted', (data: any) => {
+      loadConversation()
+    })
+
     // Tool execution started
     webSocketService.onMessage('tool_execution_started', (data: any) => {
       // Update tool call status to "executing" in existing messages
@@ -336,7 +405,9 @@ export const useChatStore = defineStore('chat', () => {
 
     // Add this conversation to processing set
     if (currentConversationId.value) {
+      console.log('🎯 ADDING CONVERSATION TO PROCESSING SET:', currentConversationId.value)
       processingConversations.value.add(currentConversationId.value)
+      console.log('🎯 PROCESSING CONVERSATIONS NOW:', Array.from(processingConversations.value))
     }
 
     // Create user message immediately for better UX
@@ -350,11 +421,6 @@ export const useChatStore = defineStore('chat', () => {
 
     messages.value.push(userMessage)
     isLoading.value = true
-
-    // Add this conversation to processing set
-    if (currentConversationId.value) {
-      processingConversations.value.add(currentConversationId.value)
-    }
 
     // Send to WebSocket with conversation ID
     webSocketService.sendMessageToAssistant(currentConversationId.value, content)
@@ -373,6 +439,7 @@ export const useChatStore = defineStore('chat', () => {
       const response = await apiClient.getConversations()
 
       if (response.success && response.conversations) {
+        console.log('DEBUG: API conversations response:', response.conversations)
         response.conversations.forEach((conv: ApiConversation) => {
           // Convert API conversation to WebSocket conversation format
           const wsConv: Conversation = {
@@ -380,12 +447,18 @@ export const useChatStore = defineStore('chat', () => {
             title: conv.title,
             user_id: conv.user_id,
             project_id: conv.project_id,
+            status: conv.status, // 🎯 NEW: Include status from API
             created_at: conv.created_at,
             updated_at: conv.updated_at,
           }
+          console.log('DEBUG: Adding conversation to store:', wsConv)
           conversations.value.set(conv.id, wsConv)
         })
         console.log('DEBUG: Loaded conversations via API:', response.conversations.length)
+        console.log(
+          'DEBUG: Store conversations after loading:',
+          Array.from(conversations.value.values()),
+        )
       } else {
         console.error('DEBUG: Failed to load conversations via API:', response)
       }
@@ -400,6 +473,7 @@ export const useChatStore = defineStore('chat', () => {
       isLoadingHistory.value = true
 
       const response = await apiClient.getConversationMessages(conversationId)
+      console.log('🔍 LOAD CONVERSATION RESPONSE:', response)
 
       if (response.success && response.conversation) {
         const { conversation, messages: apiMessages } = response.conversation
@@ -409,6 +483,7 @@ export const useChatStore = defineStore('chat', () => {
           id: conversation.id,
           title: conversation.title,
           user_id: conversation.user_id,
+          status: conversation.status,
           project_id: conversation.project_id,
           created_at: conversation.created_at,
           updated_at: conversation.updated_at,
@@ -439,10 +514,16 @@ export const useChatStore = defineStore('chat', () => {
         // Update store - always store conversation and messages
         conversations.value.set(conversation.id, wsConv)
         conversationMessages.value.set(conversation.id, wsMessages)
-        
+
         // Update UI messages if this is still the current conversation
         if (currentConversationId.value === conversationId) {
           messages.value = wsMessages
+        }
+
+        if (conversation.status === 'processing') {
+          // TODO: get the new chunk data in backend memory, then continue appending the stream data
+          // get_streaming_conversation -> to get current streaming conversation, check if id same with currentConversationId
+          // streaming_conversation_loaded -> this handler sent from the backend to get chunk message from memory
         }
       } else {
         console.error('DEBUG: Failed to load conversation via API:', response)

@@ -48,6 +48,12 @@ const router = createRouter({
       component: ChatView,
       meta: { requiresAuth: true },
     },
+    {
+      path: '/p/:id/chat/:conversation_id?',
+      name: 'chat-with-conversation',
+      component: ChatView,
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

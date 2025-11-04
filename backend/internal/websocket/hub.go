@@ -10,6 +10,8 @@ import (
 	
 	"zlay-backend/internal/chat"
 	"zlay-backend/internal/messages"
+	
+	"github.com/gin-gonic/gin"
 )
 
 // WebSocketMessage represents a message sent over WebSocket (alias for shared package)
@@ -85,6 +87,7 @@ type Conversation struct {
 	Title     string    `json:"title"`
 	UserID    string    `json:"user_id"`
 	ProjectID string    `json:"project_id"`
+	Status    string    `json:"status"` // processing, completed, interrupted
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -222,6 +225,18 @@ func (h *Hub) Run() {
 					}
 				}
 
+				// 🔄 NEW: Detach from all active streams
+				if h.handler != nil {
+					if chatHandler, ok := h.handler.(*Handler); ok && chatHandler.chatService != nil {
+						allStreams := chatHandler.chatService.GetAllActiveStreams()
+						for conversationID := range allStreams {
+							if err := chatHandler.chatService.DetachConnectionFromStream(conversationID, conn.ID); err == nil {
+								log.Printf("Detached connection %s from stream %s", conn.ID, conversationID)
+							}
+						}
+					}
+				}
+
 				// Mark as unregistered and close send channel safely
 				conn.shouldUnregister()
 				conn.closeSendChannel()
@@ -237,6 +252,21 @@ func (h *Hub) Run() {
 			h.projects[join.ProjectID][join.Connection] = true
 			h.mutex.Unlock()
 			log.Printf("Connection %s joined project %s", join.Connection.ID, join.ProjectID)
+
+			// 🔄 NEW: Attach to any active streams in this project
+			if h.handler != nil {
+				if chatHandler, ok := h.handler.(*Handler); ok && chatHandler.chatService != nil {
+					allStreams := chatHandler.chatService.GetAllActiveStreams()
+					for conversationID, streamState := range allStreams {
+						// Only attach if this stream belongs to the same project and user
+						if streamState.ProjectID == join.ProjectID && streamState.UserID == join.Connection.UserID {
+							if err := chatHandler.chatService.AttachConnectionToStream(conversationID, join.Connection.ID); err == nil {
+								log.Printf("Attached new connection %s to active stream %s", join.Connection.ID, conversationID)
+							}
+						}
+					}
+				}
+			}
 
 		case leave := <-h.projectLeave:
 			h.mutex.Lock()
@@ -351,6 +381,7 @@ func convertConversation(conv *chat.Conversation) Conversation {
 		Title:     conv.Title,
 		UserID:    conv.UserID,
 		ProjectID: conv.ProjectID,
+		Status:    conv.Status,
 		CreatedAt: conv.CreatedAt,
 		UpdatedAt: conv.UpdatedAt,
 	}
@@ -452,4 +483,42 @@ func (h *Hub) GetProjectConnections(projectID string) []*Connection {
 		}
 	}
 	return connections
+}
+
+// GetConnectionByID returns a specific connection by its ID
+func (h *Hub) GetConnectionByID(connectionID string) *Connection {
+	h.mutex.RLock()
+	defer h.mutex.RUnlock()
+	
+	for conn := range h.connections {
+		if conn.ID == connectionID {
+			return conn
+		}
+	}
+	return nil
+}
+
+// handleInterruptionForConnection checks if user has active streaming and marks as interrupted
+func (h *Hub) handleInterruptionForConnection(conn *Connection) {
+	if conn.UserID == "" || conn.ProjectID == "" {
+		return
+	}
+	
+	// Check all active streams in chat service for this user/project
+	// This is a bit of a hack - ideally we'd pass a chat service reference
+	// For now, we'll broadcast an interruption message that the handler can process
+	
+	log.Printf("🔌 Connection interrupted for user %s in project %s", conn.UserID, conn.ProjectID)
+	
+	// Send interruption notification
+	h.BroadcastToProject(conn.ProjectID, WebSocketMessage{
+		Type: "chat_interrupted",
+		Data: gin.H{
+			"user_id":       conn.UserID,
+			"project_id":    conn.ProjectID,
+			"connection_id": conn.ID,
+			"reason":       "connection_lost",
+		},
+		Timestamp: time.Now().UnixMilli(),
+	})
 }

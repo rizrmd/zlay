@@ -422,8 +422,8 @@ func (app *App) authMiddleware() gin.HandlerFunc {
 		row, err := app.ZDB.QueryRow(ctx,
 			`SELECT u.id, u.client_id, u.username, u.password_hash, u.is_active, u.created_at 
 			FROM sessions s 
-			JOIN users u ON u.id::text = s.user_id::text
-			WHERE s.token_hash = $1::text AND s.expires_at > CURRENT_TIMESTAMP`,
+			JOIN users u ON u.id = s.user_id
+			WHERE s.token_hash = $1 AND s.expires_at > CURRENT_TIMESTAMP`,
 			tokenHashStr)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired session"})
@@ -513,8 +513,8 @@ func (app *App) adminMiddleware() gin.HandlerFunc {
 		row, err := app.ZDB.QueryRow(ctx,
 			`SELECT u.id, u.client_id, u.username, u.password_hash, u.is_active, u.created_at 
 			FROM sessions s 
-			JOIN users u ON u.id::text = s.user_id::text
-			WHERE s.token_hash = $1::text AND s.expires_at > CURRENT_TIMESTAMP`,
+			JOIN users u ON u.id = s.user_id
+			WHERE s.token_hash = $1 AND s.expires_at > CURRENT_TIMESTAMP`,
 			tokenHashStr)
 		if err != nil || len(row.Values) < 6 {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired session"})
@@ -542,6 +542,7 @@ type Conversation struct {
 	Title     string `json:"title"`
 	UserID    string `json:"user_id"`
 	ProjectID string `json:"project_id"`
+	Status    string `json:"status"` // processing, completed, interrupted
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }
@@ -562,7 +563,7 @@ func (app *App) getConversationsHandler(c *gin.Context) {
 	
 	// Query conversations using ZDB
 	resultSet, err := app.ZDB.Query(ctx, `
-		SELECT id, title, user_id, project_id, created_at, updated_at 
+		SELECT id, title, user_id, project_id, status, created_at, updated_at 
 		FROM conversations 
 		WHERE user_id = $1 AND project_id = $2 
 		ORDER BY updated_at DESC
@@ -580,13 +581,14 @@ func (app *App) getConversationsHandler(c *gin.Context) {
 	for _, row := range resultSet.Rows {
 		conv := Conversation{}
 		// Map row values to struct
-		if len(row.Values) >= 6 {
+		if len(row.Values) >= 7 {
 			conv.ID, _ = row.Values[0].AsString()
 			conv.Title, _ = row.Values[1].AsString()
 			conv.UserID, _ = row.Values[2].AsString()
 			conv.ProjectID, _ = row.Values[3].AsString()
-			conv.CreatedAt, _ = row.Values[4].AsString()
-			conv.UpdatedAt, _ = row.Values[5].AsString()
+			conv.Status, _ = row.Values[4].AsString()
+			conv.CreatedAt, _ = row.Values[5].AsString()
+			conv.UpdatedAt, _ = row.Values[6].AsString()
 		}
 		conversations = append(conversations, conv)
 	}
@@ -700,7 +702,7 @@ func (app *App) getConversationMessagesHandler(c *gin.Context) {
 	
 	// Also get conversation details
 	convResultSet, err := app.ZDB.Query(ctx, `
-		SELECT id, title, user_id, project_id, created_at, updated_at 
+		SELECT id, title, user_id, project_id, status, created_at, updated_at 
 		FROM conversations 
 		WHERE id = $1
 	`, conversationID)
@@ -716,13 +718,14 @@ func (app *App) getConversationMessagesHandler(c *gin.Context) {
 	var conversation Conversation
 	if len(convResultSet.Rows) > 0 {
 		convRow := convResultSet.Rows[0]
-		if len(convRow.Values) >= 6 {
+		if len(convRow.Values) >= 7 {
 			conversation.ID, _ = convRow.Values[0].AsString()
 			conversation.Title, _ = convRow.Values[1].AsString()
 			conversation.UserID, _ = convRow.Values[2].AsString()
 			conversation.ProjectID, _ = convRow.Values[3].AsString()
-			conversation.CreatedAt, _ = convRow.Values[4].AsString()
-			conversation.UpdatedAt, _ = convRow.Values[5].AsString()
+			conversation.Status, _ = convRow.Values[4].AsString()
+			conversation.CreatedAt, _ = convRow.Values[5].AsString()
+			conversation.UpdatedAt, _ = convRow.Values[6].AsString()
 		}
 	}
 	

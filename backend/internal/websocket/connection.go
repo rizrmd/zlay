@@ -60,6 +60,9 @@ func NewConnection(ws *websocket.Conn, userID, clientID string, hub *Hub) *Conne
 // ReadPump pumps messages from the WebSocket connection to the hub
 func (c *Connection) ReadPump() {
 	defer func() {
+		// 🔄 NEW: Check for active streaming and mark as interrupted
+		c.hub.handleInterruptionForConnection(c)
+		
 		c.hub.unregister <- c
 		// Close the outbound message channel to stop the WritePump
 		c.closeSendChannel()
