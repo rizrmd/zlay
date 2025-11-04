@@ -107,37 +107,37 @@ class WebSocketService {
         this.ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data) as WebSocketMessage
-            
+
             // 🔥 DEBUG: Log ALL received messages for debugging
-            console.log('📥 WEBSOCKET MESSAGE RECEIVED:', {
-              type: message.type,
-              hasData: !!message.data,
-              timestamp: message.timestamp,
-              id: message.id,
-              tokens_used: message.tokens_used,
-              rawData: message
-            })
-            
+            // console.log('📥 WEBSOCKET MESSAGE RECEIVED:', {
+            //   type: message.type,
+            //   hasData: !!message.data,
+            //   timestamp: message.timestamp,
+            //   id: message.id,
+            //   tokens_used: message.tokens_used,
+            //   rawData: message,
+            // })
+
             // Special logging for assistant responses
             if (message.type === 'assistant_response') {
               const content = message.data.content || ''
-              console.log('🤖 ASSISTANT RESPONSE CHUNK:', {
-                content: `"${content}"`,
-                contentLength: content.length,
-                done: message.data.done,
-                conversation_id: message.data.conversation_id,
-                message_id: message.data.message_id,
-                timestamp: message.timestamp,
-                hasData: !!message.data,
-                keys: Object.keys(message.data)
-              })
-              
+              // console.log('🤖 ASSISTANT RESPONSE CHUNK:', {
+              //   content: `"${content}"`,
+              //   contentLength: content.length,
+              //   done: message.data.done,
+              //   conversation_id: message.data.conversation_id,
+              //   message_id: message.data.message_id,
+              //   timestamp: message.timestamp,
+              //   hasData: !!message.data,
+              //   keys: Object.keys(message.data),
+              // })
+
               // 🔥 REAL-TIME DEBUG: Track exact content changes
               if (content.trim() !== '') {
-                console.log('📝 REAL-TIME CONTENT RECEIVED:', `"${content}"`)
+                // console.log('📝 REAL-TIME CONTENT RECEIVED:', `"${content}"`)
               }
             }
-            
+
             this.handleMessage(message)
           } catch (error) {
             console.error('❌ Error parsing WebSocket message:', error)
@@ -193,35 +193,35 @@ class WebSocketService {
     }
 
     // Enhanced logging for all outgoing messages
-    console.log('📤 SENDING WebSocket message:', {
-      type,
-      timestamp: message.timestamp,
-      dataSize: JSON.stringify(data).length,
-      hasContent: !!data.content,
-      contentPreview: data.content
-        ? data.content.substring(0, 100) + (data.content.length > 100 ? '...' : '')
-        : null,
-      conversationId: data.conversation_id,
-      fullData: data,
-    })
+    // console.log('📤 SENDING WebSocket message:', {
+    //   type,
+    //   timestamp: message.timestamp,
+    //   dataSize: JSON.stringify(data).length,
+    //   hasContent: !!data.content,
+    //   contentPreview: data.content
+    //     ? data.content.substring(0, 100) + (data.content.length > 100 ? '...' : '')
+    //     : null,
+    //   conversationId: data.conversation_id,
+    //   fullData: data,
+    // })
 
     // Special logging for user messages
     if (type === 'user_message' && data.content) {
-      console.log('👤 USER MESSAGE SENT:', {
-        conversationId: data.conversation_id,
-        content: data.content,
-        contentLength: data.content.length,
-        timestamp: message.timestamp,
-      })
+      // console.log('👤 USER MESSAGE SENT:', {
+      //   conversationId: data.conversation_id,
+      //   content: data.content,
+      //   contentLength: data.content.length,
+      //   timestamp: message.timestamp,
+      // })
     }
 
     // Log the raw JSON being sent
     const jsonString = JSON.stringify(message)
-    console.log('🌐 RAW WebSocket payload:', {
-      size: jsonString.length,
-      payload: jsonString,
-      timestamp: new Date().toISOString(),
-    })
+    // console.log('🌐 RAW WebSocket payload:', {
+    //   size: jsonString.length,
+    //   payload: jsonString,
+    //   timestamp: new Date().toISOString(),
+    // })
 
     this.ws.send(jsonString)
   }
@@ -247,7 +247,7 @@ class WebSocketService {
     // Test if WebSocket server is accessible via HTTP first
     setTimeout(() => {
       const testUrl = `${protocol === 'wss:' ? 'https:' : 'http:'}//${wsHost}/ws/health`
-      console.log(`Testing WebSocket proxy health: ${testUrl}`)
+      // console.log(`Testing WebSocket proxy health: ${testUrl}`)
       fetch(testUrl)
         .then((response) => response.json())
         .then((data) => console.log('WebSocket proxy health:', data))
@@ -258,18 +258,17 @@ class WebSocketService {
   }
 
   private handleMessage(message: WebSocketMessage): void {
-    console.log('🎯 Processing WebSocket message:', {
-      type: message.type,
-      id: message.id,
-      timestamp: message.timestamp,
-      hasData: !!message.data,
-      dataPreview: message.data ? JSON.stringify(message.data).substring(0, 200) + '...' : 'null',
-    })
+    // console.log('🎯 Processing WebSocket message:', {
+    //   type: message.type,
+    //   id: message.id,
+    //   timestamp: message.timestamp,
+    //   hasData: !!message.data,
+    //   dataPreview: message.data ? JSON.stringify(message.data).substring(0, 200) + '...' : 'null',
+    // })
 
     // Ensure each message has a unique id
     if (!message.id) {
       message.id = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
-      console.log('🏷️ Generated message ID:', message.id)
     }
 
     // Track tokens from responses
@@ -288,7 +287,7 @@ class WebSocketService {
 
     const handler = this.messageHandlers.get(message.type)
     if (handler) {
-      console.log('✅ Found handler for message type:', message.type)
+      // console.log('✅ Found handler for message type:', message.type)
       try {
         handler(message.data)
         console.log('✅ Handler executed successfully for:', message.type)

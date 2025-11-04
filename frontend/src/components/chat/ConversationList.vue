@@ -86,7 +86,7 @@ const isConversationProcessing = (conversationId: string): boolean => {
 // Check if a specific conversation is currently loading
 const isConversationLoading = (conversationId: string): boolean => {
   const conversation = chatStore.conversations.get(conversationId)
-  return conversation?.isLoading || false
+  return chatStore.isLoadingHistory || false
 }
 
 const formatMessageTime = (conversation: Conversation) => {

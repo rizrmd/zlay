@@ -44,7 +44,11 @@ const router = createRouter({
     },
     {
       path: '/p/:id/chat',
-      name: 'chat',
+      name: 'chat-base',
+      redirect: (to) => {
+        // This will be handled by the ChatLayout component for dynamic redirection
+        return to.path // Keep the path, let component handle redirection
+      },
       component: ChatView,
       meta: { requiresAuth: true },
     },

@@ -37,7 +37,7 @@
 import { ref, onMounted, onUnmounted, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/stores/chat'
-import { useAuthStore } from '@/stores/auth'
+import { useProjectStore } from '@/stores/project'
 import ConnectionStatus from '@/components/chat/ConnectionStatus.vue'
 import MobileMenuToggle from '@/components/chat/MobileMenuToggle.vue'
 import ChatSidebar from '@/components/chat/ChatSidebar.vue'
@@ -46,7 +46,7 @@ import type { Conversation } from '@/services/websocket'
 
 // Stores
 const chatStore = useChatStore()
-const authStore = useAuthStore()
+const projectStore = useProjectStore()
 
 // Route
 const route = useRoute()
@@ -77,7 +77,6 @@ const conversations = computed(() => {
       updated_at: chat.updated_at || '', // From API if available
     }))
 
-    console.log('DEBUG: Computed conversations result:', result)
     return result
   } catch (error) {
     console.error('Error in conversations computed:', error)
@@ -85,9 +84,19 @@ const conversations = computed(() => {
   }
 })
 const currentConversationId = computed(() => chatStore.currentConversationId || null)
-const messages = computed(() => chatStore.messages || [])
-const isLoading = computed(() => chatStore.isProcessing || false)
-const hasMessages = computed(() => messages.value.length > 0)
+const messages = computed(() => {
+  console.log('📊 CHAT LAYOUT: Messages computed, count:', chatStore.messages.length)
+  console.log('📊 CHAT LAYOUT: Sample message:', chatStore.messages[0])
+  return chatStore.messages
+})
+const isLoading = computed(() => {
+  console.log('📊 CHAT LAYOUT: isLoading computed:', chatStore.isLoading)
+  return chatStore.isLoading || false
+})
+const hasMessages = computed(() => {
+  console.log('📊 CHAT LAYOUT: hasMessages computed:', chatStore.messages.length > 0)
+  return chatStore.messages.length > 0
+})
 
 // Refs for components
 const sidebarRef = ref()
@@ -113,6 +122,15 @@ const sendMessage = async (content: string) => {
   console.log('DEBUG: sendMessage called, currentConversationId:', currentConversationId.value)
 
   if (currentConversationId.value) {
+    // 🚀 NEW: Ensure we're on the correct conversation URL
+    const projectId = route.params.id as string
+    const currentConversationIdFromUrl = route.params.conversation_id as string
+
+    if (currentConversationIdFromUrl !== currentConversationId.value) {
+      console.log('🚀 Updating URL to match current conversation:', currentConversationId.value)
+      await router.replace(`/p/${projectId}/chat/${currentConversationId.value}`)
+    }
+
     await chatStore.sendMessage(content)
   } else {
     console.log('DEBUG: Creating new conversation with content:', content)
@@ -130,6 +148,7 @@ const createNewConversation = async () => {
 }
 
 const selectConversation = async (conversationId: string) => {
+  console.log('🔄 CHAT SWITCH: Selecting conversation', conversationId, 'isLoadingHistory:', chatStore.isLoadingHistory)
   chatStore.selectConversation(conversationId)
 
   // 🚀 ENHANCED: Auto-scroll to bottom when selecting conversation
@@ -170,11 +189,10 @@ const handleClickOutside = (event: MouseEvent) => {
 
 // Watch for connection changes to load conversations
 watch(isConnected, (connected) => {
-  console.log('DEBUG: isConnected changed to:', connected)
+  console.log('🏗️ PROJECT STORE: isConnected changed to:', connected)
   if (connected) {
-    console.log('DEBUG: WebSocket connected, loading conversations...')
+    console.log('🏗️ PROJECT STORE: WebSocket connected, loading conversations...')
     chatStore.loadConversations().then(() => {
-      // 🚀 ENHANCED: Auto-scroll after conversations load if we have a conversation selected
       if (currentConversationId.value) {
         setTimeout(() => {
           chatMainRef.value?.messagesContainer?.scrollTo({
@@ -193,33 +211,46 @@ watch(
   (newConversationId, oldConversationId) => {
     if (newConversationId && newConversationId !== oldConversationId) {
       console.log(
-        'DEBUG: Route conversation_id changed from',
+        '💬 CHAT STORE: Route conversation_id changed from',
         oldConversationId,
         'to',
         newConversationId,
       )
 
-      // Wait for connection and loading to complete, with longer timeout
       const selectWithRetry = () => {
-        if (isConnected.value && !chatStore.isLoading) {
-          console.log('DEBUG: Connection ready, loading conversation:', newConversationId)
+        if (isConnected.value) {
+          console.log('💬 CHAT STORE: Connection ready, loading conversation:', newConversationId)
           chatStore.loadConversations().then(() => {
-            console.log('DEBUG: Conversations loaded, selecting:', newConversationId)
-            chatStore.selectConversation(newConversationId)
+            console.log('💬 CHAT STORE: Conversations loaded, selecting and loading conversation messages:', newConversationId)
+            chatStore.loadConversation(newConversationId).then(() => {
+              chatStore.selectConversation(newConversationId)
+            })
           })
         } else {
-          const timeout = chatStore.isLoading ? 200 : 100
-          console.log(
-            `DEBUG: Waiting for connection/load, retrying in ${timeout}ms... (connected=${isConnected.value}, loading=${chatStore.isLoading})`,
-          )
-          setTimeout(selectWithRetry, timeout)
+          console.log('💬 CHAT STORE: Waiting for connection, retrying in 100ms...')
+          setTimeout(selectWithRetry, 100)
         }
       }
 
       selectWithRetry()
     }
   },
-  { immediate: true }, // Also run on mount
+  { immediate: true },
+)
+
+// 🚀 NEW: Handle base chat path redirection (when no conversation_id provided)
+watch(
+  () => route.params.conversation_id,
+  (conversationId) => {
+    const projectId = route.params.id as string
+
+    // If we're on base chat path (/p/:id/chat) and no conversation_id
+    if (projectId && !conversationId && isConnected.value) {
+      console.log('🚀 Base chat path detected, handling redirection...')
+      chatStore.handleBaseChatPath(projectId)
+    }
+  },
+  { immediate: true },
 )
 
 // Lifecycle
@@ -233,17 +264,15 @@ onMounted(async () => {
   // Initialize project and conversation from route params
   const projectId = route.params.id as string
   const conversationId = route.params.conversation_id as string
-  console.log('Current project ID:', projectId)
-  console.log('Current conversation ID from URL:', conversationId)
+  console.log('🏗️ PROJECT STORE: Current project ID:', projectId)
+  console.log('💬 CHAT STORE: Current conversation ID from URL:', conversationId)
 
-  // Initialize WebSocket connection
-  console.log('All cookies:', document.cookie)
-
+  // Initialize chat system
   if (projectId) {
     try {
-      await chatStore.initWebSocket(projectId)
+      await chatStore.initChat(projectId)
     } catch (error) {
-      console.error('Failed to initialize WebSocket:', error)
+      console.error('Failed to initialize chat system:', error)
     }
   } else {
     console.log('Missing projectId:', { projectId: !!projectId })

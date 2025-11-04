@@ -77,7 +77,6 @@ class ApiClient {
     }
 
     const response = await fetch(url, config)
-    console.log('respon:', response)
 
     if (!response.ok) {
       if (response.status === 401) {
