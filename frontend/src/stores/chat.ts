@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ChatMessage, ToolCall } from '@/services/websocket'
 import webSocketService from '@/services/websocket'
@@ -45,14 +45,14 @@ export const useChatStore = defineStore('chat', () => {
   const isCurrentConversationProcessing = computed(() => {
     if (!currentConversationId.value) return false
     
-    const isStatusProcessing = conversationStore.conversations.value.get(currentConversationId.value)?.status === 'processing'
-    const isInProcessingSet = conversationStore.processingConversations.value.has(currentConversationId.value)
+    const isStatusProcessing = conversationStore.conversations.get(currentConversationId.value)?.status === 'processing'
+    const isInProcessingSet = conversationStore.processingConversations.has(currentConversationId.value)
     const isCurrentlySending = sendingMessageConversations.value.has(currentConversationId.value)
     const isCurrentlyCreating = creatingConversations.value.has(currentConversationId.value)
     
     console.log('💬 PROCESSING CHECK:', {
       conversationId: currentConversationId.value,
-      conversationStatus: conversationStore.conversations.value.get(currentConversationId.value)?.status,
+      conversationStatus: conversationStore.conversations.get(currentConversationId.value)?.status,
       isStatusProcessing,
       isInProcessingSet,
       isCurrentlySending,
@@ -86,6 +86,12 @@ export const useChatStore = defineStore('chat', () => {
       const messageId = data.message_id || `msg-${Date.now()}`
       const conversationId = data.conversation_id || currentConversationId.value
       
+      // Check if conversationStore is properly initialized
+      if (!conversationStore?.conversationMessages) {
+        console.error('❌ conversationStore.conversationMessages is undefined')
+        return
+      }
+      
       console.log('🔍 CHECKING PROCESSING STATUS:', {
         conversationId,
         isProcessing: processingConversations.value.has(conversationId),
@@ -93,7 +99,7 @@ export const useChatStore = defineStore('chat', () => {
         currentConversation: currentConversationId.value,
       })
       
-      if (!processingConversations.value.has(conversationId)) {
+      if (!processingConversations.value?.has(conversationId)) {
         console.log('❌ DEBUG: Ignoring message for untracked conversation:', conversationId)
         return
       }
@@ -104,7 +110,6 @@ export const useChatStore = defineStore('chat', () => {
       if (data.content !== undefined && typeof data.content === 'string') {
         console.log('📝 DEBUG: Processing content chunk:', data.content.trim() || '[empty]')
         
-        // Always process the message (even empty content) to ensure message exists
         conversationStore.addOrUpdateMessage(conversationId, {
           id: messageId,
           conversation_id: data.conversation_id || currentConversationId.value,
@@ -121,7 +126,7 @@ export const useChatStore = defineStore('chat', () => {
         conversationStore.removeFromProcessing(conversationId)
         
         // Mark message as complete
-        const convMessages = conversationStore.conversationMessages.value.get(conversationId) || []
+        const convMessages = conversationStore.conversationMessages?.get(conversationId) || []
         const messageIndex = convMessages.findIndex((msg) => msg.id === messageId)
         
         if (messageIndex !== -1) {
@@ -145,17 +150,28 @@ export const useChatStore = defineStore('chat', () => {
           isSendingMessage.value = false
         }
         
-        // ✅ Remove per-conversation sending state
+        // ✅ Remove ALL per-conversation states on completion
         sendingMessageConversations.value.delete(conversationId)
-        console.log('💬 SENDING STATE: Removed from processing set:', conversationId)
+        conversationStore.removeFromProcessing(conversationId)  // 🎯 FIX: Remove from processing set!
+        console.log('💬 STREAMING COMPLETE: Removed conversation from all processing sets:', conversationId)
+        
+        // ✅ Also update conversation status to 'completed' if not already
+        const conv = conversationStore.conversations.value.get(conversationId)
+        if (conv && conv.status !== 'completed') {
+          const updatedConv = { ...conv, status: 'completed' }
+          conversationStore.conversations.value.set(conversationId, updatedConv)
+          console.log('💬 STATUS UPDATE: Auto-updated conversation status to completed:', conversationId)
+        }
       }
     })
     
     // Conversation created
     webSocketService.onMessage('conversation_created', (data: any) => {
       if (data.conversation) {
-        conversationStore.conversations.value.set(data.conversation.id, data.conversation)
-        conversationStore.currentConversationId.value = data.conversation.id
+        conversationStore.conversations.set(data.conversation.id, data.conversation)
+        if (data.conversation?.id) {
+          conversationStore.currentConversationId.value = data.conversation.id
+        }
         conversationStore.messages.value = []
         
         // Reset loading states
@@ -179,9 +195,9 @@ export const useChatStore = defineStore('chat', () => {
       console.log('DEBUG: Received conversations list:', data)
       if (data.conversations && Array.isArray(data.conversations)) {
         data.conversations.forEach((conv: any) => {
-          conversationStore.conversations.value.set(conv.id, conv)
+          conversationStore.conversations.set(conv.id, conv)
         })
-        console.log('DEBUG: Loaded conversations:', Array.from(conversationStore.conversations.value.keys()))
+        console.log('DEBUG: Loaded conversations:', Array.from(conversationStore.conversations.keys()))
       }
     })
     
@@ -193,7 +209,7 @@ export const useChatStore = defineStore('chat', () => {
         const conversation = conversationWithMessages.conversation
         const convMessages = conversationWithMessages.messages
         
-        conversationStore.conversations.value.set(conversation.id, conversation)
+        conversationStore.conversations.set(conversation.id, conversation)
         
         if (convMessages && Array.isArray(convMessages)) {
           const safeMessages = convMessages.map((msg: any) => {
@@ -203,17 +219,19 @@ export const useChatStore = defineStore('chat', () => {
             return msg
           })
           conversationStore.messages.value = safeMessages
-          conversationStore.conversationMessages.value.set(conversation.id, safeMessages)
+          conversationStore.conversationMessages.set(conversation.id, safeMessages)
         }
         
-        conversationStore.currentConversationId.value = conversation.id
+        if (conversation?.id) {
+          conversationStore.currentConversationId.value = conversation.id
+        }
       }
     })
     
     // Conversation deleted
     webSocketService.onMessage('conversation_deleted', (data: any) => {
       if (data.conversation_id) {
-        conversationStore.conversations.value.delete(data.conversation_id)
+        conversationStore.conversations.delete(data.conversation_id)
         
         if (currentConversationId.value === data.conversation_id) {
           conversationStore.clearCurrentConversation()
@@ -266,17 +284,19 @@ export const useChatStore = defineStore('chat', () => {
     webSocketService.onMessage('conversation_status', (data: any) => {
       console.log('💬 STATUS UPDATE: conversation_status received:', data)
       if (data.conversation_id && data.status) {
-        const conv = conversationStore.conversations.value.get(data.conversation_id)
+        const conv = conversationStore.conversations.get(data.conversation_id)
         if (conv) {
           // Update conversation status
           const updatedConv = { ...conv, status: data.status }
-          conversationStore.conversations.value.set(data.conversation_id, updatedConv)
+          conversationStore.conversations.set(data.conversation_id, updatedConv)
           
           console.log('💬 STATUS UPDATE: Conversation', data.conversation_id, 'status changed to:', data.status)
           
           // Remove from processing set if status is not 'processing'
           if (data.status !== 'processing') {
             conversationStore.removeFromProcessing(data.conversation_id)
+            // 🎯 RUN: Consistency check after status change
+            setTimeout(() => ensureStateConsistency(data.conversation_id), 100)
           }
           // Add to processing set if status is 'processing'
           else {
@@ -289,11 +309,11 @@ export const useChatStore = defineStore('chat', () => {
     webSocketService.onMessage('conversation_status_updated', (data: any) => {
       console.log('💬 STATUS UPDATE: conversation_status_updated received:', data)
       if (data.conversation_id && data.status) {
-        const conv = conversationStore.conversations.value.get(data.conversation_id)
+        const conv = conversationStore.conversations.get(data.conversation_id)
         if (conv) {
           // Update conversation status
           const updatedConv = { ...conv, status: data.status }
-          conversationStore.conversations.value.set(data.conversation_id, updatedConv)
+          conversationStore.conversations.set(data.conversation_id, updatedConv)
           
           console.log('💬 STATUS UPDATE: Conversation', data.conversation_id, 'status updated to:', data.status)
           
@@ -309,11 +329,60 @@ export const useChatStore = defineStore('chat', () => {
       }
     })
     
+    // ✅ NEW: Fallback state cleanup (ensure no stuck states)
+    const ensureStateConsistency = (conversationId: string) => {
+      const conv = conversationStore.conversations.value.get(conversationId)
+      const convStatus = conv?.status || 'completed'
+      const isInProcessingSet = conversationStore.processingConversations.value.has(conversationId)
+      const isSending = sendingMessageConversations.value.has(conversationId)
+      
+      console.log('🔧 STATE CONSISTENCY CHECK:', {
+        conversationId,
+        conversationStatus: convStatus,
+        isInProcessingSet,
+        isSending,
+        shouldCleanUp: convStatus !== 'processing' && (isInProcessingSet || isSending)
+      })
+      
+      // If conversation is NOT processing but still in processing sets → clean up
+      if (convStatus !== 'processing' && (isInProcessingSet || isSending)) {
+        console.log('🧹 CLEANING UP: Removing stuck processing states for:', conversationId)
+        conversationStore.removeFromProcessing(conversationId)
+        sendingMessageConversations.value.delete(conversationId)
+        
+        // Reset global state if this is current conversation
+        if (currentConversationId.value === conversationId) {
+          isSendingMessage.value = false
+          isCreatingConversation.value = false
+        }
+      }
+    }
+    
+    // ✅ NEW: Periodic consistency check for current conversation
+    const runConsistencyCheck = () => {
+      if (currentConversationId.value) {
+        ensureStateConsistency(currentConversationId.value)
+      }
+    }
+    
+    // Set up periodic checks (every 5 seconds as safety net)
+    const consistencyInterval = setInterval(runConsistencyCheck, 5000)
+    
+    // Clean up interval on component unmount
+    onUnmounted(() => {
+      clearInterval(consistencyInterval)
+    })
+    
     // Error handling
     webSocketService.onMessage('error', (data: any) => {
       console.error('WebSocket error:', data)
       isSendingMessage.value = false
       isCreatingConversation.value = false
+      
+      // Run consistency check on error
+      if (currentConversationId.value) {
+        ensureStateConsistency(currentConversationId.value)
+      }
     })
   }
   
@@ -402,9 +471,9 @@ export const useChatStore = defineStore('chat', () => {
     try {
       await conversationStore.loadConversations()
       
-      const projectConversations = Array.from(conversationStore.conversations.value.values())
+      const projectConversations = Array.from(conversationStore.conversations.values())
         .filter((conv: any) => conv.project_id === projectId)
-        .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+        .sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       
       if (projectConversations.length > 0) {
         const latestConversation = projectConversations[0]
@@ -424,14 +493,14 @@ export const useChatStore = defineStore('chat', () => {
   const initChat = async (projectId: string) => {
     console.log('🚀 CHAT STORE: Initializing chat for project:', projectId)
     
+    // Load conversations first to ensure store is initialized
+    await conversationStore.loadConversations()
+    
     // Initialize WebSocket connection (handled by project store)
     await projectStore.initWebSocket(projectId)
     
     // Setup message handlers
     setupMessageHandlers()
-    
-    // Load conversations
-    await conversationStore.loadConversations()
   }
   
   return {
