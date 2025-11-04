@@ -30,13 +30,32 @@ export const useChatStore = defineStore('chat', () => {
   const currentConversationMessages = computed(() => conversationStore.currentConversationMessages)
   const messageCount = computed(() => conversationStore.messageCount)
   const hasMessages = computed(() => conversationStore.hasMessages)
-  const isLoading = computed(() => isSendingMessage.value || isCreatingConversation.value || conversationStore.isProcessing)
+  const isLoading = computed(() => isSendingMessage.value || isCreatingConversation.value || conversationStore.isLoading)
   const isConnected = computed(() => projectStore.isConnected)
   const connectionStatus = computed(() => projectStore.connectionStatus)
   const processingConversations = computed(() => conversationStore.processingConversations)
   const isLoadingHistory = computed(() => conversationStore.isLoadingHistory)
   const isProcessing = computed(() => conversationStore.isProcessing)
-  const canChat = computed(() => !isLoading.value && !isLoadingHistory.value && isConnected.value)
+  
+  // ✅ NEW: Current conversation processing state (per-conversation loading)
+  const isCurrentConversationProcessing = computed(() => conversationStore.isCurrentConversationProcessing)
+  
+  const canChat = computed(() => {
+    // Can chat if NOT: sending message, creating conversation, current conversation processing
+    const isProcessingCurrent = isCurrentConversationProcessing.value
+    const isGlobalProcessing = isSendingMessage.value || isCreatingConversation.value
+    
+    console.log('💬 CHAT STORE: canChat check:', {
+      isConnected: isConnected.value,
+      isCurrentConversationProcessing: isProcessingCurrent,
+      isSendingMessage: isSendingMessage.value,
+      isCreatingConversation: isCreatingConversation.value,
+      globalProcessing: isGlobalProcessing,
+      finalResult: !isGlobalProcessing && !isProcessingCurrent && isConnected.value
+    })
+    
+    return !isGlobalProcessing && !isProcessingCurrent && isConnected.value
+  })
   const anyConversationProcessing = computed(() => conversationStore.anyConversationProcessing)
   
   // Chat-specific actions
@@ -217,6 +236,53 @@ export const useChatStore = defineStore('chat', () => {
       }
     })
     
+    // ✅ NEW: Conversation status updates (processing/completed/interrupted)
+    webSocketService.onMessage('conversation_status', (data: any) => {
+      console.log('💬 STATUS UPDATE: conversation_status received:', data)
+      if (data.conversation_id && data.status) {
+        const conv = conversationStore.conversations.value.get(data.conversation_id)
+        if (conv) {
+          // Update conversation status
+          const updatedConv = { ...conv, status: data.status }
+          conversationStore.conversations.value.set(data.conversation_id, updatedConv)
+          
+          console.log('💬 STATUS UPDATE: Conversation', data.conversation_id, 'status changed to:', data.status)
+          
+          // Remove from processing set if status is not 'processing'
+          if (data.status !== 'processing') {
+            conversationStore.removeFromProcessing(data.conversation_id)
+          }
+          // Add to processing set if status is 'processing'
+          else {
+            conversationStore.addToProcessing(data.conversation_id)
+          }
+        }
+      }
+    })
+    
+    webSocketService.onMessage('conversation_status_updated', (data: any) => {
+      console.log('💬 STATUS UPDATE: conversation_status_updated received:', data)
+      if (data.conversation_id && data.status) {
+        const conv = conversationStore.conversations.value.get(data.conversation_id)
+        if (conv) {
+          // Update conversation status
+          const updatedConv = { ...conv, status: data.status }
+          conversationStore.conversations.value.set(data.conversation_id, updatedConv)
+          
+          console.log('💬 STATUS UPDATE: Conversation', data.conversation_id, 'status updated to:', data.status)
+          
+          // Remove from processing set if status is not 'processing'
+          if (data.status !== 'processing') {
+            conversationStore.removeFromProcessing(data.conversation_id)
+          }
+          // Add to processing set if status is 'processing'
+          else {
+            conversationStore.addToProcessing(data.conversation_id)
+          }
+        }
+      }
+    })
+    
     // Error handling
     webSocketService.onMessage('error', (data: any) => {
       console.error('WebSocket error:', data)
@@ -355,6 +421,7 @@ export const useChatStore = defineStore('chat', () => {
     isProcessing,
     canChat,
     anyConversationProcessing,
+    isCurrentConversationProcessing,  // ✅ NEW: Individual conversation loading state
     
     // Chat-specific state
     streamingState,

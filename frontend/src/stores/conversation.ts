@@ -32,6 +32,26 @@ export const useConversationStore = defineStore('conversation', () => {
   
   const messageCount = computed(() => currentConversationMessages.value.length)
   const hasMessages = computed(() => messageCount.value > 0)
+  
+  // ✅ IMPROVED: Check if current conversation is processing (from conversation status)
+  const isCurrentConversationProcessing = computed(() => {
+    if (!currentConversationId.value) return false
+    
+    const currentConv = conversations.value.get(currentConversationId.value)
+    const isStatusProcessing = currentConv?.status === 'processing'
+    const isInProcessingSet = processingConversations.value.has(currentConversationId.value)
+    
+    console.log('💬 PROCESSING CHECK:', {
+      conversationId: currentConversationId.value,
+      conversationStatus: currentConv?.status,
+      isStatusProcessing,
+      isInProcessingSet,
+      finalResult: isStatusProcessing || isInProcessingSet
+    })
+    
+    return isStatusProcessing || isInProcessingSet
+  })
+  
   const isProcessing = computed(() => isLoading.value || isLoadingHistory.value)
   const anyConversationProcessing = computed(() => processingConversations.value.size > 0)
   
@@ -232,6 +252,7 @@ export const useConversationStore = defineStore('conversation', () => {
     currentConversationMessages,
     isProcessing,
     anyConversationProcessing,
+    isCurrentConversationProcessing,  // ✅ NEW: Individual conversation processing state
     
     // Actions
     selectConversation,
