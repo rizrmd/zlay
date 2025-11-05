@@ -45,6 +45,47 @@ export const useChatStore = defineStore('chat', () => {
   const setupMessageHandlers = () => {
     console.log('🚀 CHAT STORE: Setting up message handlers')
 
+    // Handle streaming conversation response (for page refresh restoration)
+    webSocketService.onMessage('streaming_conversation_loaded', (data: any) => {
+      console.log('🔄 STREAMING CONVERSATION LOADED RESPONSE:', data)
+      
+      if (data.conversation && data.messages) {
+        // Update conversation info if needed
+        if (data.conversation.id) {
+          conversationStore.conversations.set(data.conversation.id, data.conversation)
+        }
+        
+        // Clear existing messages and restore from streaming state
+        const conversationId = data.conversation.id
+        conversationStore.conversationMessages.set(conversationId, [])
+        
+        // Restore messages from backend streaming state
+        data.messages.forEach((message: any) => {
+          console.log('🔄 Restoring message:', {
+            id: message.id,
+            role: message.role,
+            contentLength: message.content?.length || 0,
+            contentPreview: message.content?.substring(0, 50) + (message.content?.length > 50 ? '...' : '')
+          })
+          conversationStore.addOrUpdateMessage(conversationId, message)
+        })
+        
+        // Select the conversation to show restored state
+        conversationStore.selectConversation(data.conversation.id)
+        
+        console.log('🔄 Restored streaming state for conversation:', {
+          conversationId,
+          messageCount: data.messages.length,
+          toolStatus: data.tool_status,
+          restoredMessages: data.messages.map((m: any) => ({
+            id: m.id,
+            role: m.role,
+            contentLength: m.content?.length || 0
+          }))
+        })
+      }
+    })
+
     // Assistant response streaming
     webSocketService.onMessage('assistant_response', (data: any) => {
       const conversationId = data.conversation_id || conversationStore.currentConversationId
@@ -298,9 +339,9 @@ export const useChatStore = defineStore('chat', () => {
     status: string,
     result?: any,
   ) => {
-    const messages = conversationStore.messages.value
+    const messages = conversationStore.messages
     const messageIndex = messages.findIndex(
-      (msg) =>
+      (msg: any) =>
         msg.id === messageIdOrConvId ||
         (msg.tool_calls && msg.tool_calls.some((tc: any) => tc.id === toolCallId)),
     )

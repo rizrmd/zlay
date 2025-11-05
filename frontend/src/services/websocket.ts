@@ -376,6 +376,7 @@ class WebSocketService {
 
   // 🔄 NEW: Load conversation including streaming state
   requestStreamingConversation(conversationId: string): void {
+    console.log('🔄 SENDING get_streaming_conversation request:', conversationId)
     this.sendMessage('get_streaming_conversation', {
       conversation_id: conversationId,
     })

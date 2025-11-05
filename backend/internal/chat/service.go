@@ -58,6 +58,9 @@ type ChatService interface {
 	// 🔄 NEW: Load streaming conversation (including partial messages)
 	LoadStreamingConversation(conversationID, userID string) (*ConversationDetails, error)
 	
+	// 🔄 NEW: Get only the active streaming message from memory
+	GetActiveStreamingMessage(conversationID, userID string) (*StreamState, error)
+	
 	// 🔄 NEW: Update conversation status
 	UpdateConversationStatus(conversationID, userID, status string) error
 }
@@ -441,6 +444,8 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 
 	// Start streaming response
 	streamStarted := false
+	tokenCount := 0
+	lastSentLength := 0
 
 	callback := func(chunk *llm.StreamingChunk) error {
 		// 🔥 DETAILED LOGGING: Log every chunk received from LLM
@@ -468,7 +473,7 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 			log.Printf("🎯 Chat service: Final chunk processed, broadcasting to WebSocket for conversation %s", req.ConversationID)
 		}
 
-		// 🔄 CRITICAL FIX: Update the streaming state stored in activeStreams map
+		// 🔄 CRITICAL: Update the streaming state stored in activeStreams map
 		if chunk.Content != "" {
 			s.streamingMutex.RLock()
 			if activeStream, exists := s.activeStreams[req.ConversationID]; exists {
@@ -478,13 +483,24 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 				streamState.CurrentContent = activeStream.CurrentContent
 				streamState.LastChunk = activeStream.LastChunk
 				
+				// Count tokens (rough estimation: 1 token ≈ 4 characters)
+				tokenCount += len(chunk.Content) / 4
+				if len(chunk.Content) % 4 != 0 {
+					tokenCount += 1
+				}
+				
 				// 🔥 DEBUG: Log content updates
-				log.Printf("🔥 DEBUG: Updated streaming content for %s: '%s' (total length: %d)", 
-					req.ConversationID, activeStream.CurrentContent, len(activeStream.CurrentContent))
+				log.Printf("🔥 DEBUG: Updated streaming content for %s: '%s' (total length: %d, token count: %d)", 
+					req.ConversationID, activeStream.CurrentContent, len(activeStream.CurrentContent), tokenCount)
 			} else {
 				// Fallback: update local state if not in map
 				streamState.CurrentContent += chunk.Content
 				streamState.LastChunk = time.Now()
+				// Count tokens for fallback
+				tokenCount += len(chunk.Content) / 4
+				if len(chunk.Content) % 4 != 0 {
+					tokenCount += 1
+				}
 				log.Printf("🔥 DEBUG: Stream state not found in map, updated local state")
 			}
 			s.streamingMutex.RUnlock()  // 🔥 FIX: Use RUnlock() for RLock()
@@ -526,65 +542,102 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 			assistantMsg.CreatedAt = time.Now()
 		}
 
-		// 🔥 DETAILED LOGGING: Create WebSocket response message
-		log.Printf("📨 CREATING WEBSOCKET RESPONSE MESSAGE:")
-		log.Printf("   • Conversation ID: %s", req.ConversationID)
-		log.Printf("   • Content: \"%s\"", chunk.Content)
-		log.Printf("   • Content Length: %d", len(chunk.Content))
-		log.Printf("   • Message ID: %s", assistantMsg.ID)
-		log.Printf("   • Done: %t", chunk.Done)
-		log.Printf("   • Tokens Used: %d", tokensUsed)
-		log.Printf("   • Tokens Remaining: %d", tokensRemaining)
+		// 🔄 NEW: Determine if we should send accumulated content (every 30 tokens or on completion)
+		// Send when: first chunk, every 30 tokens, OR when remaining tokens would never trigger another batch
+	shouldSend := chunk.Done || (tokenCount > 0 && tokenCount % 30 == 0) || (!streamStarted && chunk.Content != "")
+		
+		if shouldSend {
+			// Get accumulated content from stream state
+			s.streamingMutex.RLock()
+			var accumulatedContent string
+			if activeStream, exists := s.activeStreams[req.ConversationID]; exists {
+				accumulatedContent = activeStream.CurrentContent
+			} else {
+				accumulatedContent = streamState.CurrentContent
+			}
+			s.streamingMutex.RUnlock()
 
-		response := &msglib.WebSocketMessage{
-			Type: "assistant_response",
-			Data: gin.H{
-				"conversation_id": req.ConversationID,
-				"content":         chunk.Content,
-				"message_id":      assistantMsg.ID,
-				"timestamp":       time.Now().UnixMilli(),
-				"done":            chunk.Done,
-				"tool_calls":      chunk.ToolCalls,
-			},
-			Timestamp:       time.Now().UnixMilli(),
-			TokensUsed:     tokensUsed,
-			TokensLimit:    tokensLimit,
-			TokensRemaining: tokensRemaining,
-		}
+			// Calculate how much new content we're sending
+			newContent := ""
+			if len(accumulatedContent) > lastSentLength {
+				newContent = accumulatedContent[lastSentLength:]
+				lastSentLength = len(accumulatedContent)
+			}
 
-		log.Printf("📨 WEBSOCKET RESPONSE CREATED:")
-		log.Printf("   • Type: %s", response.Type)
-		log.Printf("   • Timestamp: %d", response.Timestamp)
-		log.Printf("   • Data Keys: %v", getMapKeys(response.Data.(gin.H)))
-
-		// For the first chunk, include the message structure
-		if !streamStarted && chunk.Content != "" {
-			response.Data.(gin.H)["message"] = assistantMsg
-			response.Data.(gin.H)["done"] = false
-			streamStarted = true
-			log.Printf("📡 BROADCASTING FIRST CHUNK TO WEBSOCKET:")
-			log.Printf("   • Content: '%s'", chunk.Content)
+			// 🔥 DETAILED LOGGING: Create WebSocket response message with accumulated content
+			log.Printf("📨 CREATING WEBSOCKET RESPONSE MESSAGE:")
+			log.Printf("   • Conversation ID: %s", req.ConversationID)
+			log.Printf("   • Should Send: %t", shouldSend)
+			log.Printf("   • Token Count: %d", tokenCount)
+			log.Printf("   • Accumulated Content: \"%s\"", accumulatedContent)
+			log.Printf("   • New Content Since Last Send: \"%s\"", newContent)
+			log.Printf("   • New Content Length: %d", len(newContent))
+			log.Printf("   • Message ID: %s", assistantMsg.ID)
+			log.Printf("   • Done: %t", chunk.Done)
 			log.Printf("   • Tokens Used: %d", tokensUsed)
 			log.Printf("   • Tokens Remaining: %d", tokensRemaining)
-		}
 
-		log.Printf("📡 BROADCASTING CHUNK TO WEBSOCKET:")
-		log.Printf("   • Content: '%s'", chunk.Content)
-		log.Printf("   • Content Length: %d", len(chunk.Content))
-		log.Printf("   • Done: %t", chunk.Done)
-		log.Printf("   • Tokens Used: %d", tokensUsed)
-			
-		// 🔄 NEW: Send only to active connections for this stream
-		log.Printf("🎯 SENDING TO ACTIVE CONNECTIONS FOR STREAM %s", req.ConversationID)
-		if err := s.SendStreamToActiveConnections(req.ConversationID, &response); err != nil {
-			log.Printf("❌ ERROR SENDING STREAM TO ACTIVE CONNECTIONS: %v", err)
-			log.Printf("🔄 FALLING BACK TO PROJECT BROADCAST...")
-			// Fallback to project broadcast if targeted send fails
-			s.hub.BroadcastToProject(req.ProjectID, &response)
-			log.Printf("✅ FALLBACK PROJECT BROADCAST COMPLETED")
+			response := &msglib.WebSocketMessage{
+				Type: "assistant_response",
+				Data: gin.H{
+					"conversation_id": req.ConversationID,
+					"content":         accumulatedContent, // 🔄 Send accumulated content from stream state
+					"message_id":      assistantMsg.ID,
+					"timestamp":       time.Now().UnixMilli(),
+					"done":            chunk.Done,
+					"tool_calls":      chunk.ToolCalls,
+				},
+				Timestamp:       time.Now().UnixMilli(),
+				TokensUsed:     tokensUsed,
+				TokensLimit:    tokensLimit,
+				TokensRemaining: tokensRemaining,
+			}
+
+			log.Printf("📨 WEBSOCKET RESPONSE CREATED:")
+			log.Printf("   • Type: %s", response.Type)
+			log.Printf("   • Timestamp: %d", response.Timestamp)
+			log.Printf("   • Data Keys: %v", getMapKeys(response.Data.(gin.H)))
+
+			// For first chunk, include the message structure
+			if !streamStarted && chunk.Content != "" {
+				response.Data.(gin.H)["message"] = assistantMsg
+				response.Data.(gin.H)["done"] = false
+				streamStarted = true
+				log.Printf("📡 BROADCASTING FIRST ACCUMULATED CHUNK TO WEBSOCKET:")
+				log.Printf("   • Accumulated Content: '%s'", accumulatedContent)
+				log.Printf("   • Tokens Used: %d", tokensUsed)
+				log.Printf("   • Tokens Remaining: %d", tokensRemaining)
+			}
+
+			if chunk.Done {
+				log.Printf("📡 BROADCASTING FINAL ACCUMULATED CHUNK TO WEBSOCKET:")
+				log.Printf("   • Final Accumulated Content: '%s'", accumulatedContent)
+				log.Printf("   • Content Length: %d", len(accumulatedContent))
+				log.Printf("   • Done: %t", chunk.Done)
+				log.Printf("   • Tokens Used: %d", tokensUsed)
+			} else if tokenCount % 30 == 0 {
+				log.Printf("📡 BROADCASTING 30-TOKEN ACCUMULATED CHUNK TO WEBSOCKET:")
+				log.Printf("   • Accumulated Content: '%s'", accumulatedContent)
+				log.Printf("   • Content Length: %d", len(accumulatedContent))
+				log.Printf("   • Token Count: %d", tokenCount)
+				log.Printf("   • Tokens Used: %d", tokensUsed)
+			}
+				
+			// 🔄 NEW: Send only to active connections for this stream
+			log.Printf("🎯 SENDING ACCUMULATED CONTENT TO ACTIVE CONNECTIONS FOR STREAM %s", req.ConversationID)
+			if err := s.SendStreamToActiveConnections(req.ConversationID, &response); err != nil {
+				log.Printf("❌ ERROR SENDING STREAM TO ACTIVE CONNECTIONS: %v", err)
+				log.Printf("🔄 FALLING BACK TO PROJECT BROADCAST...")
+				// Fallback to project broadcast if targeted send fails
+				s.hub.BroadcastToProject(req.ProjectID, &response)
+				log.Printf("✅ FALLBACK PROJECT BROADCAST COMPLETED")
+			} else {
+				log.Printf("✅ ACCUMULATED STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY")
+			}
 		} else {
-			log.Printf("✅ STREAM SENT TO ACTIVE CONNECTIONS SUCCESSFULLY")
+			log.Printf("⏸️ NOT SENDING - Token count: %d (next send at %d)", tokenCount, ((tokenCount/30)+1)*30)
 		}
+		
 		return nil
 	}
 
@@ -650,11 +703,22 @@ func (s *chatService) streamLLMResponse(ctx context.Context, req *ChatRequest, m
 		log.Printf("✅ ASSISTANT MESSAGE SAVED SUCCESSFULLY")
 	}
 
-	// 🔄 NEW: Clear streaming state after successful completion
+	// 🔄 NEW: Mark streaming as completed but keep it available for frontend
 	s.streamingMutex.Lock()
-	delete(s.activeStreams, req.ConversationID)
+	if streamState, exists := s.activeStreams[req.ConversationID]; exists {
+		streamState.IsActive = false
+		log.Printf("🔄 MARKED STREAM AS COMPLETED BUT KEEPING IN MEMORY: %s", req.ConversationID)
+		
+		// Schedule cleanup after 30 seconds
+		go func(conversationID string) {
+			time.Sleep(30 * time.Second)
+			s.streamingMutex.Lock()
+			delete(s.activeStreams, conversationID)
+			s.streamingMutex.Unlock()
+			log.Printf("🧹 CLEANED UP COMPLETED STREAM AFTER 30s: %s", conversationID)
+		}(req.ConversationID)
+	}
 	s.streamingMutex.Unlock()
-	log.Printf("🔄 CLEARED STREAMING STATE FOR COMPLETED CONVERSATION: %s", req.ConversationID)
 	
 	// Update conversation status to completed when streaming finishes
 	log.Printf("📊 UPDATING CONVERSATION STATUS TO 'completed'...")
@@ -775,10 +839,19 @@ func (s *chatService) broadcastToolStatus(projectID, conversationID, messageID s
 
 // 🔄 NEW: LoadStreamingConversation loads conversation including streaming state
 func (s *chatService) LoadStreamingConversation(conversationID, userID string) (*ConversationDetails, error) {
+	log.Printf("🔥 DEBUG: LoadStreamingConversation called for conv: %s, user: %s", conversationID, userID)
+	
 	// First, get the complete conversation from database (this gets all saved history)
 	dbDetails, err := s.GetConversation(conversationID, userID)
 	if err != nil {
+		log.Printf("🔥 ERROR: Failed to get conversation from database: %v", err)
 		return nil, fmt.Errorf("failed to get conversation from database: %w", err)
+	}
+	
+	log.Printf("🔥 DEBUG: Loaded %d messages from database", len(dbDetails.Messages))
+	for i, msg := range dbDetails.Messages {
+		log.Printf("🔥 Database message %d: %s - '%s' (length: %d)", 
+			i, msg.Role, msg.Content, len(msg.Content))
 	}
 	
 	// Then, check if there's an active streaming state
@@ -786,8 +859,12 @@ func (s *chatService) LoadStreamingConversation(conversationID, userID string) (
 	streamState, hasStream := s.activeStreams[conversationID]
 	s.streamingMutex.RUnlock()
 	
+	var contentLength int
+	if hasStream {
+		contentLength = len(streamState.CurrentContent)
+	}
 	log.Printf("🔥 DEBUG: Checking streaming state for %s: hasStream=%v, content_length=%d", 
-		conversationID, hasStream, len(streamState.CurrentContent))
+		conversationID, hasStream, contentLength)
 	
 	if hasStream && streamState.IsActive {
 		log.Printf("Loading streaming conversation %s with partial content: %s", conversationID, streamState.CurrentContent)
@@ -1214,4 +1291,68 @@ func (s *chatService) SendStreamToActiveConnections(conversationID string, messa
 	
 	log.Printf("✅ SendStreamToActiveConnections COMPLETED")
 	return nil
+}
+
+// GetActiveStreamingMessage returns only the active streaming message from memory
+func (s *chatService) GetActiveStreamingMessage(conversationID, userID string) (*StreamState, error) {
+	s.streamingMutex.RLock()
+	streamState, exists := s.activeStreams[conversationID]
+	
+	// Log all active streams in memory (no filtering)
+	log.Printf("🔍 DEBUG: All active streams in memory during lookup for %s:", conversationID)
+	if len(s.activeStreams) == 0 {
+		log.Printf("   • No active streams found in memory")
+	} else {
+		for convID, state := range s.activeStreams {
+			log.Printf("   • Stream %s:", convID)
+			log.Printf("     - ConversationID: %s", state.ConversationID)
+			log.Printf("     - UserID: %s", state.UserID)
+			log.Printf("     - ProjectID: %s", state.ProjectID)
+			log.Printf("     - MessageID: %s", state.MessageID)
+			log.Printf("     - CurrentContent Length: %d", len(state.CurrentContent))
+			log.Printf("     - StartTime: %s", state.StartTime.Format(time.RFC3339))
+			log.Printf("     - LastChunk: %s", state.LastChunk.Format(time.RFC3339))
+			log.Printf("     - IsActive: %t", state.IsActive)
+			log.Printf("     - ActiveConnectionIDs: %d", len(state.ActiveConnectionIDs))
+			log.Printf("     - AllConnectionIDs: %d", len(state.AllConnectionIDs))
+		}
+	}
+	
+	s.streamingMutex.RUnlock()
+	
+	log.Printf("🔍 DEBUG: StreamState lookup for conversation %s:", conversationID)
+	log.Printf("   • Exists: %t", exists)
+	if exists {
+		log.Printf("   • Requested StreamState Data:")
+		log.Printf("     - ConversationID: %s", streamState.ConversationID)
+		log.Printf("     - UserID: %s", streamState.UserID)
+		log.Printf("     - ProjectID: %s", streamState.ProjectID)
+		log.Printf("     - MessageID: %s", streamState.MessageID)
+		log.Printf("     - CurrentContent Length: %d", len(streamState.CurrentContent))
+		log.Printf("     - StartTime: %s", streamState.StartTime.Format(time.RFC3339))
+		log.Printf("     - LastChunk: %s", streamState.LastChunk.Format(time.RFC3339))
+		log.Printf("     - IsActive: %t", streamState.IsActive)
+		log.Printf("     - ActiveConnectionIDs: %v", streamState.ActiveConnectionIDs)
+		log.Printf("     - AllConnectionIDs: %v", streamState.AllConnectionIDs)
+	}
+	
+	if !exists {
+		return nil, fmt.Errorf("no active stream for conversation: %s", conversationID)
+	}
+	
+	// Verify the stream belongs to the requesting user
+	if streamState.UserID != userID {
+		return nil, fmt.Errorf("stream does not belong to user: %s", userID)
+	}
+	
+	// Return stream whether active or completed (but don't return if it was explicitly cleared)
+	status := "processing"
+	if !streamState.IsActive {
+		status = "completed"
+	}
+	
+	log.Printf("🔄 Returning streaming message for conversation %s (status: %s, content length: %d)", 
+		conversationID, status, len(streamState.CurrentContent))
+	
+	return streamState, nil
 }

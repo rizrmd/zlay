@@ -270,7 +270,7 @@ export const useConversationStore = defineStore('conversation', () => {
     const existingIndex = convMessages.findIndex((msg) => msg.id === message.id)
 
     if (existingIndex !== -1) {
-      // Update existing message (for streaming) - ACCUMULATE content!
+      // Update existing message (for streaming) - REPLACE content since backend sends accumulated
       const existingMessage = convMessages[existingIndex]
 
       // console.log('📝 EXISTING MESSAGE FOUND:', {
@@ -279,25 +279,25 @@ export const useConversationStore = defineStore('conversation', () => {
       //   existingLength: existingMessage.content?.length || 0,
       //   newContent: `"${message.content}"`,
       //   newLength: message.content?.length || 0,
-      //   willAccumulate: !!message.content,
+      //   willReplace: !!message.content,
       // })
 
       const updatedMessage = {
         ...existingMessage,
         // Only update fields that are provided
         ...(message.content && {
-          content: existingMessage.content + message.content, // ✅ ACCUMULATE content
+          content: message.content, // 🔄 REPLACE content since backend sends accumulated
         }),
         ...(message.metadata && { metadata: { ...existingMessage.metadata, ...message.metadata } }),
         ...(message.tool_calls && { tool_calls: message.tool_calls }),
         ...(message.created_at && { created_at: message.created_at }),
       }
 
-      // console.log('💬 CONVERSATION STORE: Streaming update:', {
+      // console.log('💬 CONVERSATION STORE: Streaming replacement:', {
       //   messageId: message.id,
       //   oldContent: `"${existingMessage.content}"`,
       //   newContent: `"${message.content}"`,
-      //   combinedContent: `"${updatedMessage.content}"`,
+      //   replacedContent: `"${updatedMessage.content}"`,
       //   contentLength: updatedMessage.content.length,
       // })
 
@@ -320,15 +320,13 @@ export const useConversationStore = defineStore('conversation', () => {
         const finalMessages = conversationMessages.value.get(conversationId) || []
         messages.value = finalMessages
         console.log('💬 CONVERSATION STORE: UI messages updated, count:', finalMessages.length)
-        console.log(
-          '💬 FINAL UI MESSAGES:',
-          finalMessages.map((m) => ({
-            id: m.id,
-            role: m.role,
-            content: `"${m.content?.substring(0, 30)}${m.content?.length > 30 ? '...' : ''}"`,
-            length: m.content?.length || 0,
-          })),
-        )
+        console.log('💬 FINAL UI MESSAGES (REPLACE MODE):', finalMessages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: `"${m.content?.substring(0, 30)}${m.content?.length > 30 ? '...' : ''}"`,
+          length: m.content?.length || 0,
+          replaceMode: true,
+        })))
       } else {
         console.error('❌ conversationMessages is undefined when updating UI')
       }

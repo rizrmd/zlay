@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"zlay-backend/internal/chat"
 	"zlay-backend/internal/db"
 	"zlay-backend/internal/messages"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -270,6 +271,11 @@ func (h *Handler) authenticateToken(token string) (string, string, error) {
 // HandleMessage processes incoming WebSocket messages
 func (h *Handler) HandleMessage(conn *Connection, message *WebSocketMessage) {
 	log.Printf("Received WebSocket message: type='%s', data=%+v", message.Type, message.Data)
+	
+	// 🔥 DEBUG: Check message type for debugging
+	if message.Type == "get_streaming_conversation" {
+		log.Printf("🔥 DEBUG: Found get_streaming_conversation message!")
+	}
 	
 	switch message.Type {
 	case "connection_established":
@@ -900,34 +906,79 @@ func (h *Handler) handleGetStreamingConversation(conn *Connection, message *WebS
 	}
 
 	log.Printf("Getting streaming conversation: %s for user: %s", conversationID, userID)
-
-	// 🔄 NEW: Load conversation with streaming state
+	
+	// 🔍 DEBUG: Log all active streams for debugging
 	if h.chatService != nil {
-		if details, err := h.chatService.LoadStreamingConversation(conversationID, userID); err != nil {
-			log.Printf("Failed to load streaming conversation: %v", err)
+		allStreams := h.chatService.GetAllActiveStreams()
+		log.Printf("🔍 DEBUG: All active streams in memory:")
+		if len(allStreams) == 0 {
+			log.Printf("   • No active streams found")
+		} else {
+			for convID, stream := range allStreams {
+				log.Printf("   • Conversation: %s", convID)
+				log.Printf("     - User ID: %s", stream.UserID)
+				log.Printf("     - Message ID: %s", stream.MessageID)
+				log.Printf("     - Content Length: %d", len(stream.CurrentContent))
+				log.Printf("     - Is Active: %t", stream.IsActive)
+				log.Printf("     - Active Connections: %d", len(stream.ActiveConnectionIDs))
+				log.Printf("     - Started: %s", stream.StartTime.Format(time.RFC3339))
+			}
+		}
+	}
+
+	// 🔄 NEW: Get only the active streaming message from memory
+	if h.chatService != nil {
+		if streamState, err := h.chatService.GetActiveStreamingMessage(conversationID, userID); err != nil {
+			log.Printf("No active streaming message for conversation %s: %v", conversationID, err)
 			
-			// Send error response
+			// Send response indicating no stream found
 			h.hub.SendToConnection(conn, WebSocketMessage{
-				Type: "error",
+				Type: "get_streaming_conversation",
 				Data: gin.H{
-					"error": "Failed to load conversation: " + err.Error(),
-					"code":  "STREAMING_CONVERSATION_ERROR",
+					"conversation_id": conversationID,
+					"has_active_stream": false,
+					"stream_status": "not_found",
+					"message": "No streaming message found",
 				},
 				Timestamp: time.Now().UnixMilli(),
 			})
 			return
 		} else {
-			// Send streaming conversation response
+			// Determine the actual stream status
+			streamStatus := "processing"
+			if !streamState.IsActive {
+				streamStatus = "completed"
+			}
+			
+			// Create a message object from the streaming state
+			streamingMessage := gin.H{
+				"id":             streamState.MessageID,
+				"conversation_id": streamState.ConversationID,
+				"role":          "assistant",
+				"content":       streamState.CurrentContent,
+				"status":        streamStatus,
+				"created_at":    streamState.StartTime.Format(time.RFC3339),
+				"updated_at":    streamState.LastChunk.Format(time.RFC3339),
+			}
+			
+			// Send only the streaming message
 			h.hub.SendToConnection(conn, WebSocketMessage{
-				Type: "streaming_conversation_loaded",
+				Type: "get_streaming_conversation",
 				Data: gin.H{
-					"conversation": details.Conversation,
-					"messages":     details.Messages,
-					"tool_status":   details.ToolStatus,
+					"conversation_id":    conversationID,
+					"has_active_stream":  true,
+					"streaming_message":  streamingMessage,
+					"stream_status":      streamStatus,
+					"active_connections": len(streamState.ActiveConnectionIDs),
 				},
 				Timestamp: time.Now().UnixMilli(),
 			})
-			log.Printf("Successfully loaded streaming conversation: %s with %d messages", conversationID, len(details.Messages))
+			log.Printf("🔄 SENT ACTIVE STREAMING MESSAGE:")
+			log.Printf("   • Conversation ID: %s", conversationID)
+			log.Printf("   • Message ID: %s", streamState.MessageID)
+			log.Printf("   • Content Length: %d", len(streamState.CurrentContent))
+			log.Printf("   • Status: processing")
+			log.Printf("   • Active Connections: %d", len(streamState.ActiveConnectionIDs))
 		}
 	} else {
 		log.Printf("Chat service not initialized for streaming conversation load: %s", conversationID)

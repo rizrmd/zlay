@@ -38,6 +38,7 @@ import { ref, onMounted, onUnmounted, computed, watch, nextTick, onBeforeUnmount
 import { useRoute, useRouter } from 'vue-router'
 import { useChatStore } from '@/stores/chat'
 import { useProjectStore } from '@/stores/project'
+import webSocketService from '@/services/websocket'
 import ConnectionStatus from '@/components/chat/ConnectionStatus.vue'
 import MobileMenuToggle from '@/components/chat/MobileMenuToggle.vue'
 import ChatSidebar from '@/components/chat/ChatSidebar.vue'
@@ -188,37 +189,64 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 // Watch for connection changes to load conversations
-watch(isConnected, (connected) => {
-  console.log('🏗️ PROJECT STORE: isConnected changed to:', connected)
-  console.log('🏗️ PROJECT STORE: Current state:', {
-    conversationsSize: chatStore.conversations.size,
-    isLoadingConversations: chatStore.isLoadingConversations
-  })
-  
-  if (connected) {
-    console.log('🏗️ PROJECT STORE: WebSocket connected, evaluating conversation loading...')
-    
-    // Only load if conversations aren't already loading AND not already loaded
-    if (!chatStore.isLoadingConversations && chatStore.conversations.size === 0) {
-      console.log('🏗️ PROJECT STORE: Loading conversations (conditions met)')
-      chatStore.loadConversations().then(() => {
-        if (currentConversationId.value) {
-          setTimeout(() => {
-            chatMainRef.value?.messagesContainer?.scrollTo({
-              top: chatMainRef.value?.messagesContainer?.scrollHeight || 0,
-              behavior: 'smooth',
-            })
-          }, 200)
-        }
-      })
-    } else {
-      console.log('🏗️ PROJECT STORE: Skipping conversation load:', {
-        isLoadingConversations: chatStore.isLoadingConversations,
-        conversationsSize: chatStore.conversations.size
-      })
-    }
-  }
-})
+// watch(isConnected, (connected) => {
+//   console.log('🏗️ PROJECT STORE: isConnected changed to:', connected)
+//   console.log('🏗️ PROJECT STORE: Current state:', {
+//     conversationsSize: chatStore.conversations.size,
+//     isLoadingConversations: chatStore.isLoadingConversations,
+//   })
+
+//   if (connected) {
+//     console.log('🏗️ PROJECT STORE: WebSocket connected, evaluating conversation loading...')
+
+//     // 🔄 CRITICAL FIX: Get conversation ID from route, not currentConversationId.value
+//     const routeConversationId = route.params.conversation_id as string
+//     console.log('🏗️ PROJECT STORE: Route conversation ID:', routeConversationId)
+//     webSocketService.requestStreamingConversation(routeConversationId)
+// console.log('🏗️ PROJECT STORE: currentConversationId.value:', currentConversationId.value)
+
+// // Only load if conversations aren't already loading AND not already loaded
+// if (!chatStore.isLoadingConversations && chatStore.conversations.size === 0) {
+//   console.log('🏗️ PROJECT STORE: Loading conversations (conditions met)')
+//   chatStore.loadConversations().then(() => {
+//     // After loading conversations, check if current conversation is processing
+//     console.log('🏗️ PROJECT STORE: Load Conv for id: ', routeConversationId)
+//     if (routeConversationId) {
+//       const conversation = chatStore.conversations.get(routeConversationId)
+//       const isProcessing = conversation?.status === 'processing'
+
+//       console.log(
+//         '🏗️ PROJECT STORE: After loading conversations, checking current conversation:',
+//         {
+//           conversationId: routeConversationId,
+//           status: conversation?.status,
+//           isProcessing,
+//         },
+//       )
+
+//       if (isProcessing) {
+//         // Request streaming state for processing conversation (page refresh case)
+//         console.log('🔄 Requesting streaming state for current processing conversation:', routeConversationId)
+//         webSocketService.requestStreamingConversation(routeConversationId)
+//       }
+
+//       setTimeout(() => {
+//         chatMainRef.value?.messagesContainer?.scrollTo({
+//           top: chatMainRef.value?.messagesContainer?.scrollHeight || 0,
+//           behavior: 'smooth',
+//         })
+//       }, 200)
+//     }
+//   })
+// }
+// else {
+//   console.log('🏗️ PROJECT STORE: Skipping conversation load:', {
+//     isLoadingConversations: chatStore.isLoadingConversations,
+//     conversationsSize: chatStore.conversations.size,
+//   })
+// }
+//   }
+// })
 
 // Watch for route changes to handle conversation_id updates
 watch(
@@ -240,24 +268,26 @@ watch(
           if (!chatStore.isLoadingConversations && chatStore.conversations.size === 0) {
             console.log('💬 CHAT STORE: Loading conversations for route change')
             chatStore.loadConversations().then(() => {
-              // Check if conversation is currently processing before reloading messages
+              // After loading conversations, check if current one is processing
               const conversation = chatStore.conversations.get(newConversationId)
               const isProcessing = conversation?.status === 'processing'
 
-              console.log('💬 CHAT STORE: Conversation status check:', {
-                conversationId: newConversationId,
-                status: conversation?.status,
-                isProcessing,
-                currentMessagesCount: chatStore.messages.length,
-                willSkipReload: isProcessing,
-              })
+              console.log(
+                '💬 CHAT STORE: After loading conversations, checking processing state22:',
+                {
+                  conversationId: newConversationId,
+                  status: conversation?.status,
+                  isProcessing,
+                },
+              )
 
               if (isProcessing) {
-                // Skip reloading messages for processing conversations to preserve streaming state
+                // For processing conversations, request streaming state instead of database state
                 console.log(
-                  '💬 CHAT STORE: Skipping message reload for processing conversation, just selecting',
+                  '🔄 Requesting streaming state for processing conversation:',
+                  newConversationId,
                 )
-                chatStore.selectConversation(newConversationId)
+                // webSocketService.requestStreamingConversation(newConversationId)
               } else {
                 // Load messages for completed conversations
                 console.log('💬 CHAT STORE: Loading conversation messages:', newConversationId)
@@ -268,20 +298,26 @@ watch(
             })
           } else {
             // Conversations already loaded, just proceed with selection
-            console.log('💬 CHAT STORE: Conversations already loaded, proceeding with selection', {
-              conversationsSize: chatStore.conversations.size,
-              isLoadingConversations: chatStore.isLoadingConversations
-            })
-            const conversation = chatStore.conversations.get(newConversationId)
-            const isProcessing = conversation?.status === 'processing'
+            console.log(
+              '💬 CHAT STORE: Conversations already loaded, proceeding with selection222',
+              {
+                conversationsSize: chatStore.conversations.size,
+                isLoadingConversations: chatStore.isLoadingConversations,
+              },
+            )
+            // const conversation = chatStore.conversations.get(newConversationId)
+            // const isProcessing = conversation?.status === 'processing'
+            // console.log('💬 CHAT STORE: processing state: ', conversation)
 
-            if (isProcessing) {
+            // if (isProcessing) {
+            //   chatStore.selectConversation(newConversationId)
+            // } else {
+            webSocketService.requestStreamingConversation(newConversationId) // Check streaming connection
+            // Load conversation
+            chatStore.loadConversation(newConversationId).then(() => {
               chatStore.selectConversation(newConversationId)
-            } else {
-              chatStore.loadConversation(newConversationId).then(() => {
-                chatStore.selectConversation(newConversationId)
-              })
-            }
+            })
+            // }
           }
         } else {
           console.log('💬 CHAT STORE: Waiting for connection, retrying in 100ms...')

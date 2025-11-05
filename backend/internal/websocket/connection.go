@@ -125,6 +125,11 @@ func (c *Connection) ReadPump() {
 			if c.handler != nil {
 				c.handler.handleDeleteConversation(c, &message)
 			}
+		case "get_streaming_conversation":
+			if c.handler != nil {
+				// c.handleGetStreamingConversation(conn, message)
+				c.handler.handleGetStreamingConversation(c, &message)
+			}
 		default:
 			// For unhandled message types, just log but don't error
 			log.Printf("Received message type: %s (no handler yet)", message.Type)
